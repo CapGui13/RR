@@ -209,10 +209,13 @@
             scrollbar-color: #888 #1a1a1a;
         }
 
-        /* Scroll lock sans position:fixed — évite le saut iOS */
+        /* Scroll lock — bloque le fond sans saut de position */
         body.scroll-locked {
             overflow: hidden;
             touch-action: none;
+            /* position:fixed + top négatif = empêche iOS de scroller le fond */
+            position: fixed;
+            width: 100%;
         }
 
         /* Scrollable containers inside modals: allow vertical pan */
@@ -386,7 +389,7 @@
         }
 
         .logo-subtitle-city {
-            display: none;
+            display: none; /* Caché sur desktop — affiché uniquement via @media (max-width: 768px) */
         }
 
         .logo-right img {
@@ -857,8 +860,8 @@
             position: relative;
             transform: scale(0.75);
             opacity: 0;
-            transition: transform 0.55s cubic-bezier(0.34, 1.56, 0.64, 1),
-                        opacity 0.45s ease;
+            transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1),
+                        opacity 0.35s ease;
         }
 
         .dropdown-overlay.active .dropdown-modal {
@@ -1110,8 +1113,8 @@
             box-shadow: 0 10px 40px rgba(0,0,0,0.3);
             transform: scale(0.75);
             opacity: 0;
-            transition: transform 0.55s cubic-bezier(0.34, 1.56, 0.64, 1),
-                        opacity 0.45s ease;
+            transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1),
+                        opacity 0.35s ease;
             touch-action: pan-y;
         }
 
@@ -2643,23 +2646,7 @@
             font-weight: 700;
             color: #1a4d2e !important;
         }
-        .scroll-progress {
-            position: fixed;
-            top: 0;
-            left: 0;
-            height: 3px;
-            width: 0%;
-            background: linear-gradient(90deg, #1a4d2e, #d4af37, #667eea);
-            z-index: 9999;
-            transition: width 0.1s linear;
-            border-radius: 0 2px 2px 0;
-            box-shadow: 0 0 8px rgba(212, 175, 55, 0.5);
-            display: none;
-        }
 
-        @media (max-width: 768px) {
-            .scroll-progress { display: none; }
-        }
 
         /* === BOUTON RETOUR EN HAUT — mobile uniquement === */
         .back-to-top {
@@ -2790,16 +2777,13 @@
             img.src = 'https://i.imgur.com/SF7rXmN.jpeg';
         })();
     </script>
-    <!-- BARRE DE PROGRESSION -->
-    <div class="scroll-progress" id="scrollProgress"></div>
-
     <!-- BOUTON RETOUR EN HAUT -->
     <button class="back-to-top" id="backToTop" aria-label="Retour en haut">↑</button>
     <!-- POPUP ACCUEIL -->
     <div class="popup-overlay" id="welcomePopup" style="display:none;" onclick="if(event.target===this) closePopup()">
         <div style="position:relative; max-width: min(600px, 92vw); display:inline-block; background:transparent; line-height:0; border-radius:12px; overflow:hidden; box-shadow: 0 20px 60px rgba(0,0,0,0.5); animation: popIn 1s ease-out 0.15s both;">
             <button class="popup-close" onclick="closePopup()" aria-label="Fermer" style="position:absolute; background: rgba(0,0,0,0.6); top: 0.6rem; right: 0.6rem; z-index: 10;">✕</button>
-            <img src="https://i.imgur.com/ThYhylI.jpeg" alt="Marathon du 1er Mai - Bridge Club Roy René" loading="lazy" style="width:100%; display:block;">
+            <!-- Image chargée dynamiquement uniquement si le popup est activé -->
         </div>
     </div>
 
@@ -3055,6 +3039,7 @@
     </nav>
     </header>
 
+
     <main class="main-container">
         <article class="section-card">
             <button class="section-card-toggle" aria-expanded="false" aria-controls="card-content-cours">
@@ -3198,8 +3183,8 @@
                 { date: "18/02", passed: true  },
                 { date: "11/03", passed: true  },
                 { date: "25/03", passed: true  },
-                { date: "08/04", passed: false, prochain: true },
-                { date: "22/04", passed: false },
+                { date: "08/04", passed: true  },
+                { date: "22/04", passed: false, prochain: true },
                 { date: "06/05", passed: false },
                 { date: "13/05", passed: false },
                 { date: "20/06", passed: false, finale: true  },
@@ -3274,7 +3259,8 @@
     <script>
         // === STORAGE KEY ===
         const STORAGE_KEY = 'bridge_gallery_photos';
-        const ADMIN_PASSWORD = 'bridge2025'; // Changez ce mot de passe !
+        // Mot de passe hashé (SHA-256 de "bridge2025") — ne jamais stocker le mot de passe en clair
+        const ADMIN_PASSWORD_HASH = '7c8ef069e38d3e86e2f60ea4ba748c0fe0cef9b7f71b78b65d11c53bb72c77b3';
 
         // === GALLERY DATA ===
         let galleryImages = [];
@@ -3297,7 +3283,11 @@
 
         // Sauvegarder les photos dans le stockage
         function savePhotosToStorage() {
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(galleryImages));
+            try {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(galleryImages));
+            } catch(e) {
+                showSuccessMessage('⚠️ Stockage plein — certaines photos ne peuvent pas être sauvegardées.');
+            }
         }
 
         let currentLightboxIndex = 0;
@@ -3310,9 +3300,14 @@
             toggleOverlay('adminPanel');
         }
 
-        function loginAdmin() {
+        async function loginAdmin() {
             const password = document.getElementById('adminPassword').value;
-            if (password === ADMIN_PASSWORD) {
+            const encoder = new TextEncoder();
+            const data = encoder.encode(password);
+            const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+            const hashArray = Array.from(new Uint8Array(hashBuffer));
+            const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+            if (hashHex === ADMIN_PASSWORD_HASH) {
                 isAdminLoggedIn = true;
                 document.getElementById('adminLogin').style.display = 'none';
                 document.getElementById('adminDashboard').style.display = 'block';
@@ -3726,11 +3721,13 @@
 
         function lockScroll() {
             _scrollY = window.scrollY;
-            document.documentElement.style.overflow = 'hidden';
+            document.body.style.top = `-${_scrollY}px`;
+            document.body.classList.add('scroll-locked');
         }
 
         function unlockScroll() {
-            document.documentElement.style.overflow = '';
+            document.body.classList.remove('scroll-locked');
+            document.body.style.top = '';
             window.scrollTo(0, _scrollY);
         }
 
@@ -3754,6 +3751,7 @@
                 if (btn) { btn.classList.add('nav-active'); btn.setAttribute('aria-expanded', 'true'); }
 
                 if (id === 'galleryDropdown') {
+                    filteredImages = [...galleryImages];
                     initGallery();
                 }
             }
@@ -3797,7 +3795,7 @@
             const formData = new FormData(form);
             
             // Envoyer via FormSubmit
-            fetch('https://formsubmit.co/ajax/guillaume_capron@yahoo.fr', {
+            fetch('https://formsubmit.co/ajax/royrenebridge@gmail.com', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -3905,8 +3903,7 @@
                 if (!el) return;
                 el.innerHTML = dates.map(d => {
                     if (d.finale) return `<p data-date="${d.date}"><strong>Finale : ${d.date}</strong></p>`;
-                    const badge = d.prochain ? ' <span class="badge-prochain">PROCHAIN</span>' : '';
-                    return `<p data-date="${d.date}">- ${d.date}${badge}</p>`;
+                    return `<p data-date="${d.date}">- ${d.date}</p>`;
                 }).join('');
             };
             renderCoupe(CONFIG.coupeDesClubs,   'coupe-clubs-dates');
@@ -4012,8 +4009,7 @@
             window.addEventListener('scroll', updateParallax, { passive: true });
             window.addEventListener('resize', updateParallax, { passive: true });
 
-            // === BARRE DE PROGRESSION + BOUTON RETOUR EN HAUT ===
-            const progressBar = document.getElementById('scrollProgress');
+            // === BOUTON RETOUR EN HAUT ===
             const backToTop = document.getElementById('backToTop');
 
             let _scrollingToTop = false;
@@ -4025,9 +4021,6 @@
                 _scrollUIFrame = requestAnimationFrame(() => {
                     _scrollUIFrame = null;
                     const scrollY = window.scrollY;
-                    const docHeight = document.documentElement.scrollHeight - window.innerHeight;
-                    const progress = docHeight > 0 ? (scrollY / docHeight) * 100 : 0;
-                    if (progressBar) progressBar.style.width = progress + '%';
                     if (backToTop) {
                         if (scrollY > 300) {
                             backToTop.classList.add('visible');
@@ -4208,16 +4201,20 @@
                     btn._accordionInit = true;
 
                     var _accStartX = 0, _accStartY = 0;
+                    var _touchHandled = false;
+
                     btn.addEventListener('touchstart', function(e) {
                         var t = e.touches[0];
                         _accStartX = t.clientX;
                         _accStartY = t.clientY;
+                        _touchHandled = false;
                     }, { passive: true });
 
                     btn.addEventListener('touchend', function(e) {
                         var t = e.changedTouches[0];
                         if (Math.abs(t.clientX - _accStartX) > 10 || Math.abs(t.clientY - _accStartY) > 10) return;
                         e.preventDefault();
+                        _touchHandled = true;
                         var card = btn.closest('.section-card');
                         if (card.classList.contains('accordion-open')) {
                             closeCard(card);
@@ -4225,6 +4222,17 @@
                             openCard(card);
                         }
                     }, { passive: false });
+
+                    // Fallback click pour appareils hybrides / DevTools mobile
+                    btn.addEventListener('click', function() {
+                        if (_touchHandled) { _touchHandled = false; return; }
+                        var card = btn.closest('.section-card');
+                        if (card.classList.contains('accordion-open')) {
+                            closeCard(card);
+                        } else {
+                            openCard(card);
+                        }
+                    });
                 });
             }
 
