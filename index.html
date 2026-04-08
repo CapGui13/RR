@@ -215,6 +215,23 @@
             touch-action: none;
         }
 
+        /* Allow touch inside modals even when body is scroll-locked */
+        body.scroll-locked .dropdown-modal,
+        body.scroll-locked .contact-modal-content,
+        body.scroll-locked .lightbox-img,
+        body.scroll-locked .lightbox-close,
+        body.scroll-locked .lightbox-prev,
+        body.scroll-locked .lightbox-next,
+        body.scroll-locked .close-btn,
+        body.scroll-locked .submit-btn,
+        body.scroll-locked input,
+        body.scroll-locked textarea,
+        body.scroll-locked select,
+        body.scroll-locked .nav-card button,
+        body.scroll-locked .modal-scroll-top {
+            touch-action: auto;
+        }
+
         /* === MOBILE SCROLL FIX === */
         @media (max-width: 768px) {
             html, body {
@@ -456,7 +473,7 @@
 
         @media (max-width: 768px) {
             body.animate .nav-card-container {
-                transition: opacity 1s ease 0s;
+                transition: opacity 2s ease 0.7s;
             }
         }
         
@@ -841,7 +858,37 @@
             background: rgba(255,255,255,1);
         }
 
-        /* === TARIFS DROPDOWN === */
+        /* === SCROLL TO TOP IN MODAL === */
+        .modal-scroll-top {
+            position: fixed;
+            bottom: 1.5rem;
+            right: 1.5rem;
+            width: 44px;
+            height: 44px;
+            background: #1a4d2e;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            font-size: 1.3rem;
+            cursor: pointer;
+            z-index: 10000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 3px 12px rgba(0,0,0,0.3);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease, transform 0.3s ease;
+            transform: translateY(10px);
+        }
+        .modal-scroll-top.visible {
+            opacity: 1;
+            pointer-events: auto;
+            transform: translateY(0);
+        }
+        .modal-scroll-top:hover {
+            background: #245c38;
+        }
         .tarifs-content {
             max-width: 1200px;
             margin: 0 auto;
@@ -1845,7 +1892,7 @@
             }
             .logo-text p.logo-subtitle-main {
                 font-family: 'Great Vibes', cursive;
-                font-size: 1.5rem;
+                font-size: 1.9rem;
                 opacity: 0.95;
                 margin-bottom: 0.2rem;
                 margin-top: 0.6rem;
@@ -1854,7 +1901,7 @@
             .logo-text p.logo-subtitle-city {
                 display: block;
                 font-family: 'Great Vibes', cursive;
-                font-size: 1.15rem;
+                font-size: 1.5rem;
                 opacity: 0;
                 transform: translateY(-8px);
                 transition: opacity 0.5s ease 0.6s, transform 0.5s ease 0.6s;
@@ -1865,13 +1912,13 @@
             .logo-text p.logo-subtitle-city .city-initial {
                 font-family: 'Cormorant Garamond', serif;
                 font-style: italic;
-                font-size: 1.3rem;
+                font-size: 1.7rem;
             }
             body.animate.logo-go .logo-subtitle-city {
                 opacity: 1;
                 transform: translateY(0);
             }
-            .logo-right img { height: 50px; }
+            .logo-right img { height: 36px; }
 
             .nav-card-container {
                 position: static;
@@ -1883,14 +1930,14 @@
             }
             
             .facebook-icon {
-                width: 56px;
-                height: 56px;
+                width: 40px;
+                height: 40px;
                 margin-bottom: 0.5rem;
             }
             
             .facebook-icon svg {
-                width: 28px;
-                height: 28px;
+                width: 20px;
+                height: 20px;
             }
 
             .nav-card {
@@ -2004,9 +2051,9 @@
                 max-height: 88dvh;
                 padding: 1.5rem;
                 border-radius: 16px;
-                transform: scale(0.96);
+                transform: scale(0.94);
                 opacity: 0;
-                transition: opacity 0.3s ease, transform 0.3s ease;
+                transition: opacity 0.5s ease, transform 0.5s ease;
                 will-change: opacity, transform;
             }
 
@@ -2016,9 +2063,9 @@
             }
 
             .dropdown-overlay.closing .dropdown-modal {
-                transform: scale(0.96);
+                transform: scale(0.94);
                 opacity: 0;
-                transition: opacity 0.22s ease, transform 0.22s ease;
+                transition: opacity 0.3s ease, transform 0.3s ease;
             }
 
             .tarifs-content,
@@ -2072,9 +2119,9 @@
                 max-height: 88dvh;
                 overflow-y: auto;
                 border-radius: 16px;
-                transform: scale(0.96);
+                transform: scale(0.94);
                 opacity: 0;
-                transition: opacity 0.3s ease, transform 0.3s ease;
+                transition: opacity 0.5s ease, transform 0.5s ease;
                 will-change: opacity, transform;
                 padding: 1.5rem;
                 width: 100%;
@@ -2175,10 +2222,10 @@
         }
 
         @media (max-width: 480px) {
-            .logo-text h1 { font-size: 1.5rem; }
+            .logo-text h1 { font-size: 1.8rem; }
             .logo-title::after { font-size: 0; }
             .logo-text p { font-size: 0.9rem; }
-            .logo-text p.logo-subtitle-main { font-size: 1.3rem; }
+            .logo-text p.logo-subtitle-main { font-size: 1.7rem; }
 
             .nav-card button {
                 font-size: 0.9rem;
@@ -2860,6 +2907,9 @@
     </div>
 
     <!-- Lightbox -->
+    <!-- Bouton remonter haut dans les modales -->
+    <button class="modal-scroll-top" id="modalScrollTop" aria-label="Remonter en haut">↑</button>
+
     <div class="lightbox" id="lightbox">
         <button class="lightbox-close" onclick="closeLightbox()" aria-label="Fermer">✕</button>
         <button class="lightbox-prev" onclick="navigateLightbox(-1)" aria-label="Précédent">‹</button>
@@ -3471,6 +3521,68 @@
         document.getElementById('lightbox').addEventListener('click', (e) => {
             if (e.target.id === 'lightbox') closeLightbox();
         });
+
+        // Touch swipe for lightbox
+        let _lbTouchStartX = 0;
+        let _lbTouchStartY = 0;
+        const _lbEl = document.getElementById('lightbox');
+        _lbEl.addEventListener('touchstart', (e) => {
+            _lbTouchStartX = e.touches[0].clientX;
+            _lbTouchStartY = e.touches[0].clientY;
+        }, { passive: true });
+        _lbEl.addEventListener('touchend', (e) => {
+            const dx = e.changedTouches[0].clientX - _lbTouchStartX;
+            const dy = e.changedTouches[0].clientY - _lbTouchStartY;
+            if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 40) {
+                navigateLightbox(dx < 0 ? 1 : -1);
+            }
+        }, { passive: true });
+
+        // === SCROLL-TO-TOP IN MODALS ===
+        (function() {
+            const scrollTopBtn = document.getElementById('modalScrollTop');
+            if (!scrollTopBtn) return;
+
+            // Scrollable containers to watch
+            const scrollableSelectors = [
+                '.dropdown-modal',
+                '.contact-modal-content'
+            ];
+
+            function checkScroll(el) {
+                if (el.scrollTop > 80) {
+                    scrollTopBtn.classList.add('visible');
+                } else {
+                    scrollTopBtn.classList.remove('visible');
+                }
+            }
+
+            scrollableSelectors.forEach(sel => {
+                document.querySelectorAll(sel).forEach(el => {
+                    el.addEventListener('scroll', () => checkScroll(el), { passive: true });
+                });
+            });
+
+            scrollTopBtn.addEventListener('click', () => {
+                // Find the visible scrollable container
+                scrollableSelectors.forEach(sel => {
+                    document.querySelectorAll(sel).forEach(el => {
+                        if (el.scrollTop > 0) {
+                            el.scrollTo({ top: 0, behavior: 'smooth' });
+                        }
+                    });
+                });
+            });
+
+            // Hide button when all modals close
+            const observer = new MutationObserver(() => {
+                const anyActive = document.querySelector('.dropdown-overlay.active, .contact-modal.active');
+                if (!anyActive) scrollTopBtn.classList.remove('visible');
+            });
+            document.querySelectorAll('.dropdown-overlay, .contact-modal').forEach(el => {
+                observer.observe(el, { attributes: true, attributeFilter: ['class'] });
+            });
+        })();
 
         // === DATE UTILITIES ===
         function formatDate(dateStr) {
