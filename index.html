@@ -215,21 +215,28 @@
             touch-action: none;
         }
 
-        /* Allow touch inside modals even when body is scroll-locked */
+        /* Scrollable containers inside modals: allow vertical pan */
         body.scroll-locked .dropdown-modal,
-        body.scroll-locked .contact-modal-content,
-        body.scroll-locked .lightbox-img,
+        body.scroll-locked .contact-modal-content {
+            touch-action: pan-y;
+        }
+
+        /* Interactive elements inside modals: allow tap */
+        body.scroll-locked .dropdown-modal button,
+        body.scroll-locked .dropdown-modal a,
+        body.scroll-locked .dropdown-modal input,
+        body.scroll-locked .dropdown-modal textarea,
+        body.scroll-locked .dropdown-modal select,
+        body.scroll-locked .contact-modal-content button,
+        body.scroll-locked .contact-modal-content a,
+        body.scroll-locked .contact-modal-content input,
+        body.scroll-locked .contact-modal-content textarea,
+        body.scroll-locked .contact-modal-content select,
         body.scroll-locked .lightbox-close,
         body.scroll-locked .lightbox-prev,
         body.scroll-locked .lightbox-next,
-        body.scroll-locked .close-btn,
-        body.scroll-locked .submit-btn,
-        body.scroll-locked input,
-        body.scroll-locked textarea,
-        body.scroll-locked select,
-        body.scroll-locked .nav-card button,
         body.scroll-locked .modal-scroll-top {
-            touch-action: auto;
+            touch-action: manipulation;
         }
 
         /* === MOBILE SCROLL FIX === */
@@ -1077,6 +1084,14 @@
             opacity: 0;
             transition: transform 0.55s cubic-bezier(0.34, 1.56, 0.64, 1),
                         opacity 0.45s ease;
+            touch-action: pan-y;
+        }
+
+        .contact-modal-content input,
+        .contact-modal-content textarea,
+        .contact-modal-content button,
+        .contact-modal-content a {
+            touch-action: manipulation;
         }
 
         .contact-modal.active .contact-modal-content {
@@ -1953,6 +1968,8 @@
                 padding: 0.9rem 1.2rem;
                 font-size: 1rem;
                 min-height: 48px;
+                touch-action: manipulation;
+                -webkit-tap-highlight-color: rgba(0,0,0,0);
             }
 
             .main-container {
@@ -2123,6 +2140,7 @@
                 opacity: 0;
                 transition: opacity 0.5s ease, transform 0.5s ease;
                 will-change: opacity, transform;
+                touch-action: pan-y;
                 padding: 1.5rem;
                 width: 100%;
                 margin: 0 auto;
@@ -2995,7 +3013,7 @@
             <button onclick="toggleOverlay('tarifsDropdown')" data-overlay="tarifsDropdown" aria-label="Consulter les tarifs du club" aria-expanded="false" aria-controls="tarifsDropdown">Les tarifs</button>
             <button onclick="toggleOverlay('equipeDropdown')" data-overlay="equipeDropdown" aria-label="Découvrir l'équipe dirigeante" aria-expanded="false" aria-controls="equipeDropdown">L'équipe</button>
             <button onclick="toggleOverlay('galleryDropdown')" data-overlay="galleryDropdown" aria-label="Voir la galerie photos" aria-expanded="false" aria-controls="galleryDropdown">Les photos</button>
-            <button onclick="toggleContact()" data-overlay="contactModal" aria-label="Contacter le club" aria-expanded="false" aria-controls="contactModal">Contact</button>
+            <button data-overlay="contactModal" aria-label="Contacter le club" aria-expanded="false" aria-controls="contactModal">Contact</button>
         </div>
     </nav>
     </header>
@@ -4192,6 +4210,49 @@
 
             document.addEventListener('DOMContentLoaded', initAccordion);
             window.addEventListener('resize', handleResize);
+        })();
+    </script>
+
+    <script>
+        // === FIX TOUCH MOBILE — boutons de navigation ===
+        // Certains mobiles ignorent onclick inline quand touch-action interfère.
+        // On utilise touchend + preventDefault pour garantir le déclenchement.
+        (function() {
+            function bindNavButton(btn) {
+                if (!btn) return;
+                btn.style.touchAction = 'manipulation';
+
+                btn.addEventListener('touchend', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    var overlayId = btn.getAttribute('data-overlay');
+                    if (!overlayId) return;
+                    if (overlayId === 'contactModal') {
+                        toggleContact();
+                    } else {
+                        toggleOverlay(overlayId);
+                    }
+                }, { passive: false });
+            }
+
+            function initNavTouch() {
+                document.querySelectorAll('.nav-card button[data-overlay]').forEach(bindNavButton);
+                // Bouton fermer dans la modale contact
+                var closeContact = document.querySelector('#contactModal .close-btn');
+                if (closeContact) {
+                    closeContact.style.touchAction = 'manipulation';
+                    closeContact.addEventListener('touchend', function(e) {
+                        e.preventDefault();
+                        toggleContact();
+                    }, { passive: false });
+                }
+            }
+
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', initNavTouch);
+            } else {
+                initNavTouch();
+            }
         })();
     </script>
 </body>
