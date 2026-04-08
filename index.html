@@ -239,8 +239,8 @@
             touch-action: manipulation;
         }
 
-        /* === MOBILE SCROLL FIX === */
-        @media (max-width: 768px) {
+        /* === MOBILE / TABLETTE SCROLL FIX === */
+        @media (hover: none) and (pointer: coarse) {
             html, body {
                 overscroll-behavior-y: contain;
                 -webkit-overflow-scrolling: touch;
