@@ -242,13 +242,12 @@
         /* === MOBILE SCROLL FIX === */
         @media (max-width: 768px) {
             html {
-                /* Sur mobile : annule overflow-y:scroll du html — laisse window scroller nativement */
-                overflow-y: visible;
-                /* Pas de scrollbar desktop sur mobile */
-                scrollbar-gutter: auto;
+                /* Momentum scroll natif iOS — glisse librement, ralentit en approchant des bords */
+                -webkit-overflow-scrolling: touch;
+                overflow-y: scroll;
             }
-            html, body {
-                /* Rebond élastique natif aux bords */
+            body {
+                /* Laisse le navigateur gérer le rebond et la décélération naturellement */
                 overscroll-behavior-y: auto;
             }
         }
@@ -1832,13 +1831,8 @@
             .facebook-header { display: flex; }
             .facebook-nav { display: none; }
 
-            /* Remplace le pseudo-element fixed par un background natif sur body —
-               position:fixed + grande image = scroll jank garanti sur Android */
-            body {
-                background: url('https://i.imgur.com/SF7rXmN.jpeg') center top / cover no-repeat fixed;
-                background-attachment: scroll; /* fixed déclenche le jank, scroll est fluide */
-            }
-            body::after { display: none; }
+            body { background: transparent; }
+            body::after { background-attachment: scroll; }
 
             header { padding: 1rem; }
 
