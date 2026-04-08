@@ -242,7 +242,6 @@
         /* === MOBILE / TABLETTE SCROLL FIX === */
         @media (hover: none) and (pointer: coarse) {
             html, body {
-                overscroll-behavior-y: contain;
                 -webkit-overflow-scrolling: touch;
             }
         }
@@ -4294,26 +4293,24 @@
     </script>
 
     <script>
-        // === CONTRÔLE OVERSCROLL TACTILE ===
-        // Bloque le bounce vers le bas en fin de page,
-        // mais autorise le pull-to-refresh natif en haut de page.
+        // === BLOQUER OVERSCROLL BAS (iOS Chrome/Safari) ===
         (function() {
             if (!('ontouchstart' in window)) return;
 
-            var touchStartY = 0;
+            var startY = 0;
+            var htmlEl = document.documentElement;
 
-            document.addEventListener('touchstart', function(e) {
-                touchStartY = e.touches[0].clientY;
+            // touchstart sur window (passive OK)
+            window.addEventListener('touchstart', function(e) {
+                startY = e.touches[0].pageY;
             }, { passive: true });
 
-            document.addEventListener('touchmove', function(e) {
+            // touchmove sur document.documentElement — non-passive obligatoire pour preventDefault sur iOS
+            htmlEl.addEventListener('touchmove', function(e) {
                 if (document.body.classList.contains('scroll-locked')) return;
 
-                var scrollTop = window.scrollY || document.documentElement.scrollTop;
-                var scrollHeight = document.documentElement.scrollHeight;
-                var clientHeight = document.documentElement.clientHeight;
-                var atBottom = scrollTop + clientHeight >= scrollHeight - 1;
-                var movingDown = e.touches[0].clientY < touchStartY;
+                var atBottom = htmlEl.scrollTop + htmlEl.clientHeight >= htmlEl.scrollHeight - 2;
+                var movingDown = e.touches[0].pageY < startY;
 
                 if (atBottom && movingDown) {
                     e.preventDefault();
