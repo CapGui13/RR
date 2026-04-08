@@ -2731,6 +2731,16 @@
         //     showPopup();
         // }
     </script>
+    <script>
+        // Désactive la restauration native du scroll par le navigateur (mobile Safari/Chrome)
+        if ('scrollRestoration' in history) {
+            history.scrollRestoration = 'manual';
+        }
+        // Force le retour en haut au chargement et au refresh
+        window.addEventListener('pageshow', function() {
+            window.scrollTo(0, 0);
+        });
+    </script>
 </head>
 <body>
     <!-- SVG symbols réutilisables -->
