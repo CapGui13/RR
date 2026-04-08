@@ -239,9 +239,10 @@
             touch-action: manipulation;
         }
 
-        /* === MOBILE / TABLETTE SCROLL FIX === */
-        @media (hover: none) and (pointer: coarse) {
+        /* === MOBILE SCROLL FIX === */
+        @media (max-width: 768px) {
             html, body {
+                overscroll-behavior-y: none;
                 -webkit-overflow-scrolling: touch;
             }
         }
@@ -4182,24 +4183,16 @@
                     if (btn._accordionInit) return;
                     btn._accordionInit = true;
 
-                    var _accStartX = 0, _accStartY = 0;
-                    btn.addEventListener('touchstart', function(e) {
-                        var t = e.touches[0];
-                        _accStartX = t.clientX;
-                        _accStartY = t.clientY;
-                    }, { passive: true });
-
-                    btn.addEventListener('touchend', function(e) {
-                        var t = e.changedTouches[0];
-                        if (Math.abs(t.clientX - _accStartX) > 10 || Math.abs(t.clientY - _accStartY) > 10) return;
-                        e.preventDefault();
+                    btn.addEventListener('click', function() {
                         var card = btn.closest('.section-card');
-                        if (card.classList.contains('accordion-open')) {
+                        var isOpen = card.classList.contains('accordion-open');
+
+                        if (isOpen) {
                             closeCard(card);
                         } else {
                             openCard(card);
                         }
-                    }, { passive: false });
+                    });
                 });
             }
 
@@ -4230,25 +4223,11 @@
         // Certains mobiles ignorent onclick inline quand touch-action interfère.
         // On utilise touchend + preventDefault pour garantir le déclenchement.
         (function() {
-            var TOUCH_MOVE_THRESHOLD = 10; // px — en dessous = tap, au dessus = scroll
-
             function bindNavButton(btn) {
                 if (!btn) return;
                 btn.style.touchAction = 'manipulation';
 
-                var touchStartX = 0, touchStartY = 0;
-
-                btn.addEventListener('touchstart', function(e) {
-                    var t = e.touches[0];
-                    touchStartX = t.clientX;
-                    touchStartY = t.clientY;
-                }, { passive: true });
-
                 btn.addEventListener('touchend', function(e) {
-                    var t = e.changedTouches[0];
-                    var dx = Math.abs(t.clientX - touchStartX);
-                    var dy = Math.abs(t.clientY - touchStartY);
-                    if (dx > TOUCH_MOVE_THRESHOLD || dy > TOUCH_MOVE_THRESHOLD) return; // c'était un scroll
                     e.preventDefault();
                     e.stopPropagation();
                     var overlayId = btn.getAttribute('data-overlay');
@@ -4267,17 +4246,7 @@
                 var closeContact = document.querySelector('#contactModal .close-btn');
                 if (closeContact) {
                     closeContact.style.touchAction = 'manipulation';
-                    var cStartX = 0, cStartY = 0;
-                    closeContact.addEventListener('touchstart', function(e) {
-                        var t = e.touches[0];
-                        cStartX = t.clientX;
-                        cStartY = t.clientY;
-                    }, { passive: true });
                     closeContact.addEventListener('touchend', function(e) {
-                        var t = e.changedTouches[0];
-                        var dx = Math.abs(t.clientX - cStartX);
-                        var dy = Math.abs(t.clientY - cStartY);
-                        if (dx > TOUCH_MOVE_THRESHOLD || dy > TOUCH_MOVE_THRESHOLD) return;
                         e.preventDefault();
                         toggleContact();
                     }, { passive: false });
@@ -4289,92 +4258,6 @@
             } else {
                 initNavTouch();
             }
-        })();
-    </script>
-
-    <script>
-        // === SCROLL CUSTOM AVEC FRICTION EN BAS (iOS) ===
-        // Remplace l'inertie native iOS par un scroll JS contrôlé :
-        // - scroll normal partout
-        // - friction progressive quand on approche/dépasse le bas
-        // - jamais de dépassement
-        (function() {
-            if (!('ontouchstart' in window)) return;
-
-            var html = document.documentElement;
-            var startY = 0;
-            var lastY = 0;
-            var velocity = 0;
-            var rafId = null;
-            var touching = false;
-
-            function getMaxScroll() {
-                return Math.max(0, html.scrollHeight - window.innerHeight);
-            }
-
-            function clampedScroll(target) {
-                var max = getMaxScroll();
-                // Friction vers le bas : on compresse l'excédent
-                if (target > max) {
-                    var over = target - max;
-                    return max + over * 0.08; // 8% de l'excédent = freine fort
-                }
-                return Math.max(0, target);
-            }
-
-            // Bloque le scroll natif iOS sur touch
-            html.addEventListener('touchmove', function(e) {
-                if (document.body.classList.contains('scroll-locked')) return;
-                e.preventDefault();
-            }, { passive: false });
-
-            html.addEventListener('touchstart', function(e) {
-                if (document.body.classList.contains('scroll-locked')) return;
-                touching = true;
-                startY = e.touches[0].pageY;
-                lastY = startY;
-                velocity = 0;
-                if (rafId) { cancelAnimationFrame(rafId); rafId = null; }
-            }, { passive: true });
-
-            html.addEventListener('touchmove', function(e) {
-                if (document.body.classList.contains('scroll-locked')) return;
-                var currentY = e.touches[0].pageY;
-                var delta = lastY - currentY;
-                velocity = delta * 0.8 + velocity * 0.2; // lissage
-                lastY = currentY;
-
-                var target = html.scrollTop + delta;
-                html.scrollTop = clampedScroll(target);
-            }, { passive: false });
-
-            html.addEventListener('touchend', function(e) {
-                if (document.body.classList.contains('scroll-locked')) return;
-                touching = false;
-                // Lancer l'inertie JS
-                var v = velocity;
-                function momentum() {
-                    if (touching) return;
-                    v *= 0.92; // friction d'inertie
-                    if (Math.abs(v) < 0.5) {
-                        // Snap au bas si on a légèrement dépassé
-                        var max = getMaxScroll();
-                        if (html.scrollTop > max) {
-                            html.scrollTop += (max - html.scrollTop) * 0.15;
-                            if (Math.abs(html.scrollTop - max) < 0.5) html.scrollTop = max;
-                            else { rafId = requestAnimationFrame(momentum); return; }
-                        }
-                        return;
-                    }
-                    var target = html.scrollTop + v;
-                    html.scrollTop = clampedScroll(target);
-                    // Si on a dépassé, snap progressif vers le bas
-                    var max2 = getMaxScroll();
-                    if (html.scrollTop > max2) v *= 0.5;
-                    rafId = requestAnimationFrame(momentum);
-                }
-                rafId = requestAnimationFrame(momentum);
-            }, { passive: true });
         })();
     </script>
 </body>
