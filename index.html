@@ -242,8 +242,10 @@
         /* === MOBILE SCROLL FIX === */
         @media (max-width: 768px) {
             html, body {
-                overscroll-behavior-y: none;
-                -webkit-overflow-scrolling: touch;
+                /* overscroll-behavior-y auto = rebond natif iOS/Android aux limites */
+                overscroll-behavior-y: auto;
+                /* scroll-behavior smooth = décélération fluide au scroll programmatique */
+                scroll-behavior: smooth;
             }
         }
 
@@ -4300,6 +4302,79 @@
             } else {
                 initNavTouch();
             }
+        })();
+    </script>
+
+    <script>
+        /* === SCROLL MOBILE : DÉCÉLÉRATION DOUCE AUX LIMITES === */
+        (function() {
+            // Uniquement sur mobile
+            if (window.matchMedia('(min-width: 769px)').matches) return;
+
+            var touchStartY = 0;
+            var touchStartX = 0;
+            var lastVelocity = 0;
+            var lastTouchY = 0;
+            var lastTouchTime = 0;
+            var momentumRAF = null;
+
+            // Friction : plus on est proche du bord, plus ça ralentit
+            function getEdgeFriction() {
+                var scrollTop = window.scrollY || document.documentElement.scrollTop;
+                var maxScroll = document.documentElement.scrollHeight - window.innerHeight;
+                var edgeZone = window.innerHeight * 0.18; // zone de ralentissement = 18% de l'écran
+
+                if (scrollTop < edgeZone) {
+                    // Proche du haut : friction croissante
+                    return 0.55 + 0.40 * (1 - scrollTop / edgeZone);
+                }
+                if (scrollTop > maxScroll - edgeZone) {
+                    // Proche du bas : friction croissante
+                    return 0.55 + 0.40 * (1 - (maxScroll - scrollTop) / edgeZone);
+                }
+                return 0.55; // friction de base (momentum normal)
+            }
+
+            function applyMomentum(velocity) {
+                if (momentumRAF) cancelAnimationFrame(momentumRAF);
+                if (Math.abs(velocity) < 0.5) return;
+
+                function step() {
+                    var friction = getEdgeFriction();
+                    velocity *= (1 - friction * 0.08);
+                    window.scrollBy(0, velocity);
+
+                    if (Math.abs(velocity) > 0.5) {
+                        momentumRAF = requestAnimationFrame(step);
+                    }
+                }
+                momentumRAF = requestAnimationFrame(step);
+            }
+
+            document.addEventListener('touchstart', function(e) {
+                if (momentumRAF) cancelAnimationFrame(momentumRAF);
+                var t = e.touches[0];
+                touchStartY = t.clientY;
+                touchStartX = t.clientX;
+                lastTouchY = t.clientY;
+                lastTouchTime = Date.now();
+                lastVelocity = 0;
+            }, { passive: true });
+
+            document.addEventListener('touchmove', function(e) {
+                var t = e.touches[0];
+                var now = Date.now();
+                var dt = now - lastTouchTime;
+                if (dt > 0) {
+                    lastVelocity = (lastTouchY - t.clientY) / dt * 16; // normalise à ~60fps
+                }
+                lastTouchY = t.clientY;
+                lastTouchTime = now;
+            }, { passive: true });
+
+            document.addEventListener('touchend', function() {
+                applyMomentum(lastVelocity);
+            }, { passive: true });
         })();
     </script>
 </body>
