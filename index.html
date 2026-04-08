@@ -4183,16 +4183,24 @@
                     if (btn._accordionInit) return;
                     btn._accordionInit = true;
 
-                    btn.addEventListener('click', function() {
-                        var card = btn.closest('.section-card');
-                        var isOpen = card.classList.contains('accordion-open');
+                    var _accStartX = 0, _accStartY = 0;
+                    btn.addEventListener('touchstart', function(e) {
+                        var t = e.touches[0];
+                        _accStartX = t.clientX;
+                        _accStartY = t.clientY;
+                    }, { passive: true });
 
-                        if (isOpen) {
+                    btn.addEventListener('touchend', function(e) {
+                        var t = e.changedTouches[0];
+                        if (Math.abs(t.clientX - _accStartX) > 10 || Math.abs(t.clientY - _accStartY) > 10) return;
+                        e.preventDefault();
+                        var card = btn.closest('.section-card');
+                        if (card.classList.contains('accordion-open')) {
                             closeCard(card);
                         } else {
                             openCard(card);
                         }
-                    });
+                    }, { passive: false });
                 });
             }
 
@@ -4223,11 +4231,25 @@
         // Certains mobiles ignorent onclick inline quand touch-action interfère.
         // On utilise touchend + preventDefault pour garantir le déclenchement.
         (function() {
+            var TOUCH_MOVE_THRESHOLD = 10; // px — en dessous = tap, au dessus = scroll
+
             function bindNavButton(btn) {
                 if (!btn) return;
                 btn.style.touchAction = 'manipulation';
 
+                var touchStartX = 0, touchStartY = 0;
+
+                btn.addEventListener('touchstart', function(e) {
+                    var t = e.touches[0];
+                    touchStartX = t.clientX;
+                    touchStartY = t.clientY;
+                }, { passive: true });
+
                 btn.addEventListener('touchend', function(e) {
+                    var t = e.changedTouches[0];
+                    var dx = Math.abs(t.clientX - touchStartX);
+                    var dy = Math.abs(t.clientY - touchStartY);
+                    if (dx > TOUCH_MOVE_THRESHOLD || dy > TOUCH_MOVE_THRESHOLD) return; // c'était un scroll
                     e.preventDefault();
                     e.stopPropagation();
                     var overlayId = btn.getAttribute('data-overlay');
@@ -4246,7 +4268,17 @@
                 var closeContact = document.querySelector('#contactModal .close-btn');
                 if (closeContact) {
                     closeContact.style.touchAction = 'manipulation';
+                    var cStartX = 0, cStartY = 0;
+                    closeContact.addEventListener('touchstart', function(e) {
+                        var t = e.touches[0];
+                        cStartX = t.clientX;
+                        cStartY = t.clientY;
+                    }, { passive: true });
                     closeContact.addEventListener('touchend', function(e) {
+                        var t = e.changedTouches[0];
+                        var dx = Math.abs(t.clientX - cStartX);
+                        var dy = Math.abs(t.clientY - cStartY);
+                        if (dx > TOUCH_MOVE_THRESHOLD || dy > TOUCH_MOVE_THRESHOLD) return;
                         e.preventDefault();
                         toggleContact();
                     }, { passive: false });
