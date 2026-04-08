@@ -1832,12 +1832,13 @@
             .facebook-header { display: flex; }
             .facebook-nav { display: none; }
 
-            /* Remplace le pseudo-element fixed par un background natif sur body —
-               position:fixed + grande image = scroll jank garanti sur Android */
-            body {
-                background: url('https://i.imgur.com/SF7rXmN.jpeg') center top / cover no-repeat fixed;
-                background-attachment: scroll; /* fixed déclenche le jank, scroll est fluide */
+            /* Background sur html (couvre toute la hauteur du document) —
+               body::after fixed = scroll jank garanti sur Android */
+            html {
+                background: url('https://i.imgur.com/SF7rXmN.jpeg') center top / cover no-repeat;
+                background-attachment: scroll;
             }
+            body { background: transparent; }
             body::after { display: none; }
 
             header { padding: 1rem; }
