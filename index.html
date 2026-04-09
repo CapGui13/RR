@@ -566,24 +566,33 @@
             border-radius: 2px;
         }
         
-        .nav-card button:hover::before {
-            transform: translateX(100%);
+        @media (hover: hover) and (pointer: fine) {
+            .nav-card button:hover::before {
+                transform: translateX(100%);
+            }
+
+            .nav-card button:hover::after {
+                width: 80%;
+            }
+
+            .nav-card button:hover {
+                background: linear-gradient(135deg, #3a6e4f 0%, #245c38 100%);
+                transform: translateY(-3px) scale(1.03);
+                box-shadow: 0 6px 20px rgba(26,77,46,0.45), 0 2px 6px rgba(0,0,0,0.2);
+                letter-spacing: 0.04em;
+            }
         }
 
-        .nav-card button:hover::after {
-            width: 80%;
-        }
-
-        .nav-card button:hover {
-            background: linear-gradient(135deg, #3a6e4f 0%, #245c38 100%);
+        .nav-card button:active,
+        .nav-card button.is-tapped {
             transform: translateY(-3px) scale(1.03);
             box-shadow: 0 6px 20px rgba(26,77,46,0.45), 0 2px 6px rgba(0,0,0,0.2);
-            letter-spacing: 0.04em;
         }
 
-        .nav-card button:active {
-            transform: translateY(-3px) scale(1.03);
-            box-shadow: 0 6px 20px rgba(26,77,46,0.45), 0 2px 6px rgba(0,0,0,0.2);
+        /* Bloque toute transition pendant le scroll sur mobile */
+        body.is-scrolling .nav-card button {
+            transition: none !important;
+            pointer-events: none;
         }
 
         .nav-card button.nav-active {
@@ -4370,6 +4379,35 @@
                 resizeTimer = setTimeout(function() {
                     document.body.classList.remove('no-transition');
                 }, 100);
+            });
+        })();
+    </script>
+    <script>
+        /* Empêche le hover CSS de "coller" sur les boutons nav pendant le scroll mobile */
+        (function() {
+            var scrollTimer;
+            window.addEventListener('scroll', function() {
+                document.body.classList.add('is-scrolling');
+                clearTimeout(scrollTimer);
+                scrollTimer = setTimeout(function() {
+                    document.body.classList.remove('is-scrolling');
+                }, 150);
+            }, { passive: true });
+
+            /* Feedback visuel is-tapped uniquement sur tap réel (pas scroll) */
+            var THRESHOLD = 10;
+            document.querySelectorAll('.nav-card button').forEach(function(btn) {
+                var sx = 0, sy = 0;
+                btn.addEventListener('touchstart', function(e) {
+                    var t = e.touches[0];
+                    sx = t.clientX; sy = t.clientY;
+                }, { passive: true });
+                btn.addEventListener('touchend', function(e) {
+                    var t = e.changedTouches[0];
+                    if (Math.abs(t.clientX - sx) > THRESHOLD || Math.abs(t.clientY - sy) > THRESHOLD) return;
+                    btn.classList.add('is-tapped');
+                    setTimeout(function() { btn.classList.remove('is-tapped'); }, 300);
+                }, { passive: true });
             });
         })();
     </script>
