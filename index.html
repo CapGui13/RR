@@ -2436,6 +2436,13 @@
             transition: color 0.25s ease;
         }
 
+        @media (max-width: 768px) {
+            .footer-tel-icon {
+                display: inline-block;
+                filter: grayscale(1) sepia(1) saturate(10) hue-rotate(310deg);
+            }
+        }
+
         .footer-links a:hover {
             color: #d4af37;
         }
@@ -3109,7 +3116,7 @@
     <footer class="site-footer">
         <div class="footer-inner">
             <div class="footer-links">
-                <a href="tel:+33442956203">📞 04 42 95 62 03</a>
+                <a href="tel:+33442956203"><span class="footer-tel-icon">📞</span> 04 42 95 62 03</a>
                 <a href="/cdn-cgi/l/email-protection#50223f2922353e3532223934373510373d31393c7e333f3d">✉ <span class="__cf_email__" data-cfemail="99ebf6e0ebfcf7fcfbebf0fdfefcd9fef4f8f0f5b7faf6f4">[email&#160;protected]</span></a>
             </div>
             <div class="footer-copy">
