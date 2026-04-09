@@ -4332,6 +4332,22 @@
         })();
     </script>
 
+    <script>
+        /* Supprime les transitions pendant un redimensionnement (artefact DevTools uniquement) */
+        (function() {
+            var resizeTimer;
+            window.addEventListener('resize', function() {
+                document.body.classList.add('no-transition');
+                clearTimeout(resizeTimer);
+                resizeTimer = setTimeout(function() {
+                    document.body.classList.remove('no-transition');
+                }, 100);
+            });
+        })();
+    </script>
+    <style>
+        body.no-transition * { transition: none !important; }
+    </style>
 
 </body>
 </html>
