@@ -422,6 +422,7 @@
 
         /* Quand la nav déborde (zoom élevé), elle se repositionne normalement */
         @media (max-width: 1050px) and (min-width: 769px) {
+            body::after { background-attachment: scroll; }
             /* Annuler le débordement desktop du logo-right */
             .logo-right {
                 align-self: center;
@@ -1831,13 +1832,6 @@
         .facebook-header { display: none; }
 
         @media (max-width: 768px) {
-            .facebook-header { display: flex; }
-            .facebook-nav { display: none; }
-
-            body { background: transparent; }
-            body::after { background-attachment: scroll; }
-
-            header { padding: 1rem; }
 
             .header-content {
                 flex-direction: column;
