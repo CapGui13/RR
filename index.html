@@ -1831,6 +1831,12 @@
         .facebook-header { display: none; }
 
         @media (max-width: 768px) {
+            .facebook-header { display: flex; }
+            .facebook-nav { display: none; }
+
+            body { background: transparent; }
+
+            header { padding: 1rem; }
 
             .header-content {
                 flex-direction: column;
@@ -2478,18 +2484,15 @@
         }
 
         @media (max-width: 1050px) {
-            body {
-                position: relative;
-            }
             body::after {
-                position: absolute;
-                min-height: 100%;
                 background-image: url('https://i.imgur.com/MxM3Se0.jpeg');
                 background-size: 100% auto;
                 background-repeat: repeat-y;
-                background-attachment: local;
+                background-position: top center;
             }
         }
+
+        @keyframes dropBounce {
             0%   { opacity: 0; transform: translateY(-40px); }
             70%  { opacity: 1; transform: translateY(2px); }
             100% { transform: translateY(0); }
@@ -2761,6 +2764,17 @@
     </svg>
     <noscript><style>#site-cover{display:none}</style></noscript>
     <div id="site-cover" style="position:fixed;inset:0;z-index:9998;transition:opacity 0.4s ease;background:url('https://i.imgur.com/SF7rXmN.jpeg') center top/cover;"></div>
+    <script>
+        (function() {
+            var cover = document.getElementById('site-cover');
+            if (cover && window.innerWidth <= 1050) {
+                cover.style.backgroundImage = "url('https://i.imgur.com/MxM3Se0.jpeg')";
+                cover.style.backgroundSize = '100% auto';
+                cover.style.backgroundRepeat = 'repeat-y';
+                cover.style.backgroundPosition = 'top center';
+            }
+        })();
+    </script>
     <script>
         (function() {
             var img = new Image();
