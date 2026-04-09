@@ -2001,7 +2001,7 @@
 
             .section-card {
                 padding: 0;
-                overflow: hidden;
+                overflow: visible;
             }
 
             .section-card-toggle {
@@ -2017,11 +2017,13 @@
                 text-align: left;
                 font-family: inherit;
                 border-radius: 12px;
-                transition: background 0.3s ease, border-radius 0.3s ease;
+                transition: background 0.3s ease;
+                position: relative;
+                z-index: 1;
             }
 
             .section-card.accordion-open .section-card-toggle {
-                border-radius: 12px 12px 0 0;
+                border-radius: 12px;
                 background: linear-gradient(135deg, #3a6e4f 0%, #245c38 100%);
             }
 
@@ -2050,11 +2052,18 @@
             .card-content {
                 max-height: 0;
                 overflow: hidden;
-                transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1),
-                            padding 0.3s ease;
+                transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1);
                 padding: 0 1.2rem;
                 background: rgba(255,255,255,0.97);
                 border-radius: 0 0 12px 12px;
+                margin-top: -10px;
+                padding-top: 0;
+                position: relative;
+                z-index: 0;
+            }
+
+            .section-card.accordion-open .card-content {
+                padding-top: 18px;
             }
 
             /* max-height accordion géré entièrement par JS openCard/closeCard */
@@ -4188,22 +4197,23 @@
                 var content = card.querySelector('.card-content');
                 var btn = card.querySelector('.section-card-toggle');
 
+                // Mesure la hauteur réelle avec padding-top visible
                 content.style.transition = 'none';
                 content.style.overflow = 'hidden';
                 content.style.maxHeight = 'none';
-                content.style.padding = '1.2rem';
+                content.style.paddingTop = '18px';
                 var fullH = content.scrollHeight;
                 content.style.maxHeight = '0px';
-                content.style.padding = '0 1.2rem';
+                content.style.paddingTop = '0px';
 
                 card.classList.add('accordion-open');
                 btn.setAttribute('aria-expanded', 'true');
 
                 requestAnimationFrame(function() {
                     requestAnimationFrame(function() {
-                        content.style.transition = 'max-height 0.62s cubic-bezier(0.16, 1, 0.3, 1), padding 0.5s ease';
+                        content.style.transition = 'max-height 0.62s cubic-bezier(0.16, 1, 0.3, 1), padding-top 0.5s ease';
                         content.style.maxHeight = fullH + 'px';
-                        content.style.padding = '1.2rem';
+                        content.style.paddingTop = '18px';
 
                         content.addEventListener('transitionend', function onEnd(e) {
                             if (e.propertyName !== 'max-height') return;
@@ -4224,13 +4234,13 @@
                 var currentH = content.scrollHeight;
                 content.style.overflow = 'hidden';
                 content.style.maxHeight = currentH + 'px';
-                content.style.padding = '1.2rem';
+                content.style.paddingTop = '18px';
 
                 requestAnimationFrame(function() {
                     requestAnimationFrame(function() {
-                        content.style.transition = 'max-height 0.4s cubic-bezier(0.16, 1, 0.3, 1), padding 0.3s ease';
+                        content.style.transition = 'max-height 0.4s cubic-bezier(0.16, 1, 0.3, 1), padding-top 0.3s ease';
                         content.style.maxHeight = '0px';
-                        content.style.padding = '0 1.2rem';
+                        content.style.paddingTop = '0px';
 
                         card.classList.remove('accordion-open');
                         btn.setAttribute('aria-expanded', 'false');
