@@ -2478,8 +2478,12 @@
         }
 
         @media (max-width: 1050px) {
+            body {
+                position: relative;
+            }
             body::after {
                 position: absolute;
+                min-height: 100%;
                 background-attachment: local;
             }
         }
