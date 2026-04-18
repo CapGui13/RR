@@ -490,9 +490,13 @@
                 box-shadow: none !important;
             }
 
-            /* Alignement naturel : BCRR et sous-titre centrés l'un sous l'autre */
+            /* BCRR centré dynamiquement par JS entre carte du Roi et bouton FB */
+            .logo-section {
+                width: 100%;
+            }
             .logo-text {
                 align-items: center;
+                text-align: center;
             }
             .logo-text p.logo-subtitle-main {
                 font-size: 1.4rem;
@@ -505,21 +509,21 @@
                 display: block;
             }
 
-            /* Logo-right : positionné en absolu, ancré à droite du header.
-               right = padding header (1.5rem=24px) + margin-left carte du Roi (32px) = 56px
-               → bord droit du bloc symétrique au bord gauche de la carte du Roi.
-               Pour recalibrer le vertical :
+            /* Logo-right : aligné en bas sur la carte du Roi (tablette)
+               ─────────────────────────────────────────────────────────
+               Le CSS base applique margin-bottom: -1rem (-16px) sur .logo-right.
+               Sur tablette ce margin est écrasé ici avec !important.
+               Pour recalibrer si nécessaire, mesurer dans la console (mode tablette) :
                  document.querySelector('.logo-img').getBoundingClientRect().bottom
                  document.querySelector('.logo-right-inner a:last-child img').getBoundingClientRect().bottom
+               L'écart (Comité - carte) doit être 0. Ajuster margin-bottom en conséquence.
+               Calcul : margin-bottom = -16px (base) + écart mesuré sur 38d = -9.6px
                ───────────────────────────────────────────────────────── */
-            .header-content {
-                position: relative;
-            }
             .logo-right {
-                position: absolute;
-                right: 32px;    /* 56px depuis bord header = 24px padding + 32px */
-                bottom: -9.6px;  /* aligné avec le bas de la carte du Roi */
-                margin: 0 !important;
+                align-self: flex-end;
+                margin-bottom: -9.6px !important;
+                margin-top: 0;
+                margin-right: 36px !important; /* symétrie avec bord gauche carte du Roi à 56px */
             }
             .logo-right-inner {
                 align-items: flex-end;
@@ -4982,8 +4986,69 @@
                 }, 150);
             }, { passive: true });
 
-            /* Feedback visuel is-tapped uniquement sur tap réel (pas scroll) */
+
             var THRESHOLD = 10;
             document.querySelectorAll('.nav-card button').forEach(function(btn) {
                 var sx = 0, sy = 0;
-                btn.addEventListener('touchstart', functio
+                btn.addEventListener('touchstart', function(e) {
+                    sx = e.touches[0].clientX;
+                    sy = e.touches[0].clientY;
+                }, { passive: true });
+            });
+        })();
+    </script>
+
+    <script>
+        /* === CENTRAGE ADAPTATIF DU LOGO-TEXT ENTRE CARTE DU ROI ET BOUTON FB (TABLETTE) === */
+        (function() {
+            function isTablet() {
+                return window.innerWidth >= 600 && window.innerWidth <= 1024;
+            }
+
+            function centerLogoText() {
+                if (!isTablet()) return;
+
+                var logoText = document.querySelector('.logo-text');
+                var roi = document.querySelector('.logo-img');
+                var fb = document.querySelector('.logo-right-inner a:first-child');
+                var headerContent = document.querySelector('.header-content');
+
+                if (!logoText || !roi || !fb || !headerContent) return;
+
+                var hcRect = headerContent.getBoundingClientRect();
+                var roiRect = roi.getBoundingClientRect();
+                var fbRect = fb.getBoundingClientRect();
+
+                // Centre de l'espace entre bord droit carte Roi et bord gauche FB
+                var centerX = (roiRect.right + fbRect.left) / 2;
+                var centerRelative = centerX - hcRect.left;
+
+                // Largeur du logo-text
+                var ltWidth = logoText.getBoundingClientRect().width;
+
+                logoText.style.position = 'absolute';
+                logoText.style.left = (centerRelative - ltWidth / 2) + 'px';
+                logoText.style.right = 'auto';
+                logoText.style.bottom = '0';
+                logoText.style.textAlign = 'center';
+                logoText.style.alignItems = 'center';
+            }
+
+            function reset() {
+                if (isTablet()) return;
+                var logoText = document.querySelector('.logo-text');
+                if (logoText) {
+                    logoText.style.position = '';
+                    logoText.style.left = '';
+                    logoText.style.right = '';
+                    logoText.style.bottom = '';
+                }
+            }
+
+            document.addEventListener('DOMContentLoaded', centerLogoText);
+            window.addEventListener('resize', function() {
+                if (isTablet()) centerLogoText();
+                else reset();
+            });
+        })();
+    </script>
