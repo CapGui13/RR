@@ -415,6 +415,10 @@
                 margin-bottom: 0;
                 margin-top: 0;
             }
+            /* Tablette : header-content en relative pour ancrer logo-right */
+            .header-content {
+                position: relative;
+            }
             .nav-card-container {
                 position: static;
                 transform: none;
@@ -493,8 +497,10 @@
             /* BCRR centré dynamiquement par JS entre carte du Roi et bouton FB */
             .logo-section {
                 width: 100%;
+                position: relative;
             }
             .logo-text {
+                flex: 1;
                 align-items: center;
                 text-align: center;
             }
@@ -4986,7 +4992,7 @@
                 }, 150);
             }, { passive: true });
 
-
+            /* Feedback visuel is-tapped uniquement sur tap réel (pas scroll) */
             var THRESHOLD = 10;
             document.querySelectorAll('.nav-card button').forEach(function(btn) {
                 var sx = 0, sy = 0;
@@ -4999,7 +5005,7 @@
     </script>
 
     <script>
-        /* === CENTRAGE ADAPTATIF DU LOGO-TEXT ENTRE CARTE DU ROI ET BOUTON FB (TABLETTE) === */
+        /* === CENTRAGE ADAPTATIF DU LOGO-TEXT ENTRE CARTE DU ROI ET BOUTON FB === */
         (function() {
             function isTablet() {
                 return window.innerWidth >= 480 && window.innerWidth <= 1024;
@@ -5011,44 +5017,46 @@
                 var logoText = document.querySelector('.logo-text');
                 var roi = document.querySelector('.logo-img');
                 var fb = document.querySelector('.logo-right-inner a:first-child');
-                var headerContent = document.querySelector('.header-content');
+                var logoSection = document.querySelector('.logo-section');
 
-                if (!logoText || !roi || !fb || !headerContent) return;
+                if (!logoText || !roi || !fb || !logoSection) return;
 
-                var hcRect = headerContent.getBoundingClientRect();
                 var roiRect = roi.getBoundingClientRect();
                 var fbRect = fb.getBoundingClientRect();
+                var sectionRect = logoSection.getBoundingClientRect();
 
                 // Centre de l'espace entre bord droit carte Roi et bord gauche FB
                 var centerX = (roiRect.right + fbRect.left) / 2;
-                var centerRelative = centerX - hcRect.left;
-
-                // Largeur du logo-text
-                var ltWidth = logoText.getBoundingClientRect().width;
+                var centerRelative = centerX - sectionRect.left;
 
                 logoText.style.position = 'absolute';
-                logoText.style.left = (centerRelative - ltWidth / 2) + 'px';
-                logoText.style.right = 'auto';
+                logoText.style.left = centerRelative + 'px';
+                logoText.style.transform = 'translateX(-50%)';
                 logoText.style.bottom = '0';
+                logoText.style.width = 'auto';
                 logoText.style.textAlign = 'center';
-                logoText.style.alignItems = 'center';
             }
 
             function reset() {
-                if (isTablet()) return;
                 var logoText = document.querySelector('.logo-text');
                 if (logoText) {
                     logoText.style.position = '';
                     logoText.style.left = '';
-                    logoText.style.right = '';
+                    logoText.style.transform = '';
                     logoText.style.bottom = '';
+                    logoText.style.width = '';
                 }
             }
 
-            document.addEventListener('DOMContentLoaded', function() {
-                // Délai pour laisser les autres scripts positionner leurs éléments
-                setTimeout(centerLogoText, 300);
-            });
+            function init() {
+                // Laisser le temps aux animations de se placer
+                setTimeout(function() {
+                    if (isTablet()) centerLogoText();
+                    else reset();
+                }, 500);
+            }
+
+            document.addEventListener('DOMContentLoaded', init);
             window.addEventListener('resize', function() {
                 if (isTablet()) centerLogoText();
                 else reset();
