@@ -293,7 +293,7 @@
             flex-shrink: 0;
             cursor: default;
             position: relative;
-            top: 3px;
+            top: 9.4px; /* descend la carte pour aligner son bas avec le bas du comité */
         }
 
         .logo-img img {
@@ -410,12 +410,6 @@
             }
 
             /* --- Nav : version mobile (colonne) --- */
-            .logo-right {
-                align-self: center;
-                margin-bottom: 0;
-                margin-top: 0;
-            }
-            /* Tablette : header-content en relative pour ancrer logo-right */
             .header-content {
                 position: relative;
             }
@@ -515,21 +509,14 @@
                 display: block;
             }
 
-            /* Logo-right : aligné en bas sur la carte du Roi (tablette)
-               ─────────────────────────────────────────────────────────
-               Le CSS base applique margin-bottom: -1rem (-16px) sur .logo-right.
-               Sur tablette ce margin est écrasé ici avec !important.
-               Pour recalibrer si nécessaire, mesurer dans la console (mode tablette) :
-                 document.querySelector('.logo-img').getBoundingClientRect().bottom
-                 document.querySelector('.logo-right-inner a:last-child img').getBoundingClientRect().bottom
-               L'écart (Comité - carte) doit être 0. Ajuster margin-bottom en conséquence.
-               Calcul : margin-bottom = -16px (base) + écart mesuré sur 38d = -9.6px
-               ───────────────────────────────────────────────────────── */
+            /* Logo-right : position absolue, symétrique à la carte du Roi.
+               right: 32px = 56px depuis bord header (24px padding + 32px margin-left carte)
+               bottom: -9.6px = aligné avec le bas de la carte du Roi */
             .logo-right {
-                align-self: flex-end;
-                margin-bottom: -9.6px !important;
-                margin-top: 0;
-                margin-right: 36px !important; /* symétrie avec bord gauche carte du Roi à 56px */
+                position: absolute !important;
+                right: 32px !important;
+                bottom: -9.6px !important;
+                margin: 0 !important;
             }
             .logo-right-inner {
                 align-items: flex-end;
