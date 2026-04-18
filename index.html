@@ -446,14 +446,11 @@
             }
 
             /* --- Sections : empilées et ouvertes (pas d'accordéon) --- */
-            /* padding symétrique : même écart qu'entre bord gauche section / bord gauche Roi de Pique
-               Gauche = 1.5rem (header padding) + 32px (margin-left logo-section)
-               Droite = 1.5rem (header padding) + 1rem (margin-right logo-right tablette) */
             .main-container {
                 grid-template-columns: 1fr;
                 gap: 1.5rem;
                 margin-top: 1rem;
-                padding: 0 calc(1.5rem + 1rem) 0 calc(1.5rem + 32px);
+                padding: 0 calc(1.5rem + 1rem) 0 1.5rem;
             }
 
             /* Toggle caché — contenu toujours visible */
