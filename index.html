@@ -392,7 +392,7 @@
         }
 
         /* === TABLETTE : 600px – 1024px === */
-        @media (min-width: 600px) and (max-width: 1024px) {
+        @media (min-width: 480px) and (max-width: 1024px) {
 
             /* --- Empêcher le scroll latéral --- */
             html, body {
@@ -5002,7 +5002,7 @@
         /* === CENTRAGE ADAPTATIF DU LOGO-TEXT ENTRE CARTE DU ROI ET BOUTON FB (TABLETTE) === */
         (function() {
             function isTablet() {
-                return window.innerWidth >= 600 && window.innerWidth <= 1024;
+                return window.innerWidth >= 480 && window.innerWidth <= 1024;
             }
 
             function centerLogoText() {
