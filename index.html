@@ -5045,7 +5045,10 @@
                 }
             }
 
-            document.addEventListener('DOMContentLoaded', centerLogoText);
+            document.addEventListener('DOMContentLoaded', function() {
+                // Délai pour laisser les autres scripts positionner leurs éléments
+                setTimeout(centerLogoText, 300);
+            });
             window.addEventListener('resize', function() {
                 if (isTablet()) centerLogoText();
                 else reset();
