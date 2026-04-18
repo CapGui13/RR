@@ -505,21 +505,21 @@
                 display: block;
             }
 
-            /* Logo-right : aligné en bas sur la carte du Roi (tablette)
-               ─────────────────────────────────────────────────────────
-               Le CSS base applique margin-bottom: -1rem (-16px) sur .logo-right.
-               Sur tablette ce margin est écrasé ici avec !important.
-               Pour recalibrer si nécessaire, mesurer dans la console (mode tablette) :
+            /* Logo-right : positionné en absolu, ancré à droite du header.
+               right = padding header (1.5rem=24px) + margin-left carte du Roi (32px) = 56px
+               → bord droit du bloc symétrique au bord gauche de la carte du Roi.
+               Pour recalibrer le vertical :
                  document.querySelector('.logo-img').getBoundingClientRect().bottom
                  document.querySelector('.logo-right-inner a:last-child img').getBoundingClientRect().bottom
-               L'écart (Comité - carte) doit être 0. Ajuster margin-bottom en conséquence.
-               Calcul : margin-bottom = -16px (base) + écart mesuré sur 38d = -9.6px
                ───────────────────────────────────────────────────────── */
+            .header-content {
+                position: relative;
+            }
             .logo-right {
-                align-self: flex-end;
-                margin-bottom: -9.6px !important;
-                margin-top: 0;
-                margin-right: 36px !important; /* symétrie avec bord gauche carte du Roi à 56px */
+                position: absolute;
+                right: 32px;    /* 56px depuis bord header = 24px padding + 32px */
+                bottom: -3px;  /* aligné avec le bas de la carte du Roi */
+                margin: 0 !important;
             }
             .logo-right-inner {
                 align-items: flex-end;
