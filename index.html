@@ -5059,14 +5059,12 @@
          *   Le fondu les rend invisibles au bon moment et évite tout overflow:hidden
          *   qui clipperait trop tôt.
          *
-         * Calcul du point de disparition (getFadeStartScrollY) :
-         *   1. On mesure la distance (gap) entre le bas de logo-section et le haut
+         * Calcul du point de contact (getFadeStartScrollY) :
+         *   1. On mesure la distance réelle entre le bas de logo-section et le haut
          *      de la nav en coordonnées document (getBoundingClientRect + scrollY).
          *   2. logo-section monte de scrollY × 0.25 px.
-         *      Contact physique quand : scrollY × 0.25 = gap  →  contactScrollY = gap / 0.25
-         *   3. Le fade TERMINE au contact (pas commence) : fadeStart = contactScrollY - _fadeDist
-         *      Ainsi les logos sont déjà transparents quand ils arrivent sur la nav.
-         *   4. _fadeStart est recalculé à chaque resize (rotation, redimensionnement)
+         *      Contact quand : scrollY × 0.25 = gap  →  fadeStart = gap / 0.25
+         *   3. _fadeStart est recalculé à chaque resize (rotation, redimensionnement)
          *      et au premier scroll réel (évite les dimensions fausses au DOMContentLoaded
          *      quand les images ne sont pas encore chargées).
          *
@@ -5082,28 +5080,25 @@
             var logoSection = document.querySelector('.logo-section');
             var navContainer = document.querySelector('.nav-card-container');
 
-            // scrollY auquel débute le fade, calculé pour que les logos soient
-            // complètement transparents au moment où ils touchent la nav.
-            // On anticipe de _fadeDist px de scroll pour que la disparition soit
-            // terminée exactement au contact, pas après.
-            var _fadeDist = 80; // px de scroll sur lesquels s'effectue le fondu
-
+            // scrollY auquel le bas de logo-section atteint le haut de la nav.
+            // Sur tablette la nav est SOUS les logos dans le DOM.
+            // logo-section monte de scrollY*0.25 px → contact quand scrollY*0.25 = logoBottom - navTop
+            // donc fadeStart = (logoBottom - navTop) / 0.25
             function getFadeStartScrollY() {
                 if (!logoSection || !navContainer) return 220;
-                // Mesures en coordonnées document (indépendantes du scrollY courant)
+                // Mesures à scrollY courant → on ramène en coordonnées document
                 var scrollY0 = window.scrollY;
                 var logoBottom = logoSection.getBoundingClientRect().bottom + scrollY0;
                 var navTop    = navContainer.getBoundingClientRect().top    + scrollY0;
-                // gap = distance entre bas du logo et haut de la nav au repos (scrollY=0)
-                var gap = navTop - logoBottom;
+                // Distance (en px de document) entre bas du logo et haut de la nav au repos
+                var gap = navTop - logoBottom; // positif : logo est au-dessus de la nav
                 if (gap <= 0) return 0;
-                // scrollY du contact physique : scrollY*0.25 = gap → scrollY = gap/0.25
-                var contactScrollY = gap / 0.25;
-                // On anticipe de _fadeDist px : le fade TERMINE au contact, pas commence
-                return Math.max(0, contactScrollY - _fadeDist);
+                // Pour combler ce gap avec translateY(scrollY*0.25), il faut scrollY = gap/0.25
+                return gap / 0.25;
             }
 
             var _fadeStart = null;
+            var _fadeDist = 80; // px de scroll sur lesquels s'effectue le fondu
 
             function syncParallax() {
                 if (!logoRight || !logoSection) return;
