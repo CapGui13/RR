@@ -7,7 +7,7 @@
     <meta name="theme-color" content="#1a4d2e">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bridge Club Roy René - Aix-en-Provence | Cours & Tournois FFB</title>
-    <meta name="description" content="Bridge Club Roy René à Aix-en-Provence (13090) : club convivial fondé en 1967. Cours de bridge tous niveaux (débutants, 2ème année, 3ème année, perfectionnement), tournois FFB réguliers (Rondes de France lundi/mercredi/vendredi), Coupe des Clubs, Coupe de Provence, Festival d'Aix. Salle climatisée 120 places, accessible PMR. Enseignants diplômés. Rejoignez-nous !">
+    <meta name="description" content="Bridge Club Roy René à Aix-en-Provence : cours tous niveaux (débutants, perfectionnement), tournois FFB réguliers (Rondes de France lun/mer/ven), Coupe des Clubs, Festival d'Aix. Salle climatisée, accessible PMR.">
     <meta name="keywords" content="bridge Aix-en-Provence, cours bridge, tournoi bridge FFB, Bridge Club Roy René, apprendre bridge, cours débutant bridge, Ronde de France bridge, club bridge Provence, tournoi bridge Aix, festival bridge, bridge 13090, école bridge Aix, leçons bridge, perfectionnement bridge, Coupe des Clubs, Coupe de Provence">
     
     <!-- Open Graph / Facebook -->
@@ -3672,17 +3672,22 @@
 
         // Charger les photos depuis le stockage
         function loadPhotosFromStorage() {
-            const stored = localStorage.getItem(STORAGE_KEY);
-            if (stored) {
-                galleryImages = JSON.parse(stored);
-            } else {
-                // Photos par défaut
-                galleryImages = [
-                    { url: 'https://i.imgur.com/9vki9OB.jpeg', title: 'Sortie du club', category: 'events', id: Date.now() + 1 },
-                    { url: 'https://i.imgur.com/FMSOPeO.jpeg', title: 'Stand du Bridge Club Roy René', category: 'events', id: Date.now() + 2 },
-                    { url: 'https://i.imgur.com/mjcoBVU.jpeg', title: 'Repas convivial du club', category: 'events', id: Date.now() + 3 },
-                ];
-                savePhotosToStorage();
+            try {
+                const stored = localStorage.getItem(STORAGE_KEY);
+                if (stored) {
+                    galleryImages = JSON.parse(stored);
+                } else {
+                    // Photos par défaut
+                    galleryImages = [
+                        { url: 'https://i.imgur.com/9vki9OB.jpeg', title: 'Sortie du club', category: 'events', id: Date.now() + 1 },
+                        { url: 'https://i.imgur.com/FMSOPeO.jpeg', title: 'Stand du Bridge Club Roy René', category: 'events', id: Date.now() + 2 },
+                        { url: 'https://i.imgur.com/mjcoBVU.jpeg', title: 'Repas convivial du club', category: 'events', id: Date.now() + 3 },
+                    ];
+                    savePhotosToStorage();
+                }
+            } catch(e) {
+                console.error('Erreur lecture localStorage :', e);
+                galleryImages = [];
             }
         }
 
@@ -3691,7 +3696,9 @@
             try {
                 localStorage.setItem(STORAGE_KEY, JSON.stringify(galleryImages));
             } catch(e) {
-                showSuccessMessage('⚠️ Stockage plein — certaines photos ne peuvent pas être sauvegardées.');
+                // Quota dépassé — localStorage ~5MB, les photos base64 sont volumineuses
+                console.error('localStorage quota dépassé :', e);
+                alert('⚠️ Stockage local plein. Supprimez des photos existantes avant d\'en ajouter de nouvelles.');
             }
         }
 
@@ -3947,7 +3954,7 @@
         }
 
         function escapeHtml(str) {
-            return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+            return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
         }
 
         function getCategoryName(category) {
@@ -4145,17 +4152,19 @@
         function formatDate(dateStr) {
             const [day, month] = dateStr.split('/');
             const today = new Date();
-            const currentMonth = today.getMonth();
             const currentYear = today.getFullYear();
-            
-            let dateYear = currentYear;
-            if (currentMonth >= 8) {
-                if (month - 1 < 8) dateYear = currentYear + 1;
-            } else {
-                if (month - 1 >= 8) dateYear = currentYear - 1;
-            }
-            
-            return new Date(dateYear, month - 1, day);
+
+            // On construit la date pour l'année courante et on choisit
+            // l'année la plus proche (passée ou future) selon le contexte.
+            const d = new Date(currentYear, month - 1, day);
+            // Si la date est déjà passée de plus de 6 mois, elle appartient
+            // à la prochaine édition (année suivante).
+            const diffMs = d - today;
+            if (diffMs < -180 * 24 * 3600 * 1000) d.setFullYear(currentYear + 1);
+            // Si la date est dans plus de 6 mois dans le futur, elle appartenait
+            // à l'édition précédente (année précédente).
+            if (diffMs > 180 * 24 * 3600 * 1000) d.setFullYear(currentYear - 1);
+            return d;
         }
 
         function isDatePassed(dateStr) {
@@ -4253,7 +4262,8 @@
 
         function lockScroll() {
             _scrollY = window.scrollY;
-            _scrollLocked = true; // doit être mis à true AVANT position:fixed (voir commentaire bloc)
+            _scrollLocked = true;
+            window._scrollLocked = true; // exposé pour syncParallax (IIFE séparé)
             window.addEventListener('wheel', _preventScroll, { passive: false });
             window.addEventListener('touchmove', _preventScroll, { passive: false });
             document.body.style.position = 'fixed';
@@ -4262,13 +4272,17 @@
         }
 
         function unlockScroll() {
-            _scrollLocked = false; // doit être remis à false AVANT window.scrollTo (voir commentaire bloc)
+            _scrollLocked = false;
+            window._scrollLocked = false; // exposé pour syncParallax (IIFE séparé)
             window.removeEventListener('wheel', _preventScroll);
             window.removeEventListener('touchmove', _preventScroll);
             document.body.style.position = '';
             document.body.style.top = '';
             document.body.style.width = '';
             window.scrollTo(0, _scrollY);
+            // Forcer le recalcul de _fadeStart au prochain scroll réel
+            // (les mesures getBoundingClientRect sont fausses juste après scrollTo)
+            if (window._syncParallaxResetFade) window._syncParallaxResetFade();
         }
 
         // === OVERLAY MANAGEMENT ===
@@ -4444,8 +4458,12 @@
                 setTimeout(() => toggleContact(), 2000);
             })
             .finally(() => {
-                submitBtn.disabled = false;
-                submitBtn.textContent = 'Envoyer';
+                // On ne réactive le bouton que si la modale est encore ouverte
+                if (document.getElementById('contactModal') &&
+                    document.getElementById('contactModal').classList.contains('active')) {
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = 'Envoyer';
+                }
             });
         }
 
@@ -4687,7 +4705,12 @@
             }
 
             window.addEventListener('scroll', updateParallax, { passive: true });
-            window.addEventListener('resize', updateParallax, { passive: true });
+            // Debounce resize pour éviter des centaines de reflows par seconde
+            let _parallaxResizeTimer = null;
+            window.addEventListener('resize', function() {
+                clearTimeout(_parallaxResizeTimer);
+                _parallaxResizeTimer = setTimeout(updateParallax, 80);
+            }, { passive: true });
 
             // === BOUTON RETOUR EN HAUT ===
             const backToTop = document.getElementById('backToTop');
@@ -4937,7 +4960,13 @@
                 }
             }
 
-            document.addEventListener('DOMContentLoaded', initAccordion);
+            // Fix : DOMContentLoaded ne se déclenche jamais si le script s'exécute après le parsing.
+            // On vérifie readyState et on appelle directement si déjà chargé.
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', initAccordion);
+            } else {
+                initAccordion();
+            }
             window.addEventListener('resize', handleResize);
         })();
     </script>
@@ -5103,13 +5132,15 @@
             function syncParallax() {
                 if (!logoRight || !logoSection) return;
                 if (!isTablet()) {
+                    // Sur desktop/mobile, syncParallax ne touche PAS logoSection
+                    // (géré exclusivement par updateParallax) — on reset seulement logo-right
                     logoRight.style.transform = '';
                     logoRight.style.opacity = '';
-                    logoSection.style.transform = '';
-                    logoSection.style.opacity = '';
                     return;
                 }
-                if (typeof _scrollLocked !== 'undefined' && _scrollLocked) return;
+                // Guard : position:fixed au lock déclenche un faux scroll à scrollY=0.
+                // On vérifie _scrollLocked via window pour traverser les scopes IIFE.
+                if (window._scrollLocked) return;
                 // Recalculer fadeStart au premier appel ou si null
                 if (_fadeStart === null) {
                     _fadeStart = getFadeStartScrollY();
@@ -5124,15 +5155,15 @@
                 logoRight.style.transform = 'translateY(' + ty + 'px)';
                 logoRight.style.opacity = opacity;
                 // Synchronise aussi logo-section (carte du Roi + BCRR) avec le même fade
-                if (logoSection) {
-                    logoSection.style.opacity = opacity;
-                }
+                logoSection.style.opacity = opacity;
             }
 
             window.addEventListener('scroll', syncParallax, { passive: true });
             window.addEventListener('resize', function() {
                 _fadeStart = null; // recalcul au prochain scroll
             }, { passive: true });
+            // Permet à unlockScroll() de forcer un recalcul de _fadeStart après fermeture modale
+            window._syncParallaxResetFade = function() { _fadeStart = null; };
             // Ne pas appeler syncParallax au DOMContentLoaded : les dimensions
             // peuvent être fausses avant que les images soient chargées.
             // Le premier appel depuis l'événement scroll calculera _fadeStart correctement.
