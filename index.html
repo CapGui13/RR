@@ -400,18 +400,24 @@
                 max-width: 100%;
             }
 
-            /* --- Header --- */
+            /* --- Header : padding pour donner de l'air avant la nav --- */
             header {
                 padding-bottom: 1.5rem;
             }
+            /* Aligner les éléments du header par le bas */
             .header-content {
                 align-items: flex-end;
-                position: relative;
             }
 
-            /* --- Nav : version colonne, au-dessus du header-content au scroll --- */
+            /* --- Nav : version mobile (colonne) --- */
+            .logo-right {
+                align-self: center;
+                margin-bottom: 0;
+                margin-top: 0;
+            }
             .nav-card-container {
                 position: static;
+                z-index: 5;
                 transform: none;
                 margin-top: 1.2rem;
                 padding: 0 1rem;
@@ -464,7 +470,7 @@
                 display: block;
             }
 
-            /* --- Désactiver hover sur éléments non tactiles --- */
+            /* Désactiver hover sur éléments non tactiles */
             .logo-img:hover img {
                 transform: none !important;
                 box-shadow: 0 4px 15px rgba(0,0,0,0.4) !important;
@@ -485,7 +491,7 @@
                 box-shadow: none !important;
             }
 
-            /* --- BCRR : centré dynamiquement par JS entre carte du Roi et bouton FB --- */
+            /* BCRR centré dynamiquement par JS entre carte du Roi et bouton FB */
             .logo-section {
                 width: 100%;
                 position: relative;
@@ -506,9 +512,20 @@
                 display: block;
             }
 
-            /* --- Logo-right : symétrique à la carte du Roi (right=32px = 56px depuis bord header) ---
-               bottom=-16px aligné avec le bas de la carte du Roi.
-               Le parallaxe (JS) synchronise son transform/opacity avec .logo-section au scroll. */
+            /* Logo-right : aligné en bas sur la carte du Roi (tablette)
+               ─────────────────────────────────────────────────────────
+               Le CSS base applique margin-bottom: -1rem (-16px) sur .logo-right.
+               Sur tablette ce margin est écrasé ici avec !important.
+               Pour recalibrer si nécessaire, mesurer dans la console (mode tablette) :
+                 document.querySelector('.logo-img').getBoundingClientRect().bottom
+                 document.querySelector('.logo-right-inner a:last-child img').getBoundingClientRect().bottom
+               L'écart (Comité - carte) doit être 0. Ajuster margin-bottom en conséquence.
+               Calcul : margin-bottom = -16px (base) + écart mesuré sur 38d = -9.6px
+               ───────────────────────────────────────────────────────── */
+            /* Logo-right : flux flex normal, symétrique à la carte du Roi */
+            .header-content {
+                position: relative;
+            }
             .logo-right {
                 align-self: flex-end !important;
                 margin-bottom: -16px !important;
@@ -4996,24 +5013,22 @@
             function isTablet() { return window.innerWidth >= 480 && window.innerWidth <= 1024; }
 
             var logoRight = document.querySelector('.logo-right');
+            var logoSection = document.querySelector('.logo-section');
 
             function syncParallax() {
-                if (!logoRight) return;
+                if (!logoRight || !logoSection) return;
                 if (!isTablet()) {
                     logoRight.style.transform = '';
                     logoRight.style.opacity = '';
                     return;
                 }
-                // Recalculer directement depuis scrollY (même logique que updateParallax)
-                var scrollY = window.scrollY;
-                logoRight.style.transform = 'translateY(' + (scrollY * 0.25) + 'px)';
-                logoRight.style.opacity = Math.max(0, 1 - scrollY / 220);
+                // Copier le transform et opacity de logo-section sur logo-right
+                logoRight.style.transform = logoSection.style.transform;
+                logoRight.style.opacity = logoSection.style.opacity;
             }
 
             window.addEventListener('scroll', syncParallax, { passive: true });
             window.addEventListener('resize', syncParallax, { passive: true });
-            // Init au chargement
-            document.addEventListener('DOMContentLoaded', syncParallax);
         })();
     </script>
 
