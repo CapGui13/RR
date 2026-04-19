@@ -392,7 +392,7 @@
         }
 
         /* === TABLETTE : 600px – 1024px === */
-        @media (min-width: 480px) and (max-width: 1024px) {
+        @media (min-width: 481px) and (max-width: 1024px) {
 
             /* --- Empêcher le scroll latéral --- */
             html, body {
@@ -4992,7 +4992,7 @@
     <script>
         /* === PARALLAXE LOGO-RIGHT (TABLETTE UNIQUEMENT) === */
         (function() {
-            function isTablet() { return window.innerWidth >= 480 && window.innerWidth <= 1024; }
+            function isTablet() { return window.innerWidth >= 481 && window.innerWidth <= 1024; }
 
             var logoRight = document.querySelector('.logo-right');
 
@@ -5020,7 +5020,7 @@
     <script>
         /* === CENTRAGE ADAPTATIF DU LOGO-TEXT ENTRE CARTE DU ROI ET BOUTON FB === */
         (function() {
-            function isTablet() { return window.innerWidth >= 480 && window.innerWidth <= 1024; }
+            function isTablet() { return window.innerWidth >= 481 && window.innerWidth <= 1024; }
 
             function centerLogoText() {
                 if (!isTablet()) return;
