@@ -392,6 +392,37 @@
         }
 
         /* === TABLETTE : 600px – 1024px === */
+        /*
+         * ┌─────────────────────────────────────────────────────────────────┐
+         * │  EMPILEMENT TABLETTE — comment ça marche                        │
+         * ├─────────────────────────────────────────────────────────────────┤
+         * │  Problème : au scroll, logo-section et logo-right montent via   │
+         * │  translateY (parallaxe JS ×0.25) et passaient DEVANT la nav.    │
+         * │                                                                  │
+         * │  Solution CSS (z-index) :                                        │
+         * │    header           → position:relative  (contexte racine)       │
+         * │    header-content   → z-index: 1         (logos dans cette zone) │
+         * │    logo-section     → z-index: 1         (carte du Roi + BCRR)   │
+         * │    logo-right       → z-index: 1         (FB + Comité Provence)  │
+         * │    nav-card-container → z-index: 2  ← PASSE DEVANT les logos    │
+         * │                                                                  │
+         * │  ⚠️  NE PAS mettre overflow:hidden sur header ni header-content : │
+         * │     ça clippe les logos trop tôt (avant qu'ils touchent la nav). │
+         * │     Le masquage est géré uniquement par l'opacité (JS).          │
+         * │                                                                  │
+         * │  ⚠️  NE PAS oublier left:auto sur .nav-card-container :           │
+         * │     le CSS desktop pose left:50% (position:absolute centré).     │
+         * │     Sans reset, la nav se décale à droite sur tablette.          │
+         * │                                                                  │
+         * │  Solution JS (fade) — voir script PARALLAXE LOGO-RIGHT :         │
+         * │    getFadeStartScrollY() mesure la distance réelle entre le bas  │
+         * │    de logo-section et le haut de la nav, puis calcule le scrollY │
+         * │    exact où les deux entrent en contact (gap / 0.25).            │
+         * │    Le fondu s'effectue sur 80px de scroll à partir de ce point.  │
+         * │    _fadeStart est recalculé à chaque resize (dimensions mobiles  │
+         * │    peuvent changer) et au premier scroll (images chargées).      │
+         * └─────────────────────────────────────────────────────────────────┘
+         */
         @media (min-width: 481px) and (max-width: 1024px) {
 
             /* --- Empêcher le scroll latéral --- */
@@ -400,22 +431,22 @@
                 max-width: 100%;
             }
 
-            /* --- Header --- */
+            /* --- Header : contexte d'empilement racine --- */
             header {
                 padding-bottom: 1.5rem;
-                position: relative;   /* contexte d'empilement pour z-index enfants */
+                position: relative;   /* nécessaire pour que z-index fonctionne sur les enfants */
             }
             .header-content {
                 align-items: flex-end;
                 position: relative;
-                z-index: 1;           /* logos sous la nav */
+                z-index: 1;           /* logos en couche basse — passent DERRIÈRE la nav */
             }
 
-            /* --- Nav : passe devant header-content via z-index --- */
+            /* --- Nav : couche haute — passe DEVANT les logos au scroll --- */
             .nav-card-container {
-                position: relative;   /* active z-index sans sortir du flux */
+                position: relative;   /* active z-index tout en restant dans le flux normal */
                 z-index: 2;           /* au-dessus de header-content (z-index:1) */
-                left: auto;           /* reset left:50% hérité du desktop */
+                left: auto;           /* reset du left:50% posé par le CSS desktop (position:absolute) */
                 transform: none;
                 margin-top: 1.2rem;
                 padding: 0 1rem;
@@ -515,23 +546,26 @@
                 display: block;
             }
 
-            /* --- Logo-right : symétrique à la carte du Roi (right=32px = 56px depuis bord header) ---
-               bottom=-16px aligné avec le bas de la carte du Roi.
-               Le parallaxe (JS) synchronise son transform/opacity avec .logo-section au scroll. */
+            /* --- Logo-right : symétrique à la carte du Roi ---
+               margin-bottom:-16px aligne son bas avec celui de la carte du Roi.
+               position:relative + z-index:1 indispensable : sans ça, le margin
+               négatif fait déborder logo-right hors de header-content et il peut
+               repasser devant la nav malgré le z-index de header-content. */
             .logo-right {
                 align-self: flex-end !important;
                 margin-bottom: -16px !important;
                 margin-top: 0 !important;
                 margin-right: 32px !important;
                 position: relative;
-                z-index: 1;   /* reste sous la nav (z-index:2) même avec margin négatif */
+                z-index: 1;   /* couche basse — passe derrière nav (z-index:2) */
             }
             .logo-right-inner {
                 align-items: flex-end;
             }
+            /* logo-section explicitement en couche basse pour cohérence avec logo-right */
             .logo-section {
                 position: relative;
-                z-index: 1;   /* idem — reste sous la nav */
+                z-index: 1;
             }
         }
         body.animate .nav-card-container {
@@ -5014,8 +5048,31 @@
 
     <script>
         /* === PARALLAXE LOGO-RIGHT (TABLETTE UNIQUEMENT) === */
-        /* Fade out logo-section et logo-right exactement quand ils atteignent
-           le bas de la nav (contact visuel), pas avant. */
+        /*
+         * Fade out logo-section + logo-right au moment précis où ils "touchent"
+         * la nav en remontant, pas avant (et surtout pas dès le premier pixel de scroll).
+         *
+         * Pourquoi ce script existe :
+         *   Sur tablette, la nav est en position:static sous les logos dans le DOM.
+         *   Au scroll, logo-section monte via translateY(scrollY × 0.25). Sans fade,
+         *   les logos glissent sous la nav (z-index les cache) mais restent cliquables.
+         *   Le fondu les rend invisibles au bon moment et évite tout overflow:hidden
+         *   qui clipperait trop tôt.
+         *
+         * Calcul du point de contact (getFadeStartScrollY) :
+         *   1. On mesure la distance réelle entre le bas de logo-section et le haut
+         *      de la nav en coordonnées document (getBoundingClientRect + scrollY).
+         *   2. logo-section monte de scrollY × 0.25 px.
+         *      Contact quand : scrollY × 0.25 = gap  →  fadeStart = gap / 0.25
+         *   3. _fadeStart est recalculé à chaque resize (rotation, redimensionnement)
+         *      et au premier scroll réel (évite les dimensions fausses au DOMContentLoaded
+         *      quand les images ne sont pas encore chargées).
+         *
+         * ⚠️  Si tu modifies la vitesse du parallaxe (× 0.25), mets à jour le
+         *     diviseur dans getFadeStartScrollY en conséquence.
+         * ⚠️  Si tu modifies la hauteur du header ou de la nav, _fadeStart se
+         *     recalcule automatiquement — pas besoin de toucher aux valeurs en dur.
+         */
         (function() {
             function isTablet() { return window.innerWidth >= 481 && window.innerWidth <= 1024; }
 
