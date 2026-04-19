@@ -401,29 +401,21 @@
             }
 
             /* --- Header --- */
-            /* overflow:hidden sur header : clippe le logo-right et logo-section qui remontent
-               au scroll (parallaxe translateY). Sans ça, ils passent PAR-DESSUS la nav au lieu
-               de disparaître derrière.
-               ⚠️ NE PAS mettre position:relative + z-index sur .nav-card-container pour résoudre
-               ce problème : ça casse le layout flex et la nav déborde à droite. */
-            /* overflow:hidden sur header : clippe le bloc FB+Comité (.logo-right) qui remonte
-               au scroll via le parallaxe JS (syncParallax), pour qu'il disparaisse derrière
-               la nav plutôt que par-dessus.
-               ⚠️ NE PAS mettre position:relative + z-index sur .nav-card-container pour le même
-               effet — ça fait déborder la nav à droite à cause du contexte flex parent.
-               La seule solution qui fonctionne est overflow:hidden ici. */
             header {
                 padding-bottom: 1.5rem;
-                overflow: hidden;
+                position: relative;   /* contexte d'empilement pour z-index enfants */
             }
             .header-content {
                 align-items: flex-end;
                 position: relative;
+                z-index: 1;           /* logos sous la nav */
             }
 
-            /* --- Nav : version colonne, au-dessus du header-content au scroll --- */
+            /* --- Nav : passe devant header-content via z-index --- */
             .nav-card-container {
-                position: static;
+                position: relative;   /* active z-index sans sortir du flux */
+                z-index: 2;           /* au-dessus de header-content (z-index:1) */
+                left: auto;           /* reset left:50% hérité du desktop */
                 transform: none;
                 margin-top: 1.2rem;
                 padding: 0 1rem;
@@ -531,9 +523,15 @@
                 margin-bottom: -16px !important;
                 margin-top: 0 !important;
                 margin-right: 32px !important;
+                position: relative;
+                z-index: 1;   /* reste sous la nav (z-index:2) même avec margin négatif */
             }
             .logo-right-inner {
                 align-items: flex-end;
+            }
+            .logo-section {
+                position: relative;
+                z-index: 1;   /* idem — reste sous la nav */
             }
         }
         body.animate .nav-card-container {
@@ -4644,7 +4642,12 @@
                 const scrollY = (typeof forceScrollY === 'number') ? forceScrollY : window.scrollY;
                 if (logoSection) {
                     logoSection.style.transform = `translateY(${scrollY * 0.25}px)`;
-                    logoSection.style.opacity = Math.max(0, 1 - scrollY / 220);
+                    // Sur tablette : fade piloté par syncParallax (basé sur contact avec la nav)
+                    // Sur desktop : fade fixe à 220px
+                    if (window.innerWidth > 1024) {
+                        logoSection.style.opacity = Math.max(0, 1 - scrollY / 220);
+                    }
+                    // Sur tablette, l'opacity de logo-section est gérée par syncParallax
                 }
                 // Nav reste fixe — pas de parallaxe
             }
@@ -5011,29 +5014,71 @@
 
     <script>
         /* === PARALLAXE LOGO-RIGHT (TABLETTE UNIQUEMENT) === */
+        /* Fade out logo-section et logo-right exactement quand ils atteignent
+           le bas de la nav (contact visuel), pas avant. */
         (function() {
             function isTablet() { return window.innerWidth >= 481 && window.innerWidth <= 1024; }
 
             var logoRight = document.querySelector('.logo-right');
+            var logoSection = document.querySelector('.logo-section');
+            var navContainer = document.querySelector('.nav-card-container');
+
+            // scrollY auquel le bas de logo-section atteint le haut de la nav.
+            // Sur tablette la nav est SOUS les logos dans le DOM.
+            // logo-section monte de scrollY*0.25 px → contact quand scrollY*0.25 = logoBottom - navTop
+            // donc fadeStart = (logoBottom - navTop) / 0.25
+            function getFadeStartScrollY() {
+                if (!logoSection || !navContainer) return 220;
+                // Mesures à scrollY courant → on ramène en coordonnées document
+                var scrollY0 = window.scrollY;
+                var logoBottom = logoSection.getBoundingClientRect().bottom + scrollY0;
+                var navTop    = navContainer.getBoundingClientRect().top    + scrollY0;
+                // Distance (en px de document) entre bas du logo et haut de la nav au repos
+                var gap = navTop - logoBottom; // positif : logo est au-dessus de la nav
+                if (gap <= 0) return 0;
+                // Pour combler ce gap avec translateY(scrollY*0.25), il faut scrollY = gap/0.25
+                return gap / 0.25;
+            }
+
+            var _fadeStart = null;
+            var _fadeDist = 80; // px de scroll sur lesquels s'effectue le fondu
 
             function syncParallax() {
-                if (!logoRight) return;
+                if (!logoRight || !logoSection) return;
                 if (!isTablet()) {
                     logoRight.style.transform = '';
                     logoRight.style.opacity = '';
+                    logoSection.style.transform = '';
+                    logoSection.style.opacity = '';
                     return;
                 }
-                // Guard anti-saut : même protection que updateParallax principal
                 if (typeof _scrollLocked !== 'undefined' && _scrollLocked) return;
+                // Recalculer fadeStart au premier appel ou si null
+                if (_fadeStart === null) {
+                    _fadeStart = getFadeStartScrollY();
+                }
                 var scrollY = window.scrollY;
-                logoRight.style.transform = 'translateY(' + (scrollY * 0.25) + 'px)';
-                logoRight.style.opacity = Math.max(0, 1 - scrollY / 220);
+                var ty = scrollY * 0.25;
+                // Opacité : 1 jusqu'à fadeStart, puis fondu sur _fadeDist px
+                var opacity = 1;
+                if (scrollY > _fadeStart) {
+                    opacity = Math.max(0, 1 - (scrollY - _fadeStart) / _fadeDist);
+                }
+                logoRight.style.transform = 'translateY(' + ty + 'px)';
+                logoRight.style.opacity = opacity;
+                // Synchronise aussi logo-section (carte du Roi + BCRR) avec le même fade
+                if (logoSection) {
+                    logoSection.style.opacity = opacity;
+                }
             }
 
             window.addEventListener('scroll', syncParallax, { passive: true });
-            window.addEventListener('resize', syncParallax, { passive: true });
-            // Init au chargement
-            document.addEventListener('DOMContentLoaded', syncParallax);
+            window.addEventListener('resize', function() {
+                _fadeStart = null; // recalcul au prochain scroll
+            }, { passive: true });
+            // Ne pas appeler syncParallax au DOMContentLoaded : les dimensions
+            // peuvent être fausses avant que les images soient chargées.
+            // Le premier appel depuis l'événement scroll calculera _fadeStart correctement.
         })();
     </script>
 
