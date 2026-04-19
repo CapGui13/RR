@@ -494,6 +494,11 @@
                 flex: 1;
                 align-items: center;
                 text-align: center;
+                opacity: 0;
+                transition: opacity 0.4s ease;
+            }
+            .logo-text.positioned {
+                opacity: 1;
             }
             .logo-text p.logo-subtitle-main {
                 font-size: 1.4rem;
@@ -3467,7 +3472,7 @@
             <div class="footer-links">
                 <a href="tel:+33442956203"><span class="footer-tel-icon">📞</span> 04 42 95 62 03</a>
                 <!-- EMAIL EN CLAIR — ne pas laisser Cloudflare obfusquer cette ligne -->
-                <a href="mailto:royrenebridge@gmail.com"><span class="footer-mail-icon">✉︎</span> royrenebridge@gmail.com</a>
+                <a href="mailto:royrenebridge@gmail.com"><span class="footer-mail-icon"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><rect x="2" y="4" width="20" height="16" rx="2"/><polyline points="2,4 12,13 22,4"/></svg></span> royrenebridge@gmail.com</a>
             </div>
             <div class="footer-copy">
                 <span class="footer-copy-name">© <span id="currentYear"></span> Bridge Club Roy René</span><span class="footer-copy-sep"> — </span><span class="footer-copy-address">Boulevard du Maréchal Juin, 13090 Aix-en-Provence</span>
@@ -5043,6 +5048,7 @@
                 logoText.style.transform = 'translateX(-50%)';
                 logoText.style.bottom = '0';
                 logoText.style.textAlign = 'center';
+                logoText.classList.add('positioned');
             }
 
             function reset() {
@@ -5052,6 +5058,8 @@
                     logoText.style.left = '';
                     logoText.style.transform = '';
                     logoText.style.bottom = '';
+                    logoText.style.opacity = '';
+                    logoText.classList.remove('positioned');
                 }
             }
 
@@ -5059,7 +5067,7 @@
                 setTimeout(function() {
                     if (isTablet()) centerLogoText();
                     else reset();
-                }, 1500);
+                }, 500);
             });
             window.addEventListener('resize', function() {
                 if (isTablet()) centerLogoText();
