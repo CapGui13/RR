@@ -401,8 +401,20 @@
             }
 
             /* --- Header --- */
+            /* overflow:hidden sur header : clippe le logo-right et logo-section qui remontent
+               au scroll (parallaxe translateY). Sans ça, ils passent PAR-DESSUS la nav au lieu
+               de disparaître derrière.
+               ⚠️ NE PAS mettre position:relative + z-index sur .nav-card-container pour résoudre
+               ce problème : ça casse le layout flex et la nav déborde à droite. */
+            /* overflow:hidden sur header : clippe le bloc FB+Comité (.logo-right) qui remonte
+               au scroll via le parallaxe JS (syncParallax), pour qu'il disparaisse derrière
+               la nav plutôt que par-dessus.
+               ⚠️ NE PAS mettre position:relative + z-index sur .nav-card-container pour le même
+               effet — ça fait déborder la nav à droite à cause du contexte flex parent.
+               La seule solution qui fonctionne est overflow:hidden ici. */
             header {
                 padding-bottom: 1.5rem;
+                overflow: hidden;
             }
             .header-content {
                 align-items: flex-end;
@@ -411,8 +423,7 @@
 
             /* --- Nav : version colonne, au-dessus du header-content au scroll --- */
             .nav-card-container {
-                position: relative;
-                z-index: 10;
+                position: static;
                 transform: none;
                 margin-top: 1.2rem;
                 padding: 0 1rem;
