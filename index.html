@@ -5269,13 +5269,32 @@
             });
         })();
     </script>    <script>
-        /* Fix rebond iOS Safari (overscroll-behavior non supporté) */
+        /* Bloque le scroll au-delà de 1 viewport sur mobile (iOS + Android) */
         (function() {
             if (window.innerWidth > 1024) return;
             var startY = 0;
+
+            function getLimit() {
+                // Max scroll = hauteur totale du contenu - viewport,
+                // mais plafonné à 1 viewport pour ne jamais sortir de l'image
+                return Math.min(
+                    document.body.scrollHeight - window.innerHeight,
+                    window.innerHeight
+                );
+            }
+
+            function clampScroll() {
+                var limit = getLimit();
+                if (window.scrollY > limit) {
+                    window.scrollTo({ top: limit, behavior: 'instant' });
+                }
+            }
+            window.addEventListener('scroll', clampScroll, { passive: true });
+
             document.addEventListener('touchstart', function(e) {
                 startY = e.touches[0].clientY;
             }, { passive: true });
+
             document.addEventListener('touchmove', function(e) {
                 var el = e.target;
                 while (el && el !== document.body) {
@@ -5286,7 +5305,7 @@
                 if (scrollable) return;
                 var dy = e.touches[0].clientY - startY;
                 var atTop = window.scrollY <= 0;
-                var atBottom = window.scrollY + window.innerHeight >= document.body.scrollHeight - 1;
+                var atBottom = window.scrollY >= getLimit() - 1;
                 if ((atTop && dy > 0) || (atBottom && dy < 0)) {
                     e.preventDefault();
                 }
