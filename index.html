@@ -3121,24 +3121,30 @@
         </symbol>
     </svg>
     <noscript><style>#site-cover{display:none}</style></noscript>
-    <!-- Fond mobile : pseudo-élément fixed sur html — couvre toujours tout le viewport sans glitch -->
+    <!-- Fond mobile : div fixed dédiée, immunisée contre les reflows de contenu -->
     <style>
         @media (max-width: 1024px) {
-            html {
-                background: url('https://i.imgur.com/PcEwjZX.jpeg') top center / cover no-repeat fixed;
+            html, body {
                 background-color: #0d1f10;
             }
-            body {
-                background-color: transparent;
-            }
-            html::before {
-                display: none;
+            html::before { display: none; }
+            #mobile-bg {
+                display: block;
+                position: fixed;
+                inset: 0;
+                z-index: -1;
+                background: url('https://i.imgur.com/PcEwjZX.jpeg') top center / cover no-repeat;
+                pointer-events: none;
             }
             #site-cover { background-image: url('https://i.imgur.com/PcEwjZX.jpeg') !important;
                 background-size: cover !important; background-repeat: no-repeat !important;
                 background-position: top center !important; }
         }
+        @media (min-width: 1025px) {
+            #mobile-bg { display: none; }
+        }
     </style>
+    <div id="mobile-bg"></div>
     <div id="site-cover" style="position:fixed;inset:0;z-index:9998;transition:opacity 0.4s ease;background:url('https://i.imgur.com/SF7rXmN.jpeg') center top/cover;"></div>
     <script>
         (function() {
