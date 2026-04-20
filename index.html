@@ -2926,15 +2926,13 @@
         }
 
         @media (max-width: 599px) {
-            /* Sur mobile : les 3 sections forment un seul bloc qui glisse depuis le bas */
+            /* Sur mobile : apparition en fondu simple, sans déplacement vertical */
             .main-container {
-                transition: opacity 0.7s ease, transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+                transition: opacity 0.7s ease;
                 opacity: 0;
-                transform: translateY(60vh);
             }
             .main-container.mobile-revealed {
                 opacity: 1;
-                transform: translateY(0);
             }
             /* Désactiver l'animation individuelle des cards sur mobile */
             .section-card {
