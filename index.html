@@ -239,6 +239,7 @@
             color: #333;
             background: transparent;
             min-height: 100vh;
+            min-height: 100dvh;
         }
 
         h1, h2, h3, h4, h5, h6 { font-weight: 700; }
@@ -2833,6 +2834,9 @@
                 display: block;
                 margin-top: 0.2rem;
             }
+            .site-footer {
+                padding-bottom: max(1.8rem, env(safe-area-inset-bottom, 0px));
+            }
         }
 
 
@@ -3134,7 +3138,10 @@
             html::before {
                 content: '';
                 position: fixed;
-                inset: 0;
+                top: -30%;
+                left: 0;
+                right: 0;
+                bottom: -30%;
                 z-index: -1;
                 background: url('https://i.imgur.com/PcEwjZX.jpeg') top center / cover no-repeat;
             }
