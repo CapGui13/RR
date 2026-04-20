@@ -4309,14 +4309,12 @@
         function lockScroll() {
             _scrollY = window.scrollY;
             _scrollLocked = true;
-            window._scrollLocked = true; // exposé pour syncParallax (IIFE séparé)
+            window._scrollLocked = true;
             window.addEventListener('wheel', _preventScroll, { passive: false });
             window.addEventListener('touchmove', _preventScroll, { passive: false });
-            if (window.innerWidth <= 1024) {
-                // Sur mobile : overflow:hidden sur html évite le zoom du fond fixed
-                // que causait position:fixed sur body
-                document.documentElement.style.overflow = 'hidden';
-            } else {
+            // Sur mobile : _preventScroll suffit, pas de modification DOM
+            // (position:fixed sur body et overflow:hidden sur html causent un zoom du fond)
+            if (window.innerWidth > 1024) {
                 document.body.style.position = 'fixed';
                 document.body.style.top = `-${_scrollY}px`;
                 document.body.style.width = '100%';
@@ -4325,18 +4323,15 @@
 
         function unlockScroll() {
             _scrollLocked = false;
-            window._scrollLocked = false; // exposé pour syncParallax (IIFE séparé)
+            window._scrollLocked = false;
             window.removeEventListener('wheel', _preventScroll);
             window.removeEventListener('touchmove', _preventScroll);
-            if (window.innerWidth <= 1024) {
-                document.documentElement.style.overflow = '';
-            } else {
+            if (window.innerWidth > 1024) {
                 document.body.style.position = '';
                 document.body.style.top = '';
                 document.body.style.width = '';
                 window.scrollTo(0, _scrollY);
             }
-            // Forcer le recalcul de _fadeStart au prochain scroll réel
             if (window._syncParallaxResetFade) window._syncParallaxResetFade();
         }
 
@@ -4709,7 +4704,7 @@
             const navEl = document.querySelector('.nav-card-container');
             if (navEl) {
                 navEl.addEventListener('transitionend', () => {
-                    navEl.style.transition = 'none';
+                    navEl.style.transition = '';
                 }, { once: true });
             }
 
