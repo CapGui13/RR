@@ -219,6 +219,11 @@
             html {
                 -webkit-overflow-scrolling: touch;
                 overflow-y: scroll;
+                overflow-x: hidden;
+            }
+            body {
+                overflow-x: hidden;
+                max-width: 100%;
             }
         }
 
@@ -5266,22 +5271,5 @@
                 if (isTablet()) centerLogoText();
                 else reset();
             });
-        })();
-    </script>
-
-    <script>
-        /* Limite le scroll mobile à la hauteur réelle du contenu, sans bloquer le bounce natif iOS */
-        (function() {
-            if (window.innerWidth > 1024) return;
-            function getLimit() {
-                return document.body.scrollHeight - window.innerHeight;
-            }
-            function clampScroll() {
-                var limit = getLimit();
-                if (window.scrollY > limit) {
-                    window.scrollTo({ top: limit, behavior: 'instant' });
-                }
-            }
-            window.addEventListener('scroll', clampScroll, { passive: true });
         })();
     </script>
