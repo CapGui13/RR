@@ -4312,9 +4312,15 @@
             window._scrollLocked = true; // exposé pour syncParallax (IIFE séparé)
             window.addEventListener('wheel', _preventScroll, { passive: false });
             window.addEventListener('touchmove', _preventScroll, { passive: false });
-            document.body.style.position = 'fixed';
-            document.body.style.top = `-${_scrollY}px`;
-            document.body.style.width = '100%';
+            if (window.innerWidth <= 1024) {
+                // Sur mobile : overflow:hidden sur html évite le zoom du fond fixed
+                // que causait position:fixed sur body
+                document.documentElement.style.overflow = 'hidden';
+            } else {
+                document.body.style.position = 'fixed';
+                document.body.style.top = `-${_scrollY}px`;
+                document.body.style.width = '100%';
+            }
         }
 
         function unlockScroll() {
@@ -4322,12 +4328,15 @@
             window._scrollLocked = false; // exposé pour syncParallax (IIFE séparé)
             window.removeEventListener('wheel', _preventScroll);
             window.removeEventListener('touchmove', _preventScroll);
-            document.body.style.position = '';
-            document.body.style.top = '';
-            document.body.style.width = '';
-            window.scrollTo(0, _scrollY);
+            if (window.innerWidth <= 1024) {
+                document.documentElement.style.overflow = '';
+            } else {
+                document.body.style.position = '';
+                document.body.style.top = '';
+                document.body.style.width = '';
+                window.scrollTo(0, _scrollY);
+            }
             // Forcer le recalcul de _fadeStart au prochain scroll réel
-            // (les mesures getBoundingClientRect sont fausses juste après scrollTo)
             if (window._syncParallaxResetFade) window._syncParallaxResetFade();
         }
 
