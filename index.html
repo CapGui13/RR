@@ -220,10 +220,9 @@
                 /* Momentum scroll natif iOS — glisse librement, ralentit en approchant des bords */
                 -webkit-overflow-scrolling: touch;
                 overflow-y: scroll;
-                /* Bloque le rebond élastique iOS en haut et en bas */
-                overscroll-behavior-y: none;
             }
             body {
+                /* Bloque le rebond en bas et en haut — l'image ne déborde jamais */
                 overscroll-behavior-y: none;
             }
         }
@@ -2927,13 +2926,15 @@
         }
 
         @media (max-width: 599px) {
-            /* Sur mobile : apparition en fondu simple, sans déplacement vertical */
+            /* Sur mobile : les 3 sections forment un seul bloc qui glisse depuis le bas */
             .main-container {
-                transition: opacity 0.7s ease;
+                transition: opacity 0.7s ease, transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
                 opacity: 0;
+                transform: translateY(60vh);
             }
             .main-container.mobile-revealed {
                 opacity: 1;
+                transform: translateY(0);
             }
             /* Désactiver l'animation individuelle des cards sur mobile */
             .section-card {
@@ -3125,17 +3126,15 @@
     <style>
         @media (max-width: 1024px) {
             html {
+                background: url('https://i.imgur.com/PcEwjZX.jpeg') top center / cover no-repeat;
                 background-color: #0d1f10;
+                background-attachment: scroll;
             }
             body {
-                background-color: #0d1f10;
+                background-color: transparent;
             }
             html::before {
-                content: '';
-                position: fixed;
-                inset: 0;
-                z-index: -1;
-                background: url('https://i.imgur.com/PcEwjZX.jpeg') top center / cover no-repeat;
+                display: none;
             }
             #site-cover { background-image: url('https://i.imgur.com/PcEwjZX.jpeg') !important;
                 background-size: cover !important; background-repeat: no-repeat !important;
@@ -5267,24 +5266,47 @@
                 else reset();
             });
         })();
-    </script>
-
-    <script>
-        /* === FIX REBOND iOS EN BAS DE PAGE (vieux Safari) === */
+    </script>    <script>
+        /* Bloque le scroll au-delà de 1 viewport sur mobile (iOS + Android) */
         (function() {
-            if (window.innerWidth > 599) return;
+            if (window.innerWidth > 1024) return;
             var startY = 0;
+
+            function getLimit() {
+                // Max scroll = hauteur totale du contenu - viewport,
+                // mais plafonné à 1 viewport pour ne jamais sortir de l'image
+                return Math.min(
+                    document.body.scrollHeight - window.innerHeight,
+                    window.innerHeight
+                );
+            }
+
+            function clampScroll() {
+                var limit = getLimit();
+                if (window.scrollY > limit) {
+                    window.scrollTo({ top: limit, behavior: 'instant' });
+                }
+            }
+            window.addEventListener('scroll', clampScroll, { passive: true });
+
             document.addEventListener('touchstart', function(e) {
                 startY = e.touches[0].clientY;
             }, { passive: true });
+
             document.addEventListener('touchmove', function(e) {
+                var el = e.target;
+                while (el && el !== document.body) {
+                    if (el.scrollHeight > el.clientHeight) break;
+                    el = el.parentElement;
+                }
+                var scrollable = el && el !== document.body && el.scrollHeight > el.clientHeight;
+                if (scrollable) return;
                 var dy = e.touches[0].clientY - startY;
-                var atBottom = (window.scrollY + window.innerHeight) >= document.body.scrollHeight - 1;
-                if (atBottom && dy < 0) {
+                var atTop = window.scrollY <= 0;
+                var atBottom = window.scrollY >= getLimit() - 1;
+                if ((atTop && dy > 0) || (atBottom && dy < 0)) {
                     e.preventDefault();
                 }
             }, { passive: false });
         })();
     </script>
-</body>
-</html>
