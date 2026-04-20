@@ -215,17 +215,14 @@
 
 
         /* === MOBILE SCROLL FIX === */
+        /* Note : overscroll-behavior-y ignoré par Safari iOS — voir script touchmove en fin de page */
         @media (max-width: 599px) {
             html {
-                -webkit-overflow-scrolling: touch;
-                overflow-y: scroll;
                 overflow-x: hidden;
-                overscroll-behavior-y: none;
             }
             body {
                 overflow-x: hidden;
                 max-width: 100%;
-                overscroll-behavior-y: none;
             }
         }
 
@@ -241,7 +238,6 @@
             color: #333;
             background: transparent;
             min-height: 100vh;
-            min-height: 100dvh;
         }
 
         h1, h2, h3, h4, h5, h6 { font-weight: 700; }
@@ -2836,9 +2832,6 @@
                 display: block;
                 margin-top: 0.2rem;
             }
-            .site-footer {
-                padding-bottom: max(1.8rem, env(safe-area-inset-bottom, 0px));
-            }
         }
 
 
@@ -5274,7 +5267,22 @@
     </script>
 
     <script>
-        /* Bloque le dépassement en bas sur Safari iOS (overscroll-behavior non supporté) */
+        /*
+         * === BLOQUER LE DÉPASSEMENT EN BAS SUR SAFARI iOS ===
+         *
+         * Problème : Safari iOS ignore overscroll-behavior-y: none (non supporté).
+         * Résultat : l'utilisateur peut scroller au-delà du bas de la page et voir
+         * le fond (vert sombre) derrière le contenu.
+         *
+         * Solution : écouter touchmove et appeler preventDefault() UNIQUEMENT quand
+         * on est déjà tout en bas (atBottom) ET qu'on continue à glisser vers le bas
+         * (dy < 0 = doigt qui monte = scroll vers le bas).
+         * Dans tous les autres cas le scroll natif est préservé, y compris le bounce en haut.
+         *
+         * ⚠️ Ne pas utiliser passive: true ici — preventDefault() exige passive: false.
+         * ⚠️ Ne pas étendre ce preventDefault() au haut de page (atTop && dy > 0) :
+         *    cela casse le bounce natif iOS vers le haut et crée des glitches visuels.
+         */
         (function() {
             if (window.innerWidth > 1024) return;
             var startY = 0;
