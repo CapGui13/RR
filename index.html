@@ -2173,6 +2173,7 @@
                 margin-left: 0;
                 width: 100%;
                 order: 2;
+                justify-content: flex-end;
             }
             .logo-text {
                 flex: 1;
@@ -2189,6 +2190,8 @@
                 height: 102px;
                 font-size: 2rem;
                 pointer-events: none;
+                flex-shrink: 0;
+                order: -1;
             }
             .logo-img img {
                 border-radius: 6px;
@@ -2240,7 +2243,7 @@
                 transition: opacity 0.5s ease 0.6s, transform 0.5s ease 0.6s;
                 width: 100%;
                 text-align: center;
-                margin-top: 0.15rem;
+                margin-top: 0.6rem;
             }
             .logo-text p.logo-subtitle-city::before {
                 content: 'Bridge Club du Roy René';
