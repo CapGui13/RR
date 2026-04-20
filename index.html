@@ -204,11 +204,7 @@
             scrollbar-gutter: stable;
             scrollbar-color: #888 #1a1a1a;
         }
-        @media (max-width: 1024px) {
-            html {
-                background-color: #0d1f10;
-            }
-        }
+
         html[style*="overflow"] {
             scrollbar-color: #888 #1a1a1a;
         }
@@ -3131,8 +3127,8 @@
         @media (max-width: 1024px) {
             html {
                 background-image: url('https://i.imgur.com/PcEwjZX.jpeg');
-                background-size: cover;
-                background-repeat: no-repeat;
+                background-size: 100% auto;
+                background-repeat: repeat-y;
                 background-position: top center;
                 background-attachment: scroll;
             }
