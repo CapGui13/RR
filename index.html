@@ -217,13 +217,8 @@
         /* === MOBILE SCROLL FIX === */
         @media (max-width: 599px) {
             html {
-                /* Momentum scroll natif iOS — glisse librement, ralentit en approchant des bords */
                 -webkit-overflow-scrolling: touch;
                 overflow-y: scroll;
-            }
-            body {
-                /* Bloque le rebond en bas et en haut — l'image ne déborde jamais */
-                overscroll-behavior-y: none;
             }
         }
 
@@ -3130,7 +3125,7 @@
     <style>
         @media (max-width: 1024px) {
             html {
-                background: url('https://i.imgur.com/PcEwjZX.jpeg') bottom center / cover no-repeat #0d1f10;
+                background-color: #0d1f10;
             }
             body {
                 background-color: transparent;
