@@ -2131,43 +2131,53 @@
 
             header { padding: 1rem; }
 
+            /* --- Layout général du header : colonne --- */
             .header-content {
                 flex-direction: column;
-                gap: 0.8rem;
-                align-items: center;
+                gap: 0.5rem;
+                align-items: stretch;
+                padding: 0;
             }
 
+            /* --- Rang 1 : logos FB + Comité alignés à droite --- */
             .header-bottom-row {
                 display: flex;
                 flex-direction: row;
                 align-items: center;
-                justify-content: center;
-                gap: 2.5rem;
-                margin-top: 0.5rem;
+                justify-content: flex-end;
+                gap: 1rem;
                 width: 100%;
-            }
-            .logo-right-inner {
-                display: flex;
-                justify-content: center;
-                align-items: center;
-                gap: 2.8rem !important;
-                width: 100%;
+                margin-top: 0;
+                order: 1;
             }
             .logo-right {
-                align-self: center !important;
+                align-self: auto !important;
                 margin-right: 0 !important;
                 margin-bottom: 0 !important;
                 width: 100%;
             }
-
-            .logo-section {
-                gap: 0.8rem;
-                margin-left: 0;
-                justify-content: center;
+            .logo-right-inner {
+                display: flex;
+                justify-content: flex-end;
+                align-items: center;
+                gap: 1rem !important;
                 width: 100%;
             }
-            .logo-text {
+
+            /* --- Rang 2 : carte à gauche | texte centré à droite --- */
+            .logo-section {
+                display: flex;
+                flex-direction: row;
                 align-items: center;
+                gap: 1rem;
+                margin-left: 0;
+                width: 100%;
+                order: 2;
+            }
+            .logo-text {
+                flex: 1;
+                align-items: center;
+                text-align: center;
             }
             .logo-text p {
                 margin-left: 0;
