@@ -2164,7 +2164,7 @@
                 width: 100%;
             }
 
-            /* --- Rang 2 : carte à gauche | texte centré à droite --- */
+            /* --- Rang 2 : carte à gauche alignée avec nav | texte à droite --- */
             .logo-section {
                 display: flex;
                 flex-direction: row;
@@ -2173,7 +2173,8 @@
                 margin-left: 0;
                 width: 100%;
                 order: 2;
-                justify-content: flex-end;
+                padding: 0 1rem;
+                box-sizing: border-box;
             }
             .logo-text {
                 flex: 1;
@@ -2191,7 +2192,7 @@
                 font-size: 2rem;
                 pointer-events: none;
                 flex-shrink: 0;
-                order: -1;
+                margin-left: 0.8rem;
             }
             .logo-img img {
                 border-radius: 6px;
