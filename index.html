@@ -3006,6 +3006,8 @@
             border-radius: 20px;
             margin-left: 0.5rem;
             vertical-align: middle;
+            position: relative;
+            top: -2px;
             box-shadow: 0 2px 6px rgba(212,175,55,0.4);
             text-transform: uppercase;
         }
@@ -3567,7 +3569,7 @@
             <div class="footer-links">
                 <a href="tel:+33442956203"><span class="footer-tel-icon">📞</span> 04 42 95 62 03</a>
                 <!-- EMAIL EN CLAIR — ne pas laisser Cloudflare obfusquer cette ligne -->
-                <a href="mailto:royrenebridge@gmail.com"><span class="footer-mail-icon"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><rect x="2" y="4" width="20" height="16" rx="2"/><polyline points="2,4 12,13 22,4"/></svg></span> royrenebridge@gmail.com</a>
+                <a href="mailto:royrenebridge@gmail.com"><span class="footer-mail-icon"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-4px"><rect x="2" y="4" width="20" height="16" rx="2"/><polyline points="2,4 12,13 22,4"/></svg></span> royrenebridge@gmail.com</a>
             </div>
             <div class="footer-copy">
                 <span class="footer-copy-name">© <span id="currentYear"></span> Bridge Club Roy René</span><span class="footer-copy-sep"> — </span><span class="footer-copy-address">Boulevard du Maréchal Juin, 13090 Aix-en-Provence</span>
@@ -4262,9 +4264,11 @@
                 if (!block) return;
                 let found = false;
                 for (let p of block.querySelectorAll('[data-date]')) {
-                    if (!found && !isDatePassed(p.getAttribute('data-date'))) {
+                    // Utilise data-passed du CONFIG (géré manuellement) plutôt que
+                    // isDatePassed() qui se trompe sur les dates de début de saison (oct.)
+                    const passed = p.getAttribute('data-passed') === 'true';
+                    if (!found && !passed) {
                         p.classList.add('date-prochaine');
-                        // Ajouter le badge "Prochain"
                         if (!p.querySelector('.badge-prochain')) {
                             const badge = document.createElement('span');
                             badge.className = 'badge-prochain';
@@ -4275,8 +4279,6 @@
                     }
                 }
             });
-
-
         }
 
 
@@ -4627,8 +4629,8 @@
                 const el = document.getElementById(containerId);
                 if (!el) return;
                 el.innerHTML = dates.map(d => {
-                    if (d.finale) return `<p data-date="${d.date}"><strong>Finale : ${d.date}</strong></p>`;
-                    return `<p data-date="${d.date}">- ${d.date}</p>`;
+                    if (d.finale) return `<p data-date="${d.date}" data-passed="${d.passed ? 'true' : 'false'}"><strong>Finale : ${d.date}</strong></p>`;
+                    return `<p data-date="${d.date}" data-passed="${d.passed ? 'true' : 'false'}">- ${d.date}</p>`;
                 }).join('');
             };
             renderCoupe(CONFIG.coupeDesClubs,   'coupe-clubs-dates');
