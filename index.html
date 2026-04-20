@@ -220,9 +220,10 @@
                 /* Momentum scroll natif iOS — glisse librement, ralentit en approchant des bords */
                 -webkit-overflow-scrolling: touch;
                 overflow-y: scroll;
+                /* Bloque le rebond élastique iOS en haut et en bas */
+                overscroll-behavior-y: none;
             }
             body {
-                /* Bloque le rebond en bas et en haut — l'image ne déborde jamais */
                 overscroll-behavior-y: none;
             }
         }
@@ -3124,7 +3125,7 @@
     <style>
         @media (max-width: 1024px) {
             html {
-                background-color: transparent;
+                background-color: #0d1f10;
             }
             body {
                 background-color: #0d1f10;
@@ -5267,3 +5268,23 @@
             });
         })();
     </script>
+
+    <script>
+        /* === FIX REBOND iOS EN BAS DE PAGE (vieux Safari) === */
+        (function() {
+            if (window.innerWidth > 599) return;
+            var startY = 0;
+            document.addEventListener('touchstart', function(e) {
+                startY = e.touches[0].clientY;
+            }, { passive: true });
+            document.addEventListener('touchmove', function(e) {
+                var dy = e.touches[0].clientY - startY;
+                var atBottom = (window.scrollY + window.innerHeight) >= document.body.scrollHeight - 1;
+                if (atBottom && dy < 0) {
+                    e.preventDefault();
+                }
+            }, { passive: false });
+        })();
+    </script>
+</body>
+</html>
