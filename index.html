@@ -215,15 +215,10 @@
 
 
         /* === MOBILE SCROLL FIX === */
-        /* Approche "gusillusionniste" : html fixé à la hauteur du viewport,
-           image de fond en background-attachment:fixed sur body.
-           Le scroll se fait via overflow-y:scroll sur html.
-           Résultat : impossible de dépasser le bas de la page, pas de fond visible. */
-        @media (max-width: 1024px) {
+        /* Note : overscroll-behavior-y ignoré par Safari iOS — voir script touchmove en fin de page */
+        @media (max-width: 599px) {
             html {
-                height: 100dvh;
-                overflow: hidden;
-                overflow-y: scroll;
+                overflow-x: hidden;
             }
             body {
                 overflow-x: hidden;
@@ -3126,15 +3121,15 @@
         </symbol>
     </svg>
     <noscript><style>#site-cover{display:none}</style></noscript>
-    <!-- Fond mobile : background-attachment:fixed sur body, comme gusillusionniste.com -->
+    <!-- Fond mobile : pseudo-élément fixed sur html — couvre toujours tout le viewport sans glitch -->
     <style>
         @media (max-width: 1024px) {
             html {
+                background: url('https://i.imgur.com/PcEwjZX.jpeg') top center / cover no-repeat fixed;
                 background-color: #0d1f10;
             }
             body {
-                background: url('https://i.imgur.com/PcEwjZX.jpeg') top center / cover no-repeat fixed;
-                background-color: #0d1f10;
+                background-color: transparent;
             }
             html::before {
                 display: none;
@@ -5268,5 +5263,38 @@
                 if (isTablet()) centerLogoText();
                 else reset();
             });
+        })();
+    </script>
+
+    <script>
+        /*
+         * === BLOQUER LE DÉPASSEMENT EN BAS SUR SAFARI iOS ===
+         *
+         * Problème : Safari iOS ignore overscroll-behavior-y: none (non supporté).
+         * Résultat : l'utilisateur peut scroller au-delà du bas de la page et voir
+         * le fond (vert sombre) derrière le contenu.
+         *
+         * Solution : écouter touchmove et appeler preventDefault() UNIQUEMENT quand
+         * on est déjà tout en bas (atBottom) ET qu'on continue à glisser vers le bas
+         * (dy < 0 = doigt qui monte = scroll vers le bas).
+         * Dans tous les autres cas le scroll natif est préservé, y compris le bounce en haut.
+         *
+         * ⚠️ Ne pas utiliser passive: true ici — preventDefault() exige passive: false.
+         * ⚠️ Ne pas étendre ce preventDefault() au haut de page (atTop && dy > 0) :
+         *    cela casse le bounce natif iOS vers le haut et crée des glitches visuels.
+         */
+        (function() {
+            if (window.innerWidth > 1024) return;
+            var startY = 0;
+            document.addEventListener('touchstart', function(e) {
+                startY = e.touches[0].clientY;
+            }, { passive: true });
+            document.addEventListener('touchmove', function(e) {
+                var dy = e.touches[0].clientY - startY;
+                var atBottom = (window.scrollY + window.innerHeight) >= document.body.scrollHeight - 2;
+                if (atBottom && dy < 0) {
+                    e.preventDefault();
+                }
+            }, { passive: false });
         })();
     </script>
