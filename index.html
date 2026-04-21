@@ -4781,7 +4781,8 @@
 
             function updateParallax(forceScrollY) {
                 const isMobile = window.innerWidth <= 599;
-                if (isMobile) {
+                const isTablet = window.innerWidth >= 600 && window.innerWidth <= 1024;
+                if (isMobile || isTablet) {
                     if (logoSection) {
                         logoSection.style.transform = '';
                         logoSection.style.opacity = '';
@@ -5238,24 +5239,11 @@
                     logoRight.style.opacity = '';
                     return;
                 }
-                // Guard : position:fixed au lock déclenche un faux scroll à scrollY=0.
-                // On vérifie _scrollLocked via window pour traverser les scopes IIFE.
-                if (window._scrollLocked) return;
-                // Recalculer fadeStart au premier appel ou si null
-                if (_fadeStart === null) {
-                    _fadeStart = getFadeStartScrollY();
-                }
-                var scrollY = window.scrollY;
-                var ty = scrollY * 0.25;
-                // Opacité : 1 jusqu'à fadeStart, puis fondu sur _fadeDist px
-                var opacity = 1;
-                if (scrollY > _fadeStart) {
-                    opacity = Math.max(0, 1 - (scrollY - _fadeStart) / _fadeDist);
-                }
-                logoRight.style.transform = 'translateY(' + ty + 'px)';
-                logoRight.style.opacity = opacity;
-                // Synchronise aussi logo-section (carte du Roi + BCRR) avec le même fade
-                logoSection.style.opacity = opacity;
+                // Sur tablette : éléments fixes, pas de parallaxe ni de fondu
+                logoRight.style.transform = '';
+                logoRight.style.opacity = '';
+                logoSection.style.transform = '';
+                logoSection.style.opacity = '';
             }
 
             window.addEventListener('scroll', syncParallax, { passive: true });
