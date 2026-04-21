@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <meta name="robots" content="index, follow">
+    <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">
     <meta name="author" content="Bridge Club Roy René - Aix-en-Provence">
     <meta name="theme-color" content="#0d1f10">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -110,11 +110,6 @@
       "currenciesAccepted": "EUR",
       "paymentAccepted": "Cash, Check",
       "hasMap": "https://www.google.com/maps?cid=3259890256938337956",
-      "aggregateRating": {
-        "@type": "AggregateRating",
-        "ratingValue": "3.5",
-        "reviewCount": "17"
-      },
       "sameAs": [
         "http://www.bridgecomitedeprovence.com/",
         "https://www.facebook.com/profile.php?id=100008045747478"
@@ -199,17 +194,13 @@
     
     <style>
         /* === BASE STYLES === */
-        html {
-            overflow-y: scroll;
-            scrollbar-gutter: stable;
+        html, body, html[style*="overflow"] {
             scrollbar-color: #888 #1a1a1a;
         }
 
-        html[style*="overflow"] {
-            scrollbar-color: #888 #1a1a1a;
-        }
-        body {
-            scrollbar-color: #888 #1a1a1a;
+        html {
+            overflow-y: scroll;
+            scrollbar-gutter: stable;
         }
 
 
@@ -631,7 +622,6 @@
             overflow: hidden;
             isolation: isolate;
             transform-origin: center center;
-            will-change: transform;
             user-select: none;
         }
 
@@ -672,6 +662,11 @@
                 background: linear-gradient(135deg, #3a6e4f 0%, #245c38 100%);
                 transform: scale(1.05);
                 box-shadow: 0 6px 20px rgba(26,77,46,0.45), 0 2px 6px rgba(0,0,0,0.2);
+                will-change: transform;
+            }
+
+            .nav-card button:not(:hover) {
+                will-change: auto;
             }
         }
 
@@ -2843,7 +2838,6 @@
             z-index: -1;
             pointer-events: none;
             opacity: 1;
-            will-change: transform;
             transform: translateZ(0);
         }
 
@@ -3077,22 +3071,28 @@
 
     </style>
     <script>
+        let _popupTrapCleanup = null;
+
         function closePopup() {
             var popup = document.getElementById('welcomePopup');
             if (!popup) return;
             popup.classList.remove('active');
             popup.classList.add('closing');
+            if (_popupTrapCleanup) { _popupTrapCleanup(); _popupTrapCleanup = null; }
             setTimeout(function(){ if (popup.parentNode) popup.remove(); }, 300);
         }
 
         function showPopup() {
             var popup = document.getElementById('welcomePopup');
             if (!popup) return;
+            popup.setAttribute('role', 'dialog');
+            popup.setAttribute('aria-modal', 'true');
+            popup.setAttribute('aria-label', 'Annonce du club');
             popup.style.display = 'flex';
-            // Laisser le navigateur peindre le display:flex avant d'ajouter .active
             requestAnimationFrame(function() {
                 requestAnimationFrame(function() {
                     popup.classList.add('active');
+                    setTimeout(() => { _popupTrapCleanup = trapFocus(popup); }, 50);
                 });
             });
         }
@@ -3224,11 +3224,11 @@
     </div>
 
     <!-- Tarifs Dropdown -->
-    <div class="dropdown-overlay" id="tarifsDropdown">
+    <div class="dropdown-overlay" id="tarifsDropdown" role="dialog" aria-modal="true" aria-labelledby="tarifs-title">
         <div class="dropdown-modal">
             <button class="close-btn" onclick="toggleOverlay('tarifsDropdown')" aria-label="Fermer">✕</button>
             <div class="tarifs-content">
-                <h2 class="tarifs-title">Tarifs</h2>
+                <h2 class="tarifs-title" id="tarifs-title">Tarifs</h2>
                 <div class="tarifs-grid">
                     <div class="tarif-card">
                         <h3>Licence FFB</h3>
@@ -3253,11 +3253,11 @@
     </div>
 
     <!-- Equipe Dropdown -->
-    <div class="dropdown-overlay" id="equipeDropdown">
+    <div class="dropdown-overlay" id="equipeDropdown" role="dialog" aria-modal="true" aria-labelledby="equipe-title">
         <div class="dropdown-modal">
             <button class="close-btn" onclick="toggleOverlay('equipeDropdown')" aria-label="Fermer">✕</button>
             <div class="equipe-content">
-                <h2 class="equipe-title">L'Équipe</h2>
+                <h2 class="equipe-title" id="equipe-title">L'Équipe</h2>
                 <p class="equipe-intro" id="equipe-intro"></p>
                 
                 <div class="equipe-grid">
@@ -3279,12 +3279,12 @@
     </div>
 
     <!-- Location Dropdown -->
-    <div class="dropdown-overlay" id="locationDropdown">
+    <div class="dropdown-overlay" id="locationDropdown" role="dialog" aria-modal="true" aria-labelledby="location-title">
         <div class="dropdown-modal">
             <button class="close-btn" onclick="toggleOverlay('locationDropdown')" aria-label="Fermer">✕</button>
             <div class="location-content">
                 <div class="dropdown-info">
-                    <h2>Nous trouver</h2>
+                    <h2 id="location-title">Nous trouver</h2>
                     <p><strong>Bridge Club Roy René - Maison Provençale du Bridge</strong></p>
                     <p class="address-line">Boulevard du Maréchal Juin</p>
                     <p class="address-line">13090 Aix-en-Provence</p>
@@ -3305,11 +3305,11 @@
     </div>
 
     <!-- Gallery Dropdown -->
-    <div class="dropdown-overlay" id="galleryDropdown">
+    <div class="dropdown-overlay" id="galleryDropdown" role="dialog" aria-modal="true" aria-labelledby="gallery-title">
         <div class="dropdown-modal gallery-modal">
             <button class="close-btn" onclick="toggleOverlay('galleryDropdown')" aria-label="Fermer">✕</button>
             <div class="gallery-content">
-                <h2 class="gallery-title">Galerie Photos</h2>
+                <h2 class="gallery-title" id="gallery-title">Galerie Photos</h2>
                 <p class="gallery-subtitle">Découvrez l'ambiance chaleureuse de notre club</p>
                 
                 <div class="gallery-filters">
@@ -3318,7 +3318,7 @@
                     <button class="filter-btn" onclick="filterGallery('tournois', this)">Tournois</button>
                     <button class="filter-btn" onclick="filterGallery('cours', this)">Cours</button>
                     <button class="filter-btn" onclick="filterGallery('events', this)">Événements</button>
-                    <button class="filter-btn admin-btn" onclick="openAdmin()" title="Administration">⚙️</button>
+                    <button class="filter-btn admin-btn" onclick="openAdmin()" title="Administration" aria-label="Accès à l'administration">⚙️</button>
                 </div>
 
                 <div class="gallery-grid" id="galleryGrid">
@@ -3329,11 +3329,11 @@
     </div>
 
     <!-- Admin Panel -->
-    <div class="dropdown-overlay" id="adminPanel">
+    <div class="dropdown-overlay" id="adminPanel" role="dialog" aria-modal="true" aria-labelledby="admin-title">
         <div class="dropdown-modal admin-modal">
             <button class="close-btn" onclick="toggleOverlay('adminPanel')" aria-label="Fermer">✕</button>
             <div class="admin-content">
-                <h2 class="admin-title">🔒 Administration - Galerie Photos</h2>
+                <h2 class="admin-title" id="admin-title">🔒 Administration - Galerie Photos</h2>
                 
                 <div id="adminLogin" class="admin-section">
                     <p class="admin-subtitle">Entrez le mot de passe pour gérer les photos</p>
@@ -3393,7 +3393,7 @@
     <button class="modal-scroll-top" id="modalScrollTop" aria-label="Remonter en haut">↑</button>
 
     <!-- Lightbox -->
-    <div class="lightbox" id="lightbox">
+    <div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="Visionneuse de photos">
         <button class="lightbox-close" onclick="closeLightbox()" aria-label="Fermer">✕</button>
         <button class="lightbox-prev" onclick="navigateLightbox(-1)" aria-label="Précédent">‹</button>
         <button class="lightbox-next" onclick="navigateLightbox(1)" aria-label="Suivant">›</button>
@@ -3417,10 +3417,10 @@
     </div>
 
     <!-- Contact Modal -->
-    <div class="contact-modal" id="contactModal">
+    <div class="contact-modal" id="contactModal" role="dialog" aria-modal="true" aria-labelledby="contact-title">
         <div class="contact-modal-content">
             <button class="close-btn" onclick="toggleContact()" aria-label="Fermer">✕</button>
-            <h2>Contacter le club</h2>
+            <h2 id="contact-title">Contacter le club</h2>
             <form id="contactForm" onsubmit="handleSubmit(event)" novalidate>
                 <div class="form-row">
                     <div class="field-wrap">
@@ -3463,7 +3463,7 @@
     <header>
         <div class="header-content">
             <div class="logo-section">
-                <div class="logo-img"><img src="https://i.imgur.com/6aJikOc.png" alt="Roi de Pique - Bridge Club Roy René"></div>
+                <div class="logo-img"><img src="https://i.imgur.com/6aJikOc.png" alt="Roi de Pique - Bridge Club Roy René" width="90" height="128"></div>
                 <div class="logo-text">
                     <h1 class="logo-title">Bridge Club Roy René</h1>
                     <p class="logo-subtitle-main">Bridge Club<span class="subtitle-break"> du Roy René</span></p>
@@ -4044,9 +4044,9 @@
                 item.onclick = () => openLightbox(index);
                 
                 item.innerHTML = `
-                    <img src="${img.url}" alt="${img.title}" loading="eager">
+                    <img src="${escapeHtml(img.url)}" alt="${escapeHtml(img.title)}" loading="eager">
                     <div class="gallery-item-overlay">
-                        <p class="gallery-item-title">${img.title}</p>
+                        <p class="gallery-item-title">${escapeHtml(img.title)}</p>
                     </div>
                 `;
                 
@@ -4075,6 +4075,8 @@
         }
 
         // === LIGHTBOX FUNCTIONS ===
+        let _lightboxTrapCleanup = null;
+
         function openLightbox(index) {
             currentLightboxIndex = index;
             updateLightbox();
@@ -4082,6 +4084,7 @@
             lb.classList.remove('closing');
             lb.classList.add('active');
             lockScroll();
+            setTimeout(() => { _lightboxTrapCleanup = trapFocus(lb); }, 50);
         }
 
         function closeLightbox() {
@@ -4090,6 +4093,7 @@
             lb.classList.add('closing');
             setTimeout(() => lb.classList.remove('closing'), 300);
             unlockScroll();
+            if (_lightboxTrapCleanup) { _lightboxTrapCleanup(); _lightboxTrapCleanup = null; }
         }
 
         function navigateLightbox(direction) {
@@ -4343,7 +4347,37 @@
             if (window._syncParallaxResetFade) window._syncParallaxResetFade();
         }
 
+        // === FOCUS TRAP ===
+        // Keeps keyboard focus inside an active modal.
+        // Returns a cleanup function to call when the modal closes.
+        function trapFocus(container) {
+            const FOCUSABLE = 'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
+            function getFocusable() { return Array.from(container.querySelectorAll(FOCUSABLE)).filter(el => !el.closest('[style*="display: none"]') && !el.closest('[style*="display:none"]')); }
+
+            // Focus the first focusable element (e.g. close button)
+            const first = getFocusable()[0];
+            if (first) first.focus({ preventScroll: true });
+
+            function onKeyDown(e) {
+                if (e.key !== 'Tab') return;
+                const focusable = getFocusable();
+                if (!focusable.length) { e.preventDefault(); return; }
+                const firstEl = focusable[0];
+                const lastEl = focusable[focusable.length - 1];
+                if (e.shiftKey) {
+                    if (document.activeElement === firstEl) { e.preventDefault(); lastEl.focus(); }
+                } else {
+                    if (document.activeElement === lastEl) { e.preventDefault(); firstEl.focus(); }
+                }
+            }
+
+            container.addEventListener('keydown', onKeyDown);
+            return function cleanup() { container.removeEventListener('keydown', onKeyDown); };
+        }
+
         // === OVERLAY MANAGEMENT ===
+        const _overlayCleanup = {};
+
         function toggleOverlay(id) {
             const overlay = document.getElementById(id);
             const btn = document.querySelector(`[data-overlay="${id}"]`);
@@ -4353,6 +4387,7 @@
                 overlay.classList.add('closing');
                 setTimeout(() => overlay.classList.remove('closing'), 300);
                 unlockScroll();
+                if (_overlayCleanup[id]) { _overlayCleanup[id](); delete _overlayCleanup[id]; }
                 if (btn) { btn.classList.remove('nav-active'); btn.setAttribute('aria-expanded', 'false'); btn.focus({ preventScroll: true }); }
             } else {
                 overlay.classList.remove('closing');
@@ -4366,10 +4401,15 @@
                     filteredImages = [...galleryImages];
                     initGallery();
                 }
+
+                // Activate focus trap after a short delay to let the modal render
+                setTimeout(() => { _overlayCleanup[id] = trapFocus(overlay); }, 50);
             }
         }
 
         // === CONTACT MANAGEMENT ===
+        let _contactTrapCleanup = null;
+
         function toggleContact() {
             const modal = document.getElementById('contactModal');
             const panel = document.getElementById('contactInfoPanel');
@@ -4381,6 +4421,7 @@
                 panel.classList.remove('active');
                 setTimeout(() => modal.classList.remove('closing'), 300);
                 unlockScroll();
+                if (_contactTrapCleanup) { _contactTrapCleanup(); _contactTrapCleanup = null; }
                 if (btn) { btn.classList.remove('nav-active'); btn.setAttribute('aria-expanded', 'false'); btn.focus({ preventScroll: true }); }
             } else {
                 modal.classList.remove('closing');
@@ -4390,6 +4431,7 @@
                 const modalContent = modal.querySelector('.contact-modal-content');
                 if (modalContent) modalContent.scrollTop = 0;
                 if (btn) { btn.classList.add('nav-active'); btn.setAttribute('aria-expanded', 'true'); }
+                setTimeout(() => { _contactTrapCleanup = trapFocus(modal); }, 50);
             }
         }
 
@@ -4603,11 +4645,11 @@
 
                 let html = '';
                 CONFIG.enseignants.forEach(ens => {
-                    html += `<div class="teacher-section"><h3>Avec ${ens.nom}</h3>`;
+                    html += `<div class="teacher-section"><h3>Avec ${escapeHtml(ens.nom)}</h3>`;
                     ens.cours.forEach(c => {
-                        html += `<div class="info-block"><h3>${c.niveau}</h3>`;
+                        html += `<div class="info-block"><h3>${escapeHtml(c.niveau)}</h3>`;
                         c.horaires.forEach(h => {
-                            html += `<div class="schedule"><span class="day">${h.jour}</span><span class="time">${h.heure}</span></div>`;
+                            html += `<div class="schedule"><span class="day">${escapeHtml(h.jour)}</span><span class="time">${escapeHtml(h.heure)}</span></div>`;
                         });
                         html += `</div>`;
                     });
@@ -4665,15 +4707,15 @@
             if (equipeIntro) equipeIntro.textContent = `Entièrement composée de bénévoles, élus le ${eq.electionDate}, pour une durée de 4 ans.`;
 
             const bureauEl = document.getElementById('equipe-bureau');
-            if (bureauEl) bureauEl.innerHTML = eq.bureau.map(m => `<p><strong>${m.role} :</strong> ${m.nom}</p>`).join('');
+            if (bureauEl) bureauEl.innerHTML = eq.bureau.map(m => `<p><strong>${escapeHtml(m.role)} :</strong> ${escapeHtml(m.nom)}</p>`).join('');
 
             const caEl = document.getElementById('equipe-ca');
-            if (caEl) caEl.innerHTML = `<p><strong>Membres du bureau :</strong></p>` + eq.ca.map(m => `<p>${m}</p>`).join('');
+            if (caEl) caEl.innerHTML = `<p><strong>Membres du bureau :</strong></p>` + eq.ca.map(m => `<p>${escapeHtml(m)}</p>`).join('');
 
             const ethEl = document.getElementById('equipe-ethique');
-            if (ethEl) ethEl.innerHTML = `<p><strong>Présidée par :</strong> ${eq.ethique.president}</p>
+            if (ethEl) ethEl.innerHTML = `<p><strong>Présidée par :</strong> ${escapeHtml(eq.ethique.president)}</p>
                 <p style="margin-top:1rem;"><strong>Assisté de :</strong></p>` +
-                eq.ethique.membres.map(m => `<p>${m}</p>`).join('');
+                eq.ethique.membres.map(m => `<p>${escapeHtml(m)}</p>`).join('');
         }
 
         document.addEventListener('DOMContentLoaded', () => {
