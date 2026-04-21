@@ -2921,6 +2921,27 @@
         @media (max-width: 599px) {
         }
 
+        /*
+         * === TABLETTE : neutraliser translateY sur les section-cards ===
+         *
+         * Sur tablette la nav est dans le flux normal (position:relative).
+         * Les .section-card ont opacity:0 + translateY(50px) via .reveal.
+         * Ce translateY décale le layout et fait "sauter" la page au moment
+         * où il se résorbe → glitch visible au chargement.
+         * On force transform:none dès le départ sur tablette ; l'opacité seule
+         * suffit pour l'animation d'apparition, sans perturber le flux.
+         */
+        @media (min-width: 481px) and (max-width: 1024px) {
+            .section-card.reveal,
+            .section-card.reveal-down {
+                transform: none !important;
+            }
+            .section-card.reveal.visible,
+            .section-card.reveal-down.visible {
+                transform: none !important;
+            }
+        }
+
         /* Header caché par défaut, révélé après les section-cards via logo-go */
         header {
             opacity: 1; /* le header lui-même reste visible */
@@ -4872,7 +4893,29 @@
 
             // Lancer l'observer seulement quand le site est révélé
             window._startReveal = function() {
+                const isTablet = window.innerWidth >= 481 && window.innerWidth <= 1024;
+
                 const triggerAll = () => {
+                    if (isTablet) {
+                        /*
+                         * Sur tablette : révéler toutes les cards instantanément,
+                         * sans stagger ni translateY (déjà neutralisé en CSS).
+                         * Le translateY dans .reveal causerait un layout shift visible
+                         * car la nav est dans le flux normal (position:relative).
+                         * On passe directement à visible + content-reveal ensemble,
+                         * avec une simple transition d'opacité.
+                         */
+                        sectionCards.forEach((el) => {
+                            el.classList.add('visible');
+                            el.classList.add('content-reveal');
+                        });
+                        document.body.classList.add('logo-go');
+                        // On observe quand même les éléments enfants pour les reveals futurs
+                        revealEls.forEach(el => observer.observe(el));
+                        return;
+                    }
+
+                    // Desktop & mobile : comportement original avec stagger
                     const CARD_STAGGER  = 200;
                     const CONTENT_DELAY = 350;
                     sectionCards.forEach((el, i) => {
