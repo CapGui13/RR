@@ -5239,11 +5239,9 @@
                     logoRight.style.opacity = '';
                     return;
                 }
-                // Sur tablette : éléments fixes, pas de parallaxe ni de fondu
+                // Sur tablette : on fige uniquement logo-right, sans toucher logoSection
                 logoRight.style.transform = '';
                 logoRight.style.opacity = '';
-                logoSection.style.transform = '';
-                logoSection.style.opacity = '';
             }
 
             window.addEventListener('scroll', syncParallax, { passive: true });
