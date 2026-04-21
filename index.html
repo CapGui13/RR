@@ -2972,6 +2972,12 @@
         body.animate.logo-go .logo-img img {
             animation: dropBounce 0.9s cubic-bezier(0.22, 1, 0.36, 1) 0s both;
         }
+        /* Légère respiration avant l'apparition de la carte sur tablette & mobile */
+        @media (max-width: 1024px) {
+            body.animate.logo-go .logo-img img {
+                animation-delay: 0.15s;
+            }
+        }
         body.animate.logo-go .logo-title {
             animation: dropNoBounce 0.7s ease-out 0.15s both;
         }
