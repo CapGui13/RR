@@ -2933,6 +2933,13 @@
             opacity: 1;
             transition: opacity 0.01s;
         }
+
+        @media (max-width: 1024px) {
+            body.animate.logo-go .header-content {
+                opacity: 1;
+                transition: opacity 0.4s ease;
+            }
+        }
         body.animate.logo-go .logo-img img {
             animation: dropBounce 0.9s cubic-bezier(0.22, 1, 0.36, 1) 0s both;
         }
@@ -2948,22 +2955,16 @@
                 animation: fadeSlideUp 0.7s ease 0s both;
             }
             body.animate.logo-go .logo-title {
-                animation: dropNoBounce 0.6s ease-out 0.1s both;
+                animation: fadeSlideUp 0.6s ease 0.1s both;
             }
             body.animate.logo-go .logo-subtitle-main {
                 animation: fadeSlideUp 0.5s ease 0.25s both;
             }
-        }
-
-        @media (max-width: 599px) {
-            body.animate.logo-go .logo-img img {
-                animation: fadeSlideUp 0.7s ease 0s both;
+            body.animate.logo-go .logo-right-inner.anim-pending {
+                animation: fadeSlideUp 0.7s ease 0.4s both;
             }
-            body.animate.logo-go .logo-title {
-                animation: dropNoBounce 0.6s ease-out 0.1s both;
-            }
-            body.animate.logo-go .logo-subtitle-main {
-                animation: fadeSlideUp 0.5s ease 0.25s both;
+            body.animate.logo-go .nav-facebook-wrap > .facebook-icon.anim-pending {
+                animation: fadeSlideUp 0.7s ease 0.4s both;
             }
         }
 
