@@ -566,7 +566,7 @@
 
         @media (max-width: 599px) {
             body.animate .nav-card-container {
-                transition: opacity 2s ease 0.7s;
+                transition: opacity 1.5s ease 0.5s;
             }
         }
         
@@ -2919,22 +2919,6 @@
         }
 
         @media (max-width: 599px) {
-            /* Sur mobile : les 3 sections forment un seul bloc qui glisse depuis le bas */
-            .main-container {
-                transition: opacity 0.7s ease, transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
-                opacity: 0;
-                transform: translateY(60vh);
-            }
-            .main-container.mobile-revealed {
-                opacity: 1;
-                transform: translateY(0);
-            }
-            /* Désactiver l'animation individuelle des cards sur mobile */
-            .section-card {
-                opacity: 1 !important;
-                transform: none !important;
-                transition: none !important;
-            }
         }
 
         /* Header caché par défaut, révélé après les section-cards via logo-go */
@@ -2959,6 +2943,18 @@
             animation: fadeSlideUp 0.6s ease 0.35s both;
         }
 
+        @media (max-width: 1024px) {
+            body.animate.logo-go .logo-img img {
+                animation: dropBounce 0.7s cubic-bezier(0.22, 1, 0.36, 1) 0s both;
+            }
+            body.animate.logo-go .logo-title {
+                animation: dropNoBounce 0.6s ease-out 0.1s both;
+            }
+            body.animate.logo-go .logo-subtitle-main {
+                animation: fadeSlideUp 0.5s ease 0.25s both;
+            }
+        }
+
         /* Logo Comité dans le header, ne suit pas le parallaxe */
         .logo-right {
             overflow: visible;
@@ -2976,6 +2972,12 @@
             animation: slideUpFade 0.9s cubic-bezier(0.22, 1, 0.36, 1) 0.5s both;
         }
 
+        @media (max-width: 1024px) {
+            body.animate.logo-go .logo-right-inner.anim-pending {
+                animation: slideUpFade 0.7s cubic-bezier(0.22, 1, 0.36, 1) 0.4s both;
+            }
+        }
+
         .nav-facebook-wrap {
             overflow: visible;
         }
@@ -2986,6 +2988,12 @@
 
         body.animate.logo-go .nav-facebook-wrap > .facebook-icon.anim-pending {
             animation: slideUpFade 0.9s cubic-bezier(0.22, 1, 0.36, 1) 0.5s both;
+        }
+
+        @media (max-width: 1024px) {
+            body.animate.logo-go .nav-facebook-wrap > .facebook-icon.anim-pending {
+                animation: slideUpFade 0.7s cubic-bezier(0.22, 1, 0.36, 1) 0.4s both;
+            }
         }
 
         /* === BADGE PROCHAIN === */
@@ -4890,39 +4898,26 @@
             window._startReveal = function() {
                 const isMobile = window.innerWidth <= 599;
                 const isTablet = window.innerWidth >= 600 && window.innerWidth <= 1024;
+                const isSmall = isMobile || isTablet;
                 const triggerAll = () => {
-                    if (isMobile) {
-                        // Mobile : les sections apparaissent en un seul bloc depuis le bas, plus tard
-                        const mainContainer = document.querySelector('.main-container');
-                        if (mainContainer) {
-                            setTimeout(() => {
-                                mainContainer.classList.add('mobile-revealed');
-                            }, 300);
-                        }
-                        // Contenu révélé immédiatement (pas de masque sur mobile)
-                        sectionCards.forEach((el) => {
-                            el.classList.add('visible');
-                            el.classList.add('content-reveal');
-                        });
-                    } else {
-                        // Desktop & Tablette : animation en cascade originale
-                        const CARD_STAGGER = 200;
-                        const CONTENT_DELAY = 350;
-                        sectionCards.forEach((el, i) => {
-                            const cardStart = i * CARD_STAGGER;
-                            setTimeout(() => el.classList.add('visible'), cardStart);
-                            setTimeout(() => el.classList.add('content-reveal'), cardStart + CONTENT_DELAY);
-                        });
-                    }
+                    // Cascade des cartes — adaptée selon l'écran
+                    const CARD_STAGGER  = isSmall ? 100 : 200;
+                    const CONTENT_DELAY = isSmall ? 250 : 350;
+                    sectionCards.forEach((el, i) => {
+                        const cardStart = i * CARD_STAGGER;
+                        setTimeout(() => el.classList.add('visible'), cardStart);
+                        setTimeout(() => el.classList.add('content-reveal'), cardStart + CONTENT_DELAY);
+                    });
 
+                    // logo-go — légèrement plus tôt sur mobile/tablette
                     setTimeout(() => {
                         document.body.classList.add('logo-go');
-                    }, 600);
+                    }, isSmall ? 500 : 600);
 
                     // Observer tous les éléments reveal
                     revealEls.forEach(el => observer.observe(el));
                 };
-                setTimeout(triggerAll, isMobile ? 100 : 400);
+                setTimeout(triggerAll, isSmall ? 100 : 400);
             };
 
             // Si on redimensionne vers mobile après que le site soit déjà révélé en desktop,
@@ -5239,9 +5234,11 @@
                     logoRight.style.opacity = '';
                     return;
                 }
-                // Sur tablette : on fige uniquement logo-right, sans toucher logoSection
+                // Sur tablette : éléments fixes, pas de parallaxe ni de fondu
                 logoRight.style.transform = '';
                 logoRight.style.opacity = '';
+                logoSection.style.transform = '';
+                logoSection.style.opacity = '';
             }
 
             window.addEventListener('scroll', syncParallax, { passive: true });
