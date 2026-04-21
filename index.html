@@ -517,7 +517,16 @@
                 position: relative;
             }
             .logo-text {
-                flex: 1;
+                /*
+                 * ⚠️ position:absolute DÈS LE DÉPART sur tablette.
+                 * Avant : flex:1 → le logo-text occupait de l'espace dans le flux.
+                 * centerLogoText() le passait en position:absolute après 500ms via setTimeout.
+                 * Ce changement flex→absolute retirait l'élément du flux, rétrécissait le
+                 * header, remontait la nav, et faisait sauter toutes les sections en dessous.
+                 * Solution : position:absolute immédiatement en CSS → pas de reflow tardif.
+                 * Le JS n'a plus qu'à positionner left/bottom sans changer le flow.
+                 */
+                position: absolute;
                 align-items: center;
                 text-align: center;
                 opacity: 0;
@@ -5304,10 +5313,10 @@
             }
 
             document.addEventListener('DOMContentLoaded', function() {
-                setTimeout(function() {
-                    if (isTablet()) centerLogoText();
-                    else reset();
-                }, 500);
+                // Plus besoin de délai : logo-text est déjà position:absolute en CSS.
+                // Le JS ne fait que calculer les coordonnées left/bottom → pas de reflow.
+                if (isTablet()) centerLogoText();
+                else reset();
             });
             window.addEventListener('resize', function() {
                 if (isTablet()) centerLogoText();
