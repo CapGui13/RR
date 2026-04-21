@@ -2274,6 +2274,7 @@
             body.animate.logo-go .logo-subtitle-city {
                 opacity: 1;
                 transform: translateY(0);
+                transition-delay: 0.85s;
             }
             .logo-right img { height: 48px; }
 
@@ -2972,10 +2973,10 @@
         body.animate.logo-go .logo-img img {
             animation: dropBounce 0.9s cubic-bezier(0.22, 1, 0.36, 1) 0s both;
         }
-        /* Légère respiration avant l'apparition de la carte sur tablette & mobile */
+        /* Tablette & mobile : carte plus lente, délai un peu plus long */
         @media (max-width: 1024px) {
             body.animate.logo-go .logo-img img {
-                animation-delay: 0.15s;
+                animation: dropBounce 1.2s cubic-bezier(0.22, 1, 0.36, 1) 0.25s both;
             }
         }
         body.animate.logo-go .logo-title {
@@ -2983,6 +2984,15 @@
         }
         body.animate.logo-go .logo-subtitle-main {
             animation: fadeSlideUp 0.6s ease 0.35s both;
+        }
+        /* Tablette & mobile : BCRR descend, "Bridge Club..." monte, décalés après la carte */
+        @media (max-width: 1024px) {
+            body.animate.logo-go .logo-title {
+                animation: dropNoBounce 0.7s ease-out 0.5s both;
+            }
+            body.animate.logo-go .logo-subtitle-main {
+                animation: fadeSlideUp 0.6s ease 0.7s both;
+            }
         }
 
         /* Logo Comité dans le header, ne suit pas le parallaxe */
@@ -3000,6 +3010,12 @@
         }
         body.animate.logo-go .logo-right-inner.anim-pending {
             animation: slideUpFade 0.9s cubic-bezier(0.22, 1, 0.36, 1) 0.5s both;
+        }
+        /* Mobile : FB + Comité descendent depuis au-dessus, décalés après la carte */
+        @media (max-width: 599px) {
+            body.animate.logo-go .logo-right-inner.anim-pending {
+                animation: slideDownFade 0.8s cubic-bezier(0.22, 1, 0.36, 1) 0.6s both;
+            }
         }
 
         .nav-facebook-wrap {
