@@ -566,7 +566,7 @@
 
         @media (max-width: 599px) {
             body.animate .nav-card-container {
-                transition: opacity 1.5s ease 0.5s;
+                transition: opacity 1.5s ease 0.3s;
             }
         }
         
@@ -2933,13 +2933,6 @@
             opacity: 1;
             transition: opacity 0.01s;
         }
-
-        @media (max-width: 1024px) {
-            body.animate.logo-go .header-content {
-                opacity: 1;
-                transition: opacity 0.4s ease;
-            }
-        }
         body.animate.logo-go .logo-img img {
             animation: dropBounce 0.9s cubic-bezier(0.22, 1, 0.36, 1) 0s both;
         }
@@ -2948,24 +2941,6 @@
         }
         body.animate.logo-go .logo-subtitle-main {
             animation: fadeSlideUp 0.6s ease 0.35s both;
-        }
-
-        @media (max-width: 1024px) {
-            body.animate.logo-go .logo-img img {
-                animation: fadeSlideUp 0.7s ease 0s both;
-            }
-            body.animate.logo-go .logo-title {
-                animation: fadeSlideUp 0.6s ease 0.1s both;
-            }
-            body.animate.logo-go .logo-subtitle-main {
-                animation: fadeSlideUp 0.5s ease 0.25s both;
-            }
-            body.animate.logo-go .logo-right-inner.anim-pending {
-                animation: fadeSlideUp 0.7s ease 0.4s both;
-            }
-            body.animate.logo-go .nav-facebook-wrap > .facebook-icon.anim-pending {
-                animation: fadeSlideUp 0.7s ease 0.4s both;
-            }
         }
 
         /* Logo Comité dans le header, ne suit pas le parallaxe */
@@ -2985,12 +2960,6 @@
             animation: slideUpFade 0.9s cubic-bezier(0.22, 1, 0.36, 1) 0.5s both;
         }
 
-        @media (max-width: 1024px) {
-            body.animate.logo-go .logo-right-inner.anim-pending {
-                animation: slideUpFade 0.7s cubic-bezier(0.22, 1, 0.36, 1) 0.4s both;
-            }
-        }
-
         .nav-facebook-wrap {
             overflow: visible;
         }
@@ -3001,12 +2970,6 @@
 
         body.animate.logo-go .nav-facebook-wrap > .facebook-icon.anim-pending {
             animation: slideUpFade 0.9s cubic-bezier(0.22, 1, 0.36, 1) 0.5s both;
-        }
-
-        @media (max-width: 1024px) {
-            body.animate.logo-go .nav-facebook-wrap > .facebook-icon.anim-pending {
-                animation: slideUpFade 0.7s cubic-bezier(0.22, 1, 0.36, 1) 0.4s both;
-            }
         }
 
         /* === BADGE PROCHAIN === */
@@ -4909,28 +4872,22 @@
 
             // Lancer l'observer seulement quand le site est révélé
             window._startReveal = function() {
-                const isMobile = window.innerWidth <= 599;
-                const isTablet = window.innerWidth >= 600 && window.innerWidth <= 1024;
-                const isSmall = isMobile || isTablet;
                 const triggerAll = () => {
-                    // Cascade des cartes — adaptée selon l'écran
-                    const CARD_STAGGER  = isMobile ? 200 : isTablet ? 150 : 200;
-                    const CONTENT_DELAY = isMobile ? 350 : isTablet ? 300 : 350;
+                    const CARD_STAGGER  = 200;
+                    const CONTENT_DELAY = 350;
                     sectionCards.forEach((el, i) => {
                         const cardStart = i * CARD_STAGGER;
                         setTimeout(() => el.classList.add('visible'), cardStart);
                         setTimeout(() => el.classList.add('content-reveal'), cardStart + CONTENT_DELAY);
                     });
 
-                    // logo-go — légèrement plus tôt sur mobile/tablette
                     setTimeout(() => {
                         document.body.classList.add('logo-go');
-                    }, isMobile ? 600 : isTablet ? 550 : 600);
+                    }, 600);
 
-                    // Observer tous les éléments reveal
                     revealEls.forEach(el => observer.observe(el));
                 };
-                setTimeout(triggerAll, isMobile ? 300 : isTablet ? 200 : 400);
+                setTimeout(triggerAll, 400);
             };
 
             // Si on redimensionne vers mobile après que le site soit déjà révélé en desktop,
