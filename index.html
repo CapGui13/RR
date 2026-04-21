@@ -2945,7 +2945,19 @@
 
         @media (max-width: 1024px) {
             body.animate.logo-go .logo-img img {
-                animation: dropBounce 0.7s cubic-bezier(0.22, 1, 0.36, 1) 0s both;
+                animation: fadeSlideUp 0.7s ease 0s both;
+            }
+            body.animate.logo-go .logo-title {
+                animation: dropNoBounce 0.6s ease-out 0.1s both;
+            }
+            body.animate.logo-go .logo-subtitle-main {
+                animation: fadeSlideUp 0.5s ease 0.25s both;
+            }
+        }
+
+        @media (max-width: 599px) {
+            body.animate.logo-go .logo-img img {
+                animation: fadeSlideUp 0.7s ease 0s both;
             }
             body.animate.logo-go .logo-title {
                 animation: dropNoBounce 0.6s ease-out 0.1s both;
@@ -4901,8 +4913,8 @@
                 const isSmall = isMobile || isTablet;
                 const triggerAll = () => {
                     // Cascade des cartes — adaptée selon l'écran
-                    const CARD_STAGGER  = isSmall ? 100 : 200;
-                    const CONTENT_DELAY = isSmall ? 250 : 350;
+                    const CARD_STAGGER  = isMobile ? 200 : isTablet ? 150 : 200;
+                    const CONTENT_DELAY = isMobile ? 350 : isTablet ? 300 : 350;
                     sectionCards.forEach((el, i) => {
                         const cardStart = i * CARD_STAGGER;
                         setTimeout(() => el.classList.add('visible'), cardStart);
@@ -4912,12 +4924,12 @@
                     // logo-go — légèrement plus tôt sur mobile/tablette
                     setTimeout(() => {
                         document.body.classList.add('logo-go');
-                    }, isSmall ? 500 : 600);
+                    }, isMobile ? 600 : isTablet ? 550 : 600);
 
                     // Observer tous les éléments reveal
                     revealEls.forEach(el => observer.observe(el));
                 };
-                setTimeout(triggerAll, isSmall ? 100 : 400);
+                setTimeout(triggerAll, isMobile ? 300 : isTablet ? 200 : 400);
             };
 
             // Si on redimensionne vers mobile après que le site soit déjà révélé en desktop,
