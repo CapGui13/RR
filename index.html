@@ -34,14 +34,19 @@
     <link rel="canonical" href="https://bridgeclubroyrene.fr/">
     <link rel="icon" type="image/png" href="https://i.imgur.com/46NwTY8.png">
     <link rel="apple-touch-icon" sizes="180x180" href="https://i.imgur.com/46NwTY8.png">
-    <link rel="preload" as="image" href="https://i.imgur.com/9QqR6I9.jpeg">
+    <link rel="preload" as="image" href="https://i.imgur.com/9QqR6I9.jpeg" fetchpriority="high">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Great+Vibes&family=Cormorant+Garamond:ital@1&display=swap" rel="stylesheet">
+    <!-- Chargement non-bloquant des polices + font-display:swap pour éviter FOIT -->
+    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Great+Vibes&family=Cormorant+Garamond:ital@1&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Great+Vibes&family=Cormorant+Garamond:ital@1&display=swap"></noscript>
     
     <!-- Optimisation performances -->
     <link rel="dns-prefetch" href="https://cdnjs.cloudflare.com">
     <link rel="dns-prefetch" href="https://formsubmit.co">
+    <link rel="dns-prefetch" href="https://maps.googleapis.com">
+    <link rel="dns-prefetch" href="https://maps.gstatic.com">
+    <link rel="preconnect" href="https://maps.googleapis.com">
     
     <!-- JSON-LD Schema.org -->
     <script type="application/ld+json">
@@ -229,6 +234,7 @@
             color: #333;
             background: transparent;
             min-height: 100vh;
+            text-rendering: optimizeSpeed;
         }
 
         h1, h2, h3, h4, h5, h6 { font-weight: 700; }
@@ -671,11 +677,9 @@
                 background: linear-gradient(135deg, #3a6e4f 0%, #245c38 100%);
                 transform: scale(1.05);
                 box-shadow: 0 6px 20px rgba(26,77,46,0.45), 0 2px 6px rgba(0,0,0,0.2);
-                will-change: transform;
             }
 
             .nav-card button:not(:hover) {
-                will-change: auto;
             }
         }
 
@@ -737,6 +741,8 @@
             padding: 1.2rem;
             box-shadow: 0 8px 20px rgba(0,0,0,0.15);
             border-top: 2px solid transparent;
+            content-visibility: auto;
+            contain-intrinsic-size: 0 400px;
         }
 
         .section-card:nth-child(1) { border-top-color: #667eea; }
@@ -749,13 +755,11 @@
             transform: translateY(50px);
             transition: opacity 1.1s cubic-bezier(0.22, 1, 0.36, 1),
                         transform 1.1s cubic-bezier(0.22, 1, 0.36, 1);
-            will-change: transform, opacity;
         }
 
         .reveal.visible {
             opacity: 1;
             transform: translateY(0);
-            will-change: auto; /* libère le calque GPU une fois animé */
         }
 
         .reveal-down {
@@ -763,13 +767,11 @@
             transform: translateY(-20px);
             transition: opacity 1.1s cubic-bezier(0.22, 1, 0.36, 1),
                         transform 1.1s cubic-bezier(0.22, 1, 0.36, 1);
-            will-change: transform, opacity;
         }
 
         .reveal-down.visible {
             opacity: 1;
             transform: translateY(0);
-            will-change: auto;
         }
 
         .section-title {
@@ -3289,7 +3291,8 @@
                 ? 'https://i.imgur.com/PcEwjZX.jpeg'
                 : 'https://i.imgur.com/SF7rXmN.jpeg';
             img.onload = img.onerror = revealSite;
-            setTimeout(revealSite, 2000);
+            // Réduit de 2000ms à 1200ms : évite d'attendre trop longtemps si l'image est lente
+            setTimeout(revealSite, 1200);
             img.src = imgToLoad;
         })();
     </script>
@@ -3379,7 +3382,7 @@
                 <div class="dropdown-photo">
                     <img src="https://i.imgur.com/9QqR6I9.jpeg" alt="Façade de la Maison Provençale du Bridge - Bridge Club Roy René Aix-en-Provence" width="600" height="400" loading="lazy" decoding="async">
                 </div>
-                <iframe class="dropdown-map" src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2872.5263892891726!2d5.4327295!3d43.521388!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x12c98d7624d282a7%3A0x2d24890b32d556a4!2sClub%20de%20Bridge%20Roy%20Ren%C3%A9!5e0!3m2!1sfr!2sfr!4v1234567890" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade" title="Carte localisation Bridge Club Roy René"></iframe>
+                <iframe class="dropdown-map" data-src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2872.5263892891726!2d5.4327295!3d43.521388!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x12c98d7624d282a7%3A0x2d24890b32d556a4!2sClub%20de%20Bridge%20Roy%20Ren%C3%A9!5e0!3m2!1sfr!2sfr!4v1234567890" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade" title="Carte localisation Bridge Club Roy René"></iframe>
             </div>
         </div>
     </div>
@@ -4124,7 +4127,7 @@
                 item.onclick = () => openLightbox(index);
                 
                 item.innerHTML = `
-                    <img src="${escapeHtml(img.url)}" alt="${escapeHtml(img.title)}" loading="eager">
+                    <img src="${escapeHtml(img.url)}" alt="${escapeHtml(img.title)}" loading="lazy" decoding="async">
                     <div class="gallery-item-overlay">
                         <p class="gallery-item-title">${escapeHtml(img.title)}</p>
                     </div>
@@ -4480,6 +4483,15 @@
                 if (id === 'galleryDropdown') {
                     filteredImages = [...galleryImages];
                     initGallery();
+                }
+
+                // Lazy-load de la carte Google Maps : injecter src uniquement à l'ouverture
+                if (id === 'locationDropdown') {
+                    const mapIframe = overlay.querySelector('iframe[data-src]');
+                    if (mapIframe) {
+                        mapIframe.src = mapIframe.dataset.src;
+                        mapIframe.removeAttribute('data-src');
+                    }
                 }
 
                 // Activate focus trap after a short delay to let the modal render
@@ -4859,6 +4871,7 @@
             const logoSection = document.querySelector('.logo-section');
             const navCard = document.querySelector('.nav-card-container');
 
+            let _parallaxRAF = null;
             function updateParallax(forceScrollY) {
                 const isMobile = window.innerWidth <= 599;
                 const isTablet = window.innerWidth >= 600 && window.innerWidth <= 1024;
@@ -4873,16 +4886,16 @@
                 // Sans ce return, le logo saute vers le haut à chaque ouverture de modale.
                 if (_scrollLocked) return;
                 const scrollY = (typeof forceScrollY === 'number') ? forceScrollY : window.scrollY;
-                if (logoSection) {
-                    logoSection.style.transform = `translateY(${scrollY * 0.25}px)`;
-                    // Sur tablette : fade piloté par syncParallax (basé sur contact avec la nav)
-                    // Sur desktop : fade fixe à 220px
-                    if (window.innerWidth > 1024) {
-                        logoSection.style.opacity = Math.max(0, 1 - scrollY / 220);
+                if (_parallaxRAF) return; // déjà planifié ce cycle
+                _parallaxRAF = requestAnimationFrame(function() {
+                    _parallaxRAF = null;
+                    if (logoSection) {
+                        logoSection.style.transform = `translateY(${scrollY * 0.25}px)`;
+                        if (window.innerWidth > 1024) {
+                            logoSection.style.opacity = Math.max(0, 1 - scrollY / 220);
+                        }
                     }
-                    // Sur tablette, l'opacity de logo-section est gérée par syncParallax
-                }
-                // Nav reste fixe — pas de parallaxe
+                });
             }
 
             window.addEventListener('scroll', updateParallax, { passive: true });
@@ -5008,14 +5021,18 @@
 
             // Si on redimensionne vers mobile après que le site soit déjà révélé en desktop,
             // s'assurer que .mobile-revealed est bien appliqué
+            let _revealResizeTimer = null;
             window.addEventListener('resize', function() {
-                if (window.innerWidth <= 1024) {
-                    const mainContainer = document.querySelector('.main-container');
-                    if (mainContainer && !mainContainer.classList.contains('mobile-revealed')) {
-                        mainContainer.classList.add('mobile-revealed');
+                clearTimeout(_revealResizeTimer);
+                _revealResizeTimer = setTimeout(function() {
+                    if (window.innerWidth <= 1024) {
+                        const mainContainer = document.querySelector('.main-container');
+                        if (mainContainer && !mainContainer.classList.contains('mobile-revealed')) {
+                            mainContainer.classList.add('mobile-revealed');
+                        }
                     }
-                }
-            });
+                }, 80);
+            }, { passive: true });
 
             // Signale que _startReveal est prêt (pour le cas où le cover se charge avant DOMContentLoaded)
             document.dispatchEvent(new Event('_startRevealReady'));
@@ -5230,7 +5247,7 @@
                 resizeTimer = setTimeout(function() {
                     document.body.classList.remove('no-transition');
                 }, 100);
-            });
+            }, { passive: true });
         })();
     </script>
     <script>
@@ -5382,10 +5399,14 @@
                 if (isTablet()) centerLogoText();
                 else reset();
             });
+            var _centerResizeTimer = null;
             window.addEventListener('resize', function() {
-                if (isTablet()) centerLogoText();
-                else reset();
-            });
+                clearTimeout(_centerResizeTimer);
+                _centerResizeTimer = setTimeout(function() {
+                    if (isTablet()) centerLogoText();
+                    else reset();
+                }, 80);
+            }, { passive: true });
         })();
     </script>
 
