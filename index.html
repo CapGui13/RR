@@ -2059,13 +2059,17 @@
             /* Photo en haut à droite — décalée vers le bas pour s'aligner avec le texte */
             .dropdown-photo {
                 height: 220px;
-                margin-top: 2.8rem;
+                margin-top: 3rem;
             }
             /* Carte en bas à droite, limitée pour forcer le rendu compact */
             .dropdown-map {
                 height: 220px;
                 max-width: 380px;
                 width: 100%;
+            }
+            /* Décalage du texte descriptif vers le bas (~2 lignes) */
+            .dropdown-info-desc {
+                margin-top: 4.15rem !important;
             }
         }
 
@@ -3456,7 +3460,7 @@
                     <p><strong>Téléphone :</strong> 04 42 95 62 03</p>
                     <!-- EMAIL EN CLAIR — ne pas laisser Cloudflare obfusquer cette ligne -->
                     <p><strong>Email :</strong> <a href="mailto:royrenebridge@gmail.com">royrenebridge@gmail.com</a></p>
-                    <p style="font-style: italic; margin-top: 2.5rem; color: #666; line-height: 1.15;">
+                    <p class="dropdown-info-desc" style="font-style: italic; margin-top: 2.5rem; color: #666; line-height: 1.15;">
                         Créé en Octobre 1967, le Bridge Club du Roy René occupe maintenant le rez-de-chaussée de la Maison du Bridge à Aix-en-Provence.<br><br>
                         Le bâtiment est accessible aux handicapés et notre salle, climatisée et très lumineuse, peut accueillir jusqu'à 120 joueurs.
                     </p>
