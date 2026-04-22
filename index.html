@@ -4493,9 +4493,9 @@
             window._scrollLocked = true;
             window.addEventListener('wheel', _preventScroll, { passive: false });
             window.addEventListener('touchmove', _preventScroll, { passive: false });
-            // Sur mobile : _preventScroll suffit, pas de modification DOM
+            // Sur mobile (≤480px) : _preventScroll suffit, pas de modification DOM
             // (position:fixed sur body et overflow:hidden sur html causent un zoom du fond)
-            if (window.innerWidth > 1024) {
+            if (window.innerWidth > 480) {
                 document.body.style.position = 'fixed';
                 document.body.style.top = `-${_scrollY}px`;
                 document.body.style.width = '100%';
@@ -4507,7 +4507,7 @@
             window._scrollLocked = false;
             window.removeEventListener('wheel', _preventScroll);
             window.removeEventListener('touchmove', _preventScroll);
-            if (window.innerWidth > 1024) {
+            if (window.innerWidth > 480) {
                 document.body.style.position = '';
                 document.body.style.top = '';
                 document.body.style.width = '';
