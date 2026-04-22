@@ -3205,37 +3205,40 @@
         </symbol>
     </svg>
     <noscript><style>#site-cover{display:none}</style></noscript>
-    <!-- Fond mobile : div fixed dédiée, immunisée contre les reflows de contenu -->
+    <!-- Fond mobile : img fixe dédiée — plus stable que background-size:cover -->
     <style>
         @media (max-width: 1024px) {
             html {
                 background-color: #0d1f10;
             }
             html::before { display: none; }
+            /*
+             * On utilise une vraie <img> en position:fixed plutôt qu'un background CSS.
+             * background-size:cover se recalcule à chaque repaint (accordion, barre d'adresse…)
+             * ce qui fait bouger le fond. Une <img> avec object-fit:cover est gérée
+             * entièrement par le compositor GPU et ne reboucle jamais vers le CPU.
+             */
             #mobile-bg {
                 display: block;
                 position: fixed;
                 top: 0;
                 left: 0;
                 width: 100%;
-                /*
-                 * ⚠️ NE PAS utiliser height:100vh ici.
-                 *
-                 * Sur iOS Safari, la barre d'adresse se rétracte au scroll, ce qui
-                 * modifie la hauteur de la viewport. Avec height:100vh ou inset:0,
-                 * la div se redimensionne à chaque frame → l'image "zoome" visiblement.
-                 *
-                 * Solution : la hauteur est verrouillée en pixels au chargement via JS
-                 * (voir script ci-dessous). On met 100vh ici uniquement comme valeur
-                 * initiale de rendu avant que le JS ait tourné.
-                 */
-                height: 100vh;
+                height: 100%;
                 z-index: -1;
-                background: url('https://i.imgur.com/PcEwjZX.jpeg') top center / cover no-repeat;
                 pointer-events: none;
-                /* Empêche tout recalcul de layout sur cet élément */
-                will-change: transform;
+                overflow: hidden;
+            }
+            #mobile-bg img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+                object-position: top center;
+                display: block;
+                /* Promotion sur calque GPU séparé — le compositor le déplace
+                   sans jamais impliquer le moteur de layout ou de paint */
                 transform: translateZ(0);
+                will-change: transform;
             }
             #site-cover { background-image: url('https://i.imgur.com/PcEwjZX.jpeg') !important;
                 background-size: cover !important; background-repeat: no-repeat !important;
@@ -3245,23 +3248,13 @@
             #mobile-bg { display: none; }
         }
     </style>
-    <div id="mobile-bg"></div>
+    <div id="mobile-bg"><img src="https://i.imgur.com/PcEwjZX.jpeg" alt="" aria-hidden="true" fetchpriority="high" decoding="async"></div>
     <script>
         /*
-         * === VERROUILLAGE HAUTEUR FOND MOBILE ===
-         *
-         * Problème : sur iOS Safari, la barre d'adresse disparaît au scroll,
-         * modifiant la hauteur de la viewport. Une div `position:fixed` avec
-         * `height:100vh` ou `inset:0` se redimensionne à chaque changement de
-         * viewport → l'image de fond semble "zoomer" ou glisser pendant le scroll.
-         *
-         * Solution : mesurer la hauteur réelle de la fenêtre au chargement
-         * (quand la barre d'adresse est visible = hauteur maximale) et la
-         * verrouiller en pixels. La div ne bougera plus jamais, quelle que soit
-         * l'état de la barre d'adresse.
-         *
-         * On écoute aussi `orientationchange` pour recalculer après rotation.
-         * On n'écoute PAS `resize` ordinaire car c'est précisément ce qu'on veut éviter.
+         * Sur iOS, height:100% sur un élément fixed peut encore varier avec la barre
+         * d'adresse. On verrouille la hauteur en pixels via screen.height au chargement,
+         * comme précédemment — mais cette fois c'est l'img qui porte la taille, pas
+         * un background CSS qui se recalcule.
          */
         (function() {
             if (window.innerWidth > 1024) return;
@@ -3269,18 +3262,13 @@
             if (!bg) return;
 
             function lockHeight() {
-                // window.screen.height = hauteur physique de l'écran, non affectée
-                // par la barre d'adresse. Plus fiable que window.innerHeight sur iOS.
                 var h = window.screen.height;
                 bg.style.height = h + 'px';
             }
 
             lockHeight();
 
-            // Recalcul uniquement après rotation (portrait ↔ paysage)
             window.addEventListener('orientationchange', function() {
-                // Délai nécessaire : la rotation n'est pas encore terminée au moment
-                // où l'événement se déclenche. 300ms est suffisant sur tous les appareils.
                 setTimeout(lockHeight, 300);
             }, { passive: true });
         })();
