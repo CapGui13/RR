@@ -5172,7 +5172,15 @@
 
                 requestAnimationFrame(function() {
                     requestAnimationFrame(function() {
-                        content.style.transition = 'max-height 0.7s cubic-bezier(0.22, 1, 0.36, 1), padding-top 0.5s cubic-bezier(0.22, 1, 0.36, 1)';
+                        /*
+                         * ⚠️ NE PAS utiliser cubic-bezier(0.22, 1, 0.36, 1) ici.
+                         * Cette courbe ralentit fortement en fin de course → la valeur
+                         * s'approche de 0 très lentement → effet de "bounce" visible
+                         * quand max-height touche 0.
+                         * On utilise une ease-in franche : accélération progressive
+                         * qui arrive sur 0 à pleine vitesse, sans ralentissement final.
+                         */
+                        content.style.transition = 'max-height 0.35s cubic-bezier(0.4, 0, 1, 1), padding-top 0.3s ease-in';
                         content.style.maxHeight = '0px';
                         content.style.paddingTop = '0px';
 
