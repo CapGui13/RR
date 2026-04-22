@@ -5166,26 +5166,34 @@
                 var btn = card.querySelector('.section-card-toggle');
 
                 var currentH = content.scrollHeight;
+                var cardH = card.offsetHeight;
+
+                /*
+                 * On gèle la hauteur totale de la card pendant l'animation de fermeture.
+                 * Sans ça, quand max-height réduit, la card rétrécit, la page se raccourcit,
+                 * et iOS recalcule la position du fond fixe → le background bouge.
+                 * En maintenant min-height le temps de l'animation, le layout ne change
+                 * pas et le fond reste parfaitement immobile.
+                 */
+                card.style.minHeight = cardH + 'px';
+
                 content.style.overflow = 'hidden';
                 content.style.maxHeight = currentH + 'px';
                 content.style.paddingTop = '18px';
 
                 requestAnimationFrame(function() {
                     requestAnimationFrame(function() {
-                        /*
-                         * ⚠️ NE PAS utiliser cubic-bezier(0.22, 1, 0.36, 1) ici.
-                         * Cette courbe ralentit fortement en fin de course → la valeur
-                         * s'approche de 0 très lentement → effet de "bounce" visible
-                         * quand max-height touche 0.
-                         * On utilise une ease-in franche : accélération progressive
-                         * qui arrive sur 0 à pleine vitesse, sans ralentissement final.
-                         */
-                        content.style.transition = 'max-height 0.35s cubic-bezier(0.4, 0, 1, 1), padding-top 0.3s ease-in';
+                        content.style.transition = 'max-height 0.45s cubic-bezier(0.4, 0, 0.2, 1), padding-top 0.35s cubic-bezier(0.4, 0, 0.2, 1)';
                         content.style.maxHeight = '0px';
                         content.style.paddingTop = '0px';
 
                         card.classList.remove('accordion-open');
                         btn.setAttribute('aria-expanded', 'false');
+
+                        // Libère le min-height une fois l'animation terminée
+                        setTimeout(function() {
+                            card.style.minHeight = '';
+                        }, 460);
                     });
                 });
             }
