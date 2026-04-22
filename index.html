@@ -1230,7 +1230,7 @@
             object-fit: cover;
         }
 
-        /* === BADGE NOTE GOOGLE MAPS === */
+        /* === MASQUER LE PANNEAU DE NOTE GOOGLE MAPS (desktop/tablette) === */
         .map-wrapper {
             position: relative;
             width: 100%;
@@ -1242,58 +1242,29 @@
             will-change: transform;
         }
 
-        /* L'iframe hérite des dimensions du wrapper */
         .map-wrapper .dropdown-map {
             position: absolute;
             inset: 0;
             width: 100%;
             height: 100%;
-            border-radius: 8px;
             box-shadow: none;
         }
 
-        .map-rating-badge {
+        /* Couvre le panneau d'info Google (note, nom, boutons) en bas à gauche */
+        .map-panel-cover {
             position: absolute;
-            bottom: 10px;
-            left: 10px;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            background: #fff;
-            border-radius: 8px;
-            padding: 5px 10px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.28);
-            text-decoration: none;
-            z-index: 10;
-            transition: box-shadow 0.2s, transform 0.2s;
-            pointer-events: auto;
+            bottom: 0;
+            left: 0;
+            width: 230px;
+            height: 100%;
+            background: transparent;
+            pointer-events: none;
+            z-index: 2;
         }
 
-        .map-rating-badge:hover {
-            box-shadow: 0 4px 16px rgba(0,0,0,0.35);
-            transform: translateY(-1px);
-        }
-
-        .map-rating-badge::after { display: none; }
-
-        .map-rating-logo {
-            width: 18px;
-            height: 18px;
-            flex-shrink: 0;
-        }
-
-        .map-rating-score {
-            font-size: 0.95rem;
-            font-weight: 700;
-            color: #202124;
-            line-height: 1;
-        }
-
-        .map-rating-stars {
-            font-size: 0.85rem;
-            color: #fbbc04;
-            letter-spacing: -1px;
-            line-height: 1;
+        /* Sur mobile : le panneau est en bas (pleine largeur, ~120px de haut) — déjà absent, rien à faire */
+        @media (max-width: 599px) {
+            .map-panel-cover { display: none; }
         }
 
         /* === CONTACT MODAL === */
@@ -3505,11 +3476,7 @@
                 </div>
                 <div class="map-wrapper">
                     <iframe class="dropdown-map" data-src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2872.5263892891726!2d5.4327295!3d43.521388!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x12c98d7624d282a7%3A0x2d24890b32d556a4!2sClub%20de%20Bridge%20Roy%20Ren%C3%A9!5e0!3m2!1sfr!2sfr!4v1234567890" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade" title="Carte localisation Bridge Club Roy René"></iframe>
-                    <a class="map-rating-badge" href="https://www.google.com/maps?cid=3259890256938337956" target="_blank" rel="noopener noreferrer" aria-label="Voir les avis Google - Note 3,6 sur 5">
-                        <img class="map-rating-logo" src="https://www.google.com/images/branding/googleg/1x/googleg_standard_color_128dp.png" alt="Google" width="18" height="18">
-                        <span class="map-rating-score">3,6</span>
-                        <span class="map-rating-stars" aria-hidden="true">★★★★☆</span>
-                    </a>
+                    <div class="map-panel-cover" aria-hidden="true"></div>
                 </div>
             </div>
         </div>
