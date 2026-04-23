@@ -2453,7 +2453,7 @@
                 top: 0; left: 0; right: 0;
                 height: 100vh;
                 height: 100dvh;
-                align-items: center;
+                align-items: flex-start;
                 justify-content: center;
             }
 
@@ -2468,10 +2468,6 @@
                 opacity: 0;
                 transition: opacity 0.5s ease, transform 0.5s ease;
                 will-change: opacity, transform;
-                /* Haut calé via margin-top JS, bas jusqu'en bas de l'écran */
-                align-self: flex-start;
-                max-height: none;
-                overflow-y: auto;
             }
 
             .dropdown-overlay.active .dropdown-modal {
@@ -4576,13 +4572,10 @@
                     modal.scrollTop = 0;
                     const isTablet = window.innerWidth >= 481 && window.innerWidth <= 1024;
                     if (isTablet) {
-                        // Calcule le margin-top pour que le haut de la modale
-                        // soit au même niveau qu'avec align-items:center + max-height:88dvh
-                        const vh = window.innerHeight;
-                        const modalH = Math.min(modal.scrollHeight, vh * 0.88);
-                        const marginTop = Math.max(0, (vh - modalH) / 2);
-                        modal.style.marginTop = marginTop + 'px';
-                        modal.style.maxHeight = (vh - marginTop) + 'px';
+                        const header = document.querySelector('header');
+                        const headerBottom = header ? header.getBoundingClientRect().bottom : 0;
+                        modal.style.marginTop = headerBottom + 'px';
+                        modal.style.maxHeight = (window.innerHeight - headerBottom) + 'px';
                     } else {
                         modal.style.marginTop = '';
                         modal.style.maxHeight = '';
