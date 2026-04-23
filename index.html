@@ -4570,12 +4570,20 @@
                 const modal = overlay.querySelector('.dropdown-modal');
                 if (modal) {
                     modal.scrollTop = 0;
-                    // Sur tablette : aligner le bord supérieur de toutes les modales
-                    // sur celui de "nous trouver" (= 6dvh depuis le haut)
                     const isTablet = window.innerWidth >= 481 && window.innerWidth <= 1024;
                     if (isTablet && id !== 'locationDropdown') {
-                        modal.style.marginTop = (window.innerHeight * 0.06) + 'px';
-                        modal.style.alignSelf = 'flex-start';
+                        // Ouvrir nous trouver en invisible pour mesurer son top réel
+                        const locationOverlay = document.getElementById('locationDropdown');
+                        const locationModal = locationOverlay ? locationOverlay.querySelector('.dropdown-modal') : null;
+                        if (locationModal) {
+                            locationOverlay.style.visibility = 'hidden';
+                            locationOverlay.style.display = 'flex';
+                            const realTop = locationModal.getBoundingClientRect().top;
+                            locationOverlay.style.visibility = '';
+                            locationOverlay.style.display = '';
+                            modal.style.marginTop = realTop + 'px';
+                            modal.style.alignSelf = 'flex-start';
+                        }
                     } else {
                         modal.style.marginTop = '';
                         modal.style.alignSelf = '';
