@@ -4558,7 +4558,7 @@
                 setTimeout(() => {
                     overlay.classList.remove('closing');
                     const modal = overlay.querySelector('.dropdown-modal');
-                    if (modal) { modal.style.marginTop = ''; modal.style.alignSelf = ''; }
+                    if (modal) { modal.style.marginTop = ''; modal.style.maxHeight = ''; modal.style.alignSelf = ''; }
                 }, 300);
                 unlockScroll();
                 if (_overlayCleanup[id]) { _overlayCleanup[id](); delete _overlayCleanup[id]; }
@@ -4581,7 +4581,9 @@
                             const realTop = locationModal.getBoundingClientRect().top;
                             locationOverlay.style.visibility = '';
                             locationOverlay.style.display = '';
-                            modal.style.marginTop = realTop + 'px';
+                            const adjustedTop = realTop - 40;
+                            modal.style.marginTop = adjustedTop + 'px';
+                            modal.style.maxHeight = (window.innerHeight - adjustedTop - 16) + 'px';
                             modal.style.alignSelf = 'flex-start';
                         }
                     } else {
