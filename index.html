@@ -3320,6 +3320,12 @@
         (function() {
             var cover = document.getElementById('site-cover');
             if (!cover) return;
+            // Sur tablette/mobile, verrouiller la hauteur identique à #mobile-bg
+            // pour éviter le flash de zoom au fondu (screen.height vs 100vh)
+            if (window.innerWidth <= 1024) {
+                cover.style.height = window.screen.height + 'px';
+                cover.style.bottom = 'auto';
+            }
             var isMobile = window.innerWidth <= 1024;
             var imgSrc = isMobile
                 ? 'https://i.imgur.com/PcEwjZX.jpeg'
