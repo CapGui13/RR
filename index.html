@@ -2453,8 +2453,9 @@
                 top: 0; left: 0; right: 0;
                 height: 100vh;
                 height: 100dvh;
-                align-items: center;
+                align-items: flex-start;
                 justify-content: center;
+                padding-top: 306px;
             }
 
             .dropdown-modal {
@@ -5540,71 +5541,6 @@
          * ⚠️ Ne pas étendre ce preventDefault() au haut de page (atTop && dy > 0) :
          *    cela casse le bounce natif iOS vers le haut et crée des glitches visuels.
          */
-        /* === DIAGNOSTIC : coordonnées réelles de la modale "Nous trouver" === */
-        (function() {
-            function showModalCoords() {
-                var overlay = document.getElementById('locationDropdown');
-                if (!overlay) return;
-                var modal = overlay.querySelector('.dropdown-modal');
-                if (!modal) return;
-
-                // Attendre que l'animation soit finie (~500ms) avant de mesurer
-                setTimeout(function() {
-                    var r = modal.getBoundingClientRect();
-                    var msg = [
-                        '📐 Coordonnées réelles du .dropdown-modal',
-                        '─────────────────────────────────',
-                        'top    (viewport) : ' + Math.round(r.top) + ' px',
-                        'left   (viewport) : ' + Math.round(r.left) + ' px',
-                        'right  (viewport) : ' + Math.round(r.right) + ' px',
-                        'bottom (viewport) : ' + Math.round(r.bottom) + ' px',
-                        'width             : ' + Math.round(r.width) + ' px',
-                        'height            : ' + Math.round(r.height) + ' px',
-                        '─────────────────────────────────',
-                        'Viewport : ' + window.innerWidth + ' × ' + window.innerHeight + ' px',
-                        'scrollY  : ' + Math.round(window.scrollY) + ' px',
-                        'top absolu (doc) : ' + Math.round(r.top + window.scrollY) + ' px',
-                    ].join('\n');
-
-                    // Affiche dans un overlay visuel
-                    var box = document.getElementById('_diag_box');
-                    if (!box) {
-                        box = document.createElement('div');
-                        box.id = '_diag_box';
-                        Object.assign(box.style, {
-                            position: 'fixed', bottom: '0', left: '0', right: '0',
-                            background: 'rgba(0,0,0,0.88)', color: '#00ff99',
-                            fontFamily: 'monospace', fontSize: '13px',
-                            padding: '12px 16px', zIndex: '99999',
-                            whiteSpace: 'pre', lineHeight: '1.7',
-                            borderTop: '2px solid #00ff99'
-                        });
-                        var closeBtn = document.createElement('button');
-                        closeBtn.textContent = '✕ Fermer';
-                        Object.assign(closeBtn.style, {
-                            position: 'absolute', top: '8px', right: '12px',
-                            background: '#00ff99', color: '#000', border: 'none',
-                            padding: '4px 10px', borderRadius: '4px',
-                            cursor: 'pointer', fontWeight: 'bold', fontSize: '13px'
-                        });
-                        closeBtn.onclick = function() { box.remove(); };
-                        box.appendChild(closeBtn);
-                        document.body.appendChild(box);
-                    }
-                    box.childNodes[0].textContent = msg;
-                    // Aussi dans la console
-                    console.log(msg);
-                }, 520);
-            }
-
-            // Intercepte le bouton "Nous trouver"
-            document.addEventListener('click', function(e) {
-                var btn = e.target.closest('[data-overlay="locationDropdown"], [onclick*="locationDropdown"]');
-                if (btn) showModalCoords();
-            }, true);
-        })();
-        /* === FIN DIAGNOSTIC === */
-
         (function() {
             if (window.innerWidth > 1024) return;
             var startY = 0;
