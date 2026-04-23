@@ -2453,7 +2453,7 @@
                 top: 0; left: 0; right: 0;
                 height: 100vh;
                 height: 100dvh;
-                align-items: flex-start;
+                align-items: center;
                 justify-content: center;
             }
 
@@ -4558,7 +4558,7 @@
                 setTimeout(() => {
                     overlay.classList.remove('closing');
                     const modal = overlay.querySelector('.dropdown-modal');
-                    if (modal) { modal.style.marginTop = ''; modal.style.maxHeight = ''; }
+                    if (modal) { modal.style.marginTop = ''; modal.style.alignSelf = ''; }
                 }, 300);
                 unlockScroll();
                 if (_overlayCleanup[id]) { _overlayCleanup[id](); delete _overlayCleanup[id]; }
@@ -4570,15 +4570,15 @@
                 const modal = overlay.querySelector('.dropdown-modal');
                 if (modal) {
                     modal.scrollTop = 0;
+                    // Sur tablette : aligner le bord supérieur de toutes les modales
+                    // sur celui de "nous trouver" (= 6dvh depuis le haut)
                     const isTablet = window.innerWidth >= 481 && window.innerWidth <= 1024;
-                    if (isTablet) {
-                        const header = document.querySelector('header');
-                        const headerBottom = header ? header.getBoundingClientRect().bottom : 0;
-                        modal.style.marginTop = headerBottom + 'px';
-                        modal.style.maxHeight = (window.innerHeight - headerBottom) + 'px';
+                    if (isTablet && id !== 'locationDropdown') {
+                        modal.style.marginTop = (window.innerHeight * 0.06) + 'px';
+                        modal.style.alignSelf = 'flex-start';
                     } else {
                         modal.style.marginTop = '';
-                        modal.style.maxHeight = '';
+                        modal.style.alignSelf = '';
                     }
                 }
                 if (btn) { btn.classList.add('nav-active'); btn.setAttribute('aria-expanded', 'true'); }
