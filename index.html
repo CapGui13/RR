@@ -2453,21 +2453,26 @@
                 top: 0; left: 0; right: 0;
                 height: 100vh;
                 height: 100dvh;
-                align-items: center;
+                align-items: flex-end;
                 justify-content: center;
             }
 
             .dropdown-modal {
                 max-width: 92vw;
                 width: 92vw;
-                max-height: 88dvh;
+                max-height: none;
+                height: auto;
                 padding: 1.5rem;
-                border-radius: 16px;
-                /* ⚠️ Pas de scale() — voir commentaire version desktop */
+                border-radius: 16px 16px 0 0;
                 transform: translateY(20px);
                 opacity: 0;
                 transition: opacity 0.5s ease, transform 0.5s ease;
                 will-change: opacity, transform;
+                position: absolute;
+                left: 50%;
+                translate: -50% 0;
+                bottom: 0;
+                overflow-y: auto;
             }
 
             .dropdown-overlay.active .dropdown-modal {
@@ -4555,7 +4560,11 @@
             if (overlay.classList.contains('active')) {
                 overlay.classList.remove('active');
                 overlay.classList.add('closing');
-                setTimeout(() => overlay.classList.remove('closing'), 300);
+                setTimeout(() => {
+                    overlay.classList.remove('closing');
+                    const modal = overlay.querySelector('.dropdown-modal');
+                    if (modal) modal.style.height = '';
+                }, 300);
                 unlockScroll();
                 if (_overlayCleanup[id]) { _overlayCleanup[id](); delete _overlayCleanup[id]; }
                 if (btn) { btn.classList.remove('nav-active'); btn.setAttribute('aria-expanded', 'false'); btn.focus({ preventScroll: true }); }
@@ -4564,7 +4573,19 @@
                 overlay.classList.add('active');
                 lockScroll();
                 const modal = overlay.querySelector('.dropdown-modal');
-                if (modal) modal.scrollTop = 0;
+                if (modal) {
+                    modal.scrollTop = 0;
+                    // Sur tablette : la modale part du bas du header jusqu'en bas de l'écran
+                    const isTablet = window.innerWidth >= 481 && window.innerWidth <= 1024;
+                    if (isTablet) {
+                        const header = document.querySelector('header') || document.querySelector('.header-content');
+                        const headerBottom = header ? header.getBoundingClientRect().bottom : 0;
+                        const availableHeight = window.innerHeight - headerBottom;
+                        modal.style.height = availableHeight + 'px';
+                    } else {
+                        modal.style.height = '';
+                    }
+                }
                 if (btn) { btn.classList.add('nav-active'); btn.setAttribute('aria-expanded', 'true'); }
 
                 if (id === 'galleryDropdown') {
