@@ -4572,20 +4572,10 @@
                     modal.scrollTop = 0;
                     const isTablet = window.innerWidth >= 481 && window.innerWidth <= 1024;
                     if (isTablet && id !== 'locationDropdown') {
-                        // Ouvrir nous trouver en invisible pour mesurer son top réel
-                        const locationOverlay = document.getElementById('locationDropdown');
-                        const locationModal = locationOverlay ? locationOverlay.querySelector('.dropdown-modal') : null;
-                        if (locationModal) {
-                            locationOverlay.style.visibility = 'hidden';
-                            locationOverlay.style.display = 'flex';
-                            const realTop = locationModal.getBoundingClientRect().top;
-                            locationOverlay.style.visibility = '';
-                            locationOverlay.style.display = '';
-                            const adjustedTop = realTop - 30;
-                            modal.style.marginTop = adjustedTop + 'px';
-                            modal.style.maxHeight = (window.innerHeight - adjustedTop - 16) + 'px';
-                            modal.style.alignSelf = 'flex-start';
-                        }
+                        const top = 283;
+                        modal.style.marginTop = top + 'px';
+                        modal.style.maxHeight = (window.innerHeight - top - 16) + 'px';
+                        modal.style.alignSelf = 'flex-start';
                     } else {
                         modal.style.marginTop = '';
                         modal.style.alignSelf = '';
