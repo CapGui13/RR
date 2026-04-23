@@ -5484,7 +5484,7 @@
                 var roiRect = roi.getBoundingClientRect();
                 var fbRect = fb.getBoundingClientRect();
                 var sectionRect = logoSection.getBoundingClientRect();
-                var centerX = (roiRect.left + (fbRect.left + fbRect.width / 2)) / 2;
+                var centerX = (roiRect.right + (fbRect.left + fbRect.width / 2)) / 2;
                 var centerRelative = centerX - sectionRect.left;
                 logoText.style.position = 'absolute';
                 logoText.style.left = centerRelative + 'px';
