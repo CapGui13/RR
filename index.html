@@ -573,6 +573,16 @@
                 position: relative;
                 z-index: 1;
             }
+
+            /* Modales tablette : top fixé à 283px */
+            .dropdown-overlay,
+            .contact-modal,
+            .popup-overlay {
+                top: 283px;
+                bottom: 0;
+                height: auto;
+                align-items: flex-start;
+            }
         }
         body.animate .nav-card-container {
             opacity: 1;
@@ -4555,11 +4565,7 @@
             if (overlay.classList.contains('active')) {
                 overlay.classList.remove('active');
                 overlay.classList.add('closing');
-                setTimeout(() => {
-                    overlay.classList.remove('closing');
-                    const modal = overlay.querySelector('.dropdown-modal');
-                    if (modal) { modal.style.marginTop = ''; modal.style.maxHeight = ''; modal.style.alignSelf = ''; }
-                }, 300);
+                setTimeout(() => overlay.classList.remove('closing'), 300);
                 unlockScroll();
                 if (_overlayCleanup[id]) { _overlayCleanup[id](); delete _overlayCleanup[id]; }
                 if (btn) { btn.classList.remove('nav-active'); btn.setAttribute('aria-expanded', 'false'); btn.focus({ preventScroll: true }); }
@@ -4568,19 +4574,7 @@
                 overlay.classList.add('active');
                 lockScroll();
                 const modal = overlay.querySelector('.dropdown-modal');
-                if (modal) {
-                    modal.scrollTop = 0;
-                    const isTablet = window.innerWidth >= 481 && window.innerWidth <= 1024;
-                    if (isTablet && id !== 'locationDropdown') {
-                        const top = 283;
-                        modal.style.marginTop = top + 'px';
-                        modal.style.maxHeight = (window.innerHeight - top - 16) + 'px';
-                        modal.style.alignSelf = 'flex-start';
-                    } else {
-                        modal.style.marginTop = '';
-                        modal.style.alignSelf = '';
-                    }
-                }
+                if (modal) modal.scrollTop = 0;
                 if (btn) { btn.classList.add('nav-active'); btn.setAttribute('aria-expanded', 'true'); }
 
                 if (id === 'galleryDropdown') {
