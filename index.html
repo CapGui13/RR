@@ -2445,7 +2445,7 @@
                 font-size: 1.2rem;
             }
 
-            /* Modales mobile : fondu d'apparition */
+            /* Modales tablette : top fixe à 306px */
             .dropdown-overlay,
             .contact-modal,
             .popup-overlay {
@@ -2453,15 +2453,16 @@
                 top: 0; left: 0; right: 0;
                 height: 100vh;
                 height: 100dvh;
+                display: flex;
                 align-items: flex-start;
                 justify-content: center;
-                padding-top: 306px;
             }
 
             .dropdown-modal {
                 max-width: 92vw;
                 width: 92vw;
                 max-height: 88dvh;
+                margin-top: 306px;
                 padding: 1.5rem;
                 border-radius: 16px;
                 /* ⚠️ Pas de scale() — voir commentaire version desktop */
@@ -2524,7 +2525,7 @@
 
             .contact-modal {
                 padding: 0;
-                align-items: center;
+                align-items: flex-start;
                 justify-content: center;
                 overflow-y: visible;
             }
@@ -2542,7 +2543,7 @@
                 will-change: opacity, transform;
                 touch-action: pan-y;
                 padding: 1.5rem;
-                margin: 0 auto;
+                margin: 306px auto 0;
             }
             .contact-modal-infos {
                 display: block;
