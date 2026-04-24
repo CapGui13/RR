@@ -2445,7 +2445,7 @@
                 font-size: 1.2rem;
             }
 
-            /* Modales mobile : fondu d'apparition */
+            /* Modales tablette : top aligné sur "Nous trouver" */
             .dropdown-overlay,
             .contact-modal,
             .popup-overlay {
@@ -2453,8 +2453,11 @@
                 top: 0; left: 0; right: 0;
                 height: 100vh;
                 height: 100dvh;
-                align-items: center;
+                display: flex;
+                align-items: flex-start;
                 justify-content: center;
+                padding-top: 200px;
+                box-sizing: border-box;
             }
 
             .dropdown-modal {
@@ -2522,8 +2525,8 @@
             .dropdown-photo { height: 300px; }
 
             .contact-modal {
-                padding: 0;
-                align-items: center;
+                padding-top: 200px;
+                align-items: flex-start;
                 justify-content: center;
                 overflow-y: visible;
             }
@@ -4564,15 +4567,7 @@
                 overlay.classList.add('active');
                 lockScroll();
                 const modal = overlay.querySelector('.dropdown-modal');
-                if (modal) {
-                    modal.scrollTop = 0;
-                    if (window.innerWidth <= 1024) {
-                        const hdr = document.querySelector('header');
-                        modal.style.marginTop = hdr ? Math.round(hdr.getBoundingClientRect().bottom) + 'px' : '';
-                    } else {
-                        modal.style.marginTop = '';
-                    }
-                }
+                if (modal) modal.scrollTop = 0;
                 if (btn) { btn.classList.add('nav-active'); btn.setAttribute('aria-expanded', 'true'); }
 
                 if (id === 'galleryDropdown') {
@@ -4617,15 +4612,7 @@
                 panel.classList.add('active');
                 lockScroll();
                 const modalContent = modal.querySelector('.contact-modal-content');
-                if (modalContent) {
-                    modalContent.scrollTop = 0;
-                    if (window.innerWidth <= 1024) {
-                        const hdr = document.querySelector('header');
-                        modalContent.style.marginTop = hdr ? Math.round(hdr.getBoundingClientRect().bottom) + 'px' : '';
-                    } else {
-                        modalContent.style.marginTop = '';
-                    }
-                }
+                if (modalContent) modalContent.scrollTop = 0;
                 if (btn) { btn.classList.add('nav-active'); btn.setAttribute('aria-expanded', 'true'); }
                 setTimeout(() => { _contactTrapCleanup = trapFocus(modal); }, 50);
             }
