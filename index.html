@@ -573,6 +573,14 @@
                 position: relative;
                 z-index: 1;
             }
+
+            /* Tablette : bounce fluide sur les modales + pas de scroll latéral */
+            .dropdown-modal,
+            .contact-modal-content {
+                -webkit-overflow-scrolling: touch;
+                overscroll-behavior-y: contain;
+                overscroll-behavior-x: none;
+            }
         }
         body.animate .nav-card-container {
             opacity: 1;
@@ -4500,6 +4508,8 @@
                 document.body.style.position = 'fixed';
                 document.body.style.top = `-${_scrollY}px`;
                 document.body.style.width = '100%';
+                // Tablette : bloquer le scroll latéral du body
+                document.body.style.overflowX = 'hidden';
             }
         }
 
@@ -4512,6 +4522,7 @@
                 document.body.style.position = '';
                 document.body.style.top = '';
                 document.body.style.width = '';
+                document.body.style.overflowX = '';
                 window.scrollTo(0, _scrollY);
             }
             if (window._syncParallaxResetFade) window._syncParallaxResetFade();
@@ -4564,24 +4575,7 @@
                 overlay.classList.add('active');
                 lockScroll();
                 const modal = overlay.querySelector('.dropdown-modal');
-                if (modal) {
-                    modal.scrollTop = 0;
-                    if (window.innerWidth >= 481 && window.innerWidth <= 1024) {
-                        const anchor = document.querySelector('.logo-text h1');
-                        const ref = anchor ? anchor.getBoundingClientRect().bottom : 0;
-                        modal.style.position = 'absolute';
-                        modal.style.top = Math.round(ref) + 'px';
-                        modal.style.left = '4vw';
-                        modal.style.right = '4vw';
-                        modal.style.margin = '0';
-                    } else {
-                        modal.style.position = '';
-                        modal.style.top = '';
-                        modal.style.left = '';
-                        modal.style.right = '';
-                        modal.style.margin = '';
-                    }
-                }
+                if (modal) modal.scrollTop = 0;
                 if (btn) { btn.classList.add('nav-active'); btn.setAttribute('aria-expanded', 'true'); }
 
                 if (id === 'galleryDropdown') {
@@ -4626,24 +4620,7 @@
                 panel.classList.add('active');
                 lockScroll();
                 const modalContent = modal.querySelector('.contact-modal-content');
-                if (modalContent) {
-                    modalContent.scrollTop = 0;
-                    if (window.innerWidth >= 481 && window.innerWidth <= 1024) {
-                        const anchor = document.querySelector('.logo-text h1');
-                        const ref = anchor ? anchor.getBoundingClientRect().bottom : 0;
-                        modalContent.style.position = 'absolute';
-                        modalContent.style.top = Math.round(ref) + 'px';
-                        modalContent.style.left = '4vw';
-                        modalContent.style.right = '4vw';
-                        modalContent.style.margin = '0';
-                    } else {
-                        modalContent.style.position = '';
-                        modalContent.style.top = '';
-                        modalContent.style.left = '';
-                        modalContent.style.right = '';
-                        modalContent.style.margin = '';
-                    }
-                }
+                if (modalContent) modalContent.scrollTop = 0;
                 if (btn) { btn.classList.add('nav-active'); btn.setAttribute('aria-expanded', 'true'); }
                 setTimeout(() => { _contactTrapCleanup = trapFocus(modal); }, 50);
             }
