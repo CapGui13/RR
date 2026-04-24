@@ -573,6 +573,28 @@
                 position: relative;
                 z-index: 1;
             }
+
+            /* Modales tablette : top fixe sous le header */
+            .dropdown-overlay,
+            .contact-modal,
+            .popup-overlay {
+                display: flex;
+                align-items: flex-start;
+                justify-content: center;
+                padding-top: 200px;
+                box-sizing: border-box;
+            }
+
+            #tarifsDropdown,
+            #equipeDropdown {
+                padding-top: 306px;
+            }
+
+            .contact-modal {
+                padding-top: 200px;
+                align-items: flex-start;
+                overflow-y: visible;
+            }
         }
         body.animate .nav-card-container {
             opacity: 1;
@@ -2445,7 +2467,7 @@
                 font-size: 1.2rem;
             }
 
-            /* Modales tablette : top aligné sur "Nous trouver" */
+            /* Modales mobile : fondu d'apparition */
             .dropdown-overlay,
             .contact-modal,
             .popup-overlay {
@@ -2453,11 +2475,8 @@
                 top: 0; left: 0; right: 0;
                 height: 100vh;
                 height: 100dvh;
-                display: flex;
-                align-items: flex-start;
+                align-items: center;
                 justify-content: center;
-                padding-top: 200px;
-                box-sizing: border-box;
             }
 
             .dropdown-modal {
@@ -2488,12 +2507,6 @@
             .location-content,
             .equipe-content {
                 padding: 0;
-            }
-
-            /* Tarifs et Équipe : top plus bas pour ne pas couvrir le header */
-            #tarifsDropdown,
-            #equipeDropdown {
-                padding-top: 306px;
             }
 
             .tarifs-title,
@@ -2531,8 +2544,8 @@
             .dropdown-photo { height: 300px; }
 
             .contact-modal {
-                padding-top: 200px;
-                align-items: flex-start;
+                padding: 0;
+                align-items: center;
                 justify-content: center;
                 overflow-y: visible;
             }
