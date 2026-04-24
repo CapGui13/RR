@@ -3306,8 +3306,7 @@
             if (!bg) return;
 
             function lockHeight() {
-                // +300px pour que l'image se prolonge dans la zone de bounce en bas
-                var h = window.screen.height + 300;
+                var h = window.screen.height;
                 bg.style.height = h + 'px';
             }
 
@@ -5549,5 +5548,5 @@
          * ⚠️ Ne pas étendre ce preventDefault() au haut de page (atTop && dy > 0) :
          *    cela casse le bounce natif iOS vers le haut et crée des glitches visuels.
          */
-        /* bounce bas mobile : supprimé — image prolongée */
+
     </script>
