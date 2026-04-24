@@ -573,12 +573,6 @@
                 position: relative;
                 z-index: 1;
             }
-
-            /* Tablette : flex-start pour que margin-top JS soit respecté */
-            .dropdown-overlay,
-            .contact-modal {
-                align-items: flex-start;
-            }
         }
         body.animate .nav-card-container {
             opacity: 1;
@@ -4572,13 +4566,20 @@
                 const modal = overlay.querySelector('.dropdown-modal');
                 if (modal) {
                     modal.scrollTop = 0;
-                    // Sur tablette : top de la modale = bas du titre "Bridge Club"
                     if (window.innerWidth >= 481 && window.innerWidth <= 1024) {
                         const anchor = document.querySelector('.logo-text h1');
                         const ref = anchor ? anchor.getBoundingClientRect().bottom : 0;
-                        modal.style.marginTop = Math.round(ref) + 'px';
+                        modal.style.position = 'absolute';
+                        modal.style.top = Math.round(ref) + 'px';
+                        modal.style.left = '4vw';
+                        modal.style.right = '4vw';
+                        modal.style.margin = '0';
                     } else {
-                        modal.style.marginTop = '';
+                        modal.style.position = '';
+                        modal.style.top = '';
+                        modal.style.left = '';
+                        modal.style.right = '';
+                        modal.style.margin = '';
                     }
                 }
                 if (btn) { btn.classList.add('nav-active'); btn.setAttribute('aria-expanded', 'true'); }
@@ -4630,9 +4631,17 @@
                     if (window.innerWidth >= 481 && window.innerWidth <= 1024) {
                         const anchor = document.querySelector('.logo-text h1');
                         const ref = anchor ? anchor.getBoundingClientRect().bottom : 0;
-                        modalContent.style.marginTop = Math.round(ref) + 'px';
+                        modalContent.style.position = 'absolute';
+                        modalContent.style.top = Math.round(ref) + 'px';
+                        modalContent.style.left = '4vw';
+                        modalContent.style.right = '4vw';
+                        modalContent.style.margin = '0';
                     } else {
-                        modalContent.style.marginTop = '';
+                        modalContent.style.position = '';
+                        modalContent.style.top = '';
+                        modalContent.style.left = '';
+                        modalContent.style.right = '';
+                        modalContent.style.margin = '';
                     }
                 }
                 if (btn) { btn.classList.add('nav-active'); btn.setAttribute('aria-expanded', 'true'); }
