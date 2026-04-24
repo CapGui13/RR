@@ -3306,9 +3306,8 @@
             if (!bg) return;
 
             function lockHeight() {
-                // window.screen.height = hauteur physique de l'écran, non affectée
-                // par la barre d'adresse. Plus fiable que window.innerHeight sur iOS.
-                var h = window.screen.height;
+                // +300px pour que l'image se prolonge dans la zone de bounce en bas
+                var h = window.screen.height + 300;
                 bg.style.height = h + 'px';
             }
 
@@ -5550,18 +5549,5 @@
          * ⚠️ Ne pas étendre ce preventDefault() au haut de page (atTop && dy > 0) :
          *    cela casse le bounce natif iOS vers le haut et crée des glitches visuels.
          */
-        (function() {
-            if (window.innerWidth > 1024) return;
-            var startY = 0;
-            document.addEventListener('touchstart', function(e) {
-                startY = e.touches[0].clientY;
-            }, { passive: true });
-            document.addEventListener('touchmove', function(e) {
-                var dy = e.touches[0].clientY - startY;
-                var atBottom = (window.scrollY + window.innerHeight) >= document.body.scrollHeight - 2;
-                if (atBottom && dy < 0) {
-                    e.preventDefault();
-                }
-            }, { passive: false });
-        })();
+        /* bounce bas mobile : supprimé — image prolongée */
     </script>
