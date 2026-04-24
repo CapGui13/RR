@@ -574,12 +574,11 @@
                 z-index: 1;
             }
 
-            /* Tablette : bounce fluide sur les modales + pas de scroll latéral */
+            /* Tablette : scroll fluide avec bounce simulé sur Android */
             .dropdown-modal,
             .contact-modal-content {
-                -webkit-overflow-scrolling: touch;
-                overscroll-behavior-y: contain;
                 overscroll-behavior-x: none;
+                scroll-behavior: smooth;
             }
         }
         body.animate .nav-card-container {
