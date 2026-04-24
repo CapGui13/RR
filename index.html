@@ -574,13 +574,10 @@
                 z-index: 1;
             }
 
-            /* Modales tablette : aligne le top sur celui de "Nous trouver" (250px) */
-            #tarifsDropdown,
-            #equipeDropdown,
-            #galleryDropdown {
+            /* Tablette : flex-start pour que margin-top JS soit respecté */
+            .dropdown-overlay,
+            .contact-modal {
                 align-items: flex-start;
-                padding-top: 250px;
-                box-sizing: border-box;
             }
         }
         body.animate .nav-card-container {
@@ -4573,7 +4570,17 @@
                 overlay.classList.add('active');
                 lockScroll();
                 const modal = overlay.querySelector('.dropdown-modal');
-                if (modal) modal.scrollTop = 0;
+                if (modal) {
+                    modal.scrollTop = 0;
+                    // Sur tablette : top de la modale = bas du titre "Bridge Club"
+                    if (window.innerWidth >= 481 && window.innerWidth <= 1024) {
+                        const anchor = document.querySelector('.logo-text h1');
+                        const ref = anchor ? anchor.getBoundingClientRect().bottom : 0;
+                        modal.style.marginTop = Math.round(ref) + 'px';
+                    } else {
+                        modal.style.marginTop = '';
+                    }
+                }
                 if (btn) { btn.classList.add('nav-active'); btn.setAttribute('aria-expanded', 'true'); }
 
                 if (id === 'galleryDropdown') {
@@ -4618,7 +4625,16 @@
                 panel.classList.add('active');
                 lockScroll();
                 const modalContent = modal.querySelector('.contact-modal-content');
-                if (modalContent) modalContent.scrollTop = 0;
+                if (modalContent) {
+                    modalContent.scrollTop = 0;
+                    if (window.innerWidth >= 481 && window.innerWidth <= 1024) {
+                        const anchor = document.querySelector('.logo-text h1');
+                        const ref = anchor ? anchor.getBoundingClientRect().bottom : 0;
+                        modalContent.style.marginTop = Math.round(ref) + 'px';
+                    } else {
+                        modalContent.style.marginTop = '';
+                    }
+                }
                 if (btn) { btn.classList.add('nav-active'); btn.setAttribute('aria-expanded', 'true'); }
                 setTimeout(() => { _contactTrapCleanup = trapFocus(modal); }, 50);
             }
