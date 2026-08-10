@@ -1,0 +1,49 @@
+LAURENT COLLOMBET 06 68 56 29 84
+
+///
+https://manager.infomaniak.com/v3/2175551/ng/admin3/accounts/accounting/order/c-7917736
+https://manager.infomaniak.com/v3/2175551/ng/domain/2232341/dashboard
+	La durée du transfert est estimée à 6 jours et devrait aboutir le 16 août 2026, 18:45:34
+///
+Quand le transfert sera terminé, on fera ensemble la dernière étape : basculer les DNS vers Infomaniak et remettre les 4 A GitHub + le CNAME www. Après ça, on pourra enfin quitter Wix proprement.
+
+
+
+royrenebridge@gmail.com
+13*4=52
+
+
+
+
+/// CONFIGURATION A CONSERVER LORS DU PASSAGE CHEZ INFOMANIAK ///
+A
+roy-rene-bridge.com → 185.199.108.153
+roy-rene-bridge.com → 185.199.109.153
+roy-rene-bridge.com → 185.199.110.153
+roy-rene-bridge.com → 185.199.111.153
+
+CNAME
+www.roy-rene-bridge.com → capgui13.github.io
+
+TXT
+aucun
+
+SRV
+aucun
+
+MX
+aucun
+//////////// ACTUELLEMENT LES SERVEURS DNS SONT (c'est ceux de Wix, ils seront remplacés)
+ns10.wixdns.net
+ns11.wixdns.net
+///////////////////
+
+
+
+
+
+maniement : QJxx face à AXx > où il faut jouer Roi second par manque de comm et non partir en forçante dans l'illusion de répéter l'impasse car la situation est
+	QJ62
+9874		K3
+	AT5
+et qu'on a besoin de 4 levées pour défausser une perdante ailleurs ET AUCUNE COMMUNICATION (autre que celle permettant d'aller au mort pour impasser) afin de jouer autrement

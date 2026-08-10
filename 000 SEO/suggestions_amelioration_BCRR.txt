@@ -1,0 +1,28 @@
+1. PERFORMANCE
+--------------
+- Les images sont hébergées sur Imgur : si Imgur est lent ou indisponible,
+  les photos ne s'affichent plus. Il vaudrait mieux les héberger sur le même
+  serveur que le site pour plus de fiabilité.
+
+
+5. SEO
+------
+- Il manque un fichier sitemap.xml pour aider les moteurs de recherche à
+  indexer le site efficacement.
+
+- Il manque un fichier robots.txt pour contrôler ce que les robots
+  d'indexation peuvent ou ne peuvent pas explorer.
+
+  (Ces deux fichiers sont à créer côté serveur, pas dans le HTML.)
+
+Les images n'ont pas toutes des attributs alt descriptifs.
+
+
+
+
+
+1. La galerie photos — problème structurel
+C'est le point le plus important. Les photos uploadées par l'admin sont stockées en localStorage (base64 dans le navigateur). Résultat : elles disparaissent si on vide le cache, elles ne sont pas visibles pour les autres visiteurs, et les images encodées en base64 peuvent peser très lourd. Il faudrait un vrai backend ou au minimum un service comme Cloudinary ou imgbb pour héberger les images.
+
+6. Performance
+Les images viennent toutes d'Imgur, sans aucun contrôle sur leur compression ni leur format moderne (WebP). Si Imgur change de politique, toutes les images disparaissent.

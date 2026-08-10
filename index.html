@@ -44,6 +44,7 @@
     <!-- Optimisation performances -->
     <link rel="dns-prefetch" href="https://cdnjs.cloudflare.com">
     <link rel="dns-prefetch" href="https://formsubmit.co">
+    <link rel="dns-prefetch" href="https://www.ffbridge.fr">
     <link rel="dns-prefetch" href="https://maps.googleapis.com">
     <link rel="dns-prefetch" href="https://maps.gstatic.com">
     <link rel="preconnect" href="https://maps.googleapis.com">
@@ -3843,7 +3844,7 @@
             rondesDeFrance: {
                 heure: "14 H 30",
                 jours: "Lundi, Mercredi, Vendredi",
-                inscriptionsUrl: "https://licencie.ffbridge.fr/#/tournaments-subscriptions/1",
+                inscriptionsUrl: "https://www.ffbridge.fr/competitions/entries?competitionType=club&page=1&itemsPerPage=80&clubId=1302",
             },
 
             // Mettre passed:true pour barrer une date
@@ -3932,43 +3933,44 @@
     </script>
 
     <script>
-        // === STORAGE KEY ===
-        const STORAGE_KEY = 'bridge_gallery_photos';
-        const ADMIN_PASSWORD_HASH = 'f30d93091a918963431bc68f7f350c191ac2efeb962aab6dfd9d3db28ffee597';
+        // === API GALERIE (fonction serverless — le mot de passe et le token GitHub
+        // sont vérifiés/utilisés côté serveur uniquement, jamais exposés ici) ===
+        // ⚠️ À ajuster : URL de l'endpoint déployé sur ton projet Vercel api-gen
+        const GALLERY_API_URL = 'https://api-gen-beta.vercel.app/api/gallery';
+        // ⚠️ À ajuster : où lire le manifeste public (owner/repo/branche/chemin)
+        const GALLERY_JSON_URL = 'https://raw.githubusercontent.com/capgui13/capgui13.github.io/main/gallery/gallery.json';
 
         // === GALLERY DATA ===
         let galleryImages = [];
+        // Mot de passe saisi par l'admin, gardé en mémoire pour la session en cours
+        // uniquement (jamais écrit dans localStorage/sessionStorage/le DOM).
+        let adminPassword = null;
 
-        // Charger les photos depuis le stockage
-        function loadPhotosFromStorage() {
+        // Charger la galerie publique depuis le manifeste hébergé sur GitHub
+        async function loadGalleryPublic() {
             try {
-                const stored = localStorage.getItem(STORAGE_KEY);
-                if (stored) {
-                    galleryImages = JSON.parse(stored);
-                } else {
-                    // Photos par défaut
-                    galleryImages = [
-                        { url: 'https://i.imgur.com/9vki9OB.jpeg', title: 'Sortie du club', category: 'events', id: Date.now() + 1 },
-                        { url: 'https://i.imgur.com/FMSOPeO.jpeg', title: 'Stand du Bridge Club Roy René', category: 'events', id: Date.now() + 2 },
-                        { url: 'https://i.imgur.com/mjcoBVU.jpeg', title: 'Repas convivial du club', category: 'events', id: Date.now() + 3 },
-                    ];
-                    savePhotosToStorage();
-                }
-            } catch(e) {
-                console.error('Erreur lecture localStorage :', e);
+                const res = await fetch(GALLERY_JSON_URL + '?t=' + Date.now(), { cache: 'no-store' });
+                if (!res.ok) throw new Error('HTTP ' + res.status);
+                galleryImages = await res.json();
+            } catch (e) {
+                console.error('Erreur chargement galerie :', e);
                 galleryImages = [];
             }
         }
 
-        // Sauvegarder les photos dans le stockage
-        function savePhotosToStorage() {
-            try {
-                localStorage.setItem(STORAGE_KEY, JSON.stringify(galleryImages));
-            } catch(e) {
-                // Quota dépassé — localStorage ~5MB, les photos base64 sont volumineuses
-                console.error('localStorage quota dépassé :', e);
-                alert('⚠️ Stockage local plein. Supprimez des photos existantes avant d\'en ajouter de nouvelles.');
+        // Appel générique à l'API galerie (toute écriture passe par le serveur)
+        async function galleryApiCall(payload) {
+            const res = await fetch(GALLERY_API_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ password: adminPassword, ...payload })
+            });
+            let data;
+            try { data = await res.json(); } catch { data = {}; }
+            if (!res.ok || !data.ok) {
+                throw new Error(data.error || ('HTTP ' + res.status));
             }
+            return data;
         }
 
         let currentLightboxIndex = 0;
@@ -4001,19 +4003,29 @@
 
         async function loginAdmin() {
             const password = document.getElementById('adminPassword').value;
-            const encoder = new TextEncoder();
-            const data = encoder.encode(password);
-            const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-            const hashArray = Array.from(new Uint8Array(hashBuffer));
-            const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-            if (hashHex === ADMIN_PASSWORD_HASH) {
+            const loginBtn = document.querySelector('.admin-btn-login');
+            if (loginBtn) { loginBtn.disabled = true; loginBtn.textContent = 'Vérification…'; }
+            try {
+                // La vérification a lieu côté serveur (fonction serverless) —
+                // rien n'est comparé ni stocké en clair dans le navigateur.
+                await fetch(GALLERY_API_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: 'verify', password })
+                }).then(async res => {
+                    const data = await res.json().catch(() => ({}));
+                    if (!res.ok || !data.ok) throw new Error('bad password');
+                });
+                adminPassword = password;
                 isAdminLoggedIn = true;
                 document.getElementById('adminLogin').style.display = 'none';
                 document.getElementById('adminDashboard').style.display = 'block';
                 updateAdminPhotosList();
                 showSuccessMessage('✓ Connexion réussie !');
-            } else {
+            } catch (e) {
                 alert('❌ Mot de passe incorrect');
+            } finally {
+                if (loginBtn) { loginBtn.disabled = false; loginBtn.textContent = 'Se connecter'; }
             }
         }
 
@@ -4089,22 +4101,32 @@
                 return;
             }
 
+            const publishBtn = document.querySelector('.admin-btn-publish');
+            if (publishBtn) { publishBtn.disabled = true; publishBtn.textContent = 'Publication…'; }
+
             const reader = new FileReader();
-            reader.onload = (e) => {
-                const newPhoto = {
-                    url: e.target.result,
-                    title: title,
-                    category: category,
-                    id: Date.now()
-                };
+            reader.onload = async (e) => {
+                try {
+                    // e.target.result est un data URL base64 — envoyé au serveur qui
+                    // committe le fichier + met à jour gallery.json via l'API GitHub.
+                    const { photo } = await galleryApiCall({
+                        action: 'upload',
+                        image: e.target.result,
+                        title,
+                        category
+                    });
 
-                galleryImages.unshift(newPhoto);
-                savePhotosToStorage();
-
-                showSuccessMessage('✓ Photo publiée avec succès !');
-                cancelUpload();
-                initGallery();
-                updateAdminPhotosList();
+                    galleryImages.unshift(photo);
+                    showSuccessMessage('✓ Photo publiée avec succès !');
+                    cancelUpload();
+                    filterGallery('all', document.querySelector('.filter-btn.active') || null);
+                    updateAdminPhotosList();
+                } catch (err) {
+                    console.error('Erreur publication photo :', err);
+                    alert('❌ Échec de la publication : ' + err.message);
+                } finally {
+                    if (publishBtn) { publishBtn.disabled = false; publishBtn.textContent = '✓ Publier'; }
+                }
             };
 
             reader.readAsDataURL(currentUploadFile);
@@ -4188,37 +4210,60 @@
                     const draggedId = parseInt(e.dataTransfer.getData('text/plain'));
                     const targetId = photo.id;
                     if (draggedId === targetId) return;
+                    const previousOrder = galleryImages.map(p => p.id);
                     const draggedIndex = galleryImages.findIndex(p => p.id === draggedId);
                     const targetIndex = galleryImages.findIndex(p => p.id === targetId);
                     const moved = galleryImages.splice(draggedIndex, 1)[0];
                     galleryImages.splice(targetIndex, 0, moved);
-                    savePhotosToStorage();
                     updateAdminPhotosList();
                     initGallery();
-                    showSuccessMessage('\u2713 Ordre mis \u00e0 jour');
+                    galleryApiCall({ action: 'reorder', order: galleryImages.map(p => p.id) })
+                        .then(() => showSuccessMessage('\u2713 Ordre mis \u00e0 jour'))
+                        .catch(err => {
+                            console.error('Erreur réordonnancement galerie :', err);
+                            alert('❌ Échec de la mise à jour de l\'ordre : ' + err.message);
+                            // rollback à l'ordre précédent
+                            galleryImages.sort((a, b) => previousOrder.indexOf(a.id) - previousOrder.indexOf(b.id));
+                            updateAdminPhotosList();
+                            initGallery();
+                        });
                 });
 
                 list.appendChild(card);
             });
         }
 
-        function renamePhoto(id, newTitle) {
+        async function renamePhoto(id, newTitle) {
             const photo = galleryImages.find(p => p.id === id);
-            if (photo) {
-                photo.title = newTitle;
-                savePhotosToStorage();
+            if (!photo) return;
+            const previousTitle = photo.title;
+            photo.title = newTitle; // mise à jour optimiste
+            try {
+                await galleryApiCall({ action: 'rename', id, title: newTitle });
                 initGallery();
                 showSuccessMessage('\u2713 Nom mis \u00e0 jour');
+            } catch (err) {
+                photo.title = previousTitle; // rollback si l'écriture échoue
+                console.error('Erreur renommage photo :', err);
+                alert('❌ Échec de la mise à jour du nom : ' + err.message);
+                updateAdminPhotosList();
             }
         }
 
-        function recategorizePhoto(id, newCategory) {
+        async function recategorizePhoto(id, newCategory) {
             const photo = galleryImages.find(p => p.id === id);
-            if (photo) {
-                photo.category = newCategory;
-                savePhotosToStorage();
+            if (!photo) return;
+            const previousCategory = photo.category;
+            photo.category = newCategory; // mise à jour optimiste
+            try {
+                await galleryApiCall({ action: 'recategorize', id, category: newCategory });
                 initGallery();
                 showSuccessMessage('\u2713 Cat\u00e9gorie mise \u00e0 jour');
+            } catch (err) {
+                photo.category = previousCategory; // rollback si l'écriture échoue
+                console.error('Erreur recatégorisation photo :', err);
+                alert('❌ Échec de la mise à jour de la catégorie : ' + err.message);
+                updateAdminPhotosList();
             }
         }
 
@@ -4236,14 +4281,24 @@
             return names[category] || category;
         }
 
-        function deletePhoto(id) {
+        async function deletePhoto(id) {
             if (!confirm('Êtes-vous sûr de vouloir supprimer cette photo ?')) return;
 
-            galleryImages = galleryImages.filter(photo => photo.id !== id);
-            savePhotosToStorage();
+            const removed = galleryImages.find(photo => photo.id === id);
+            const removedIndex = galleryImages.findIndex(photo => photo.id === id);
+            galleryImages = galleryImages.filter(photo => photo.id !== id); // optimiste
             updateAdminPhotosList();
             initGallery();
-            showSuccessMessage('✓ Photo supprimée');
+            try {
+                await galleryApiCall({ action: 'delete', id });
+                showSuccessMessage('✓ Photo supprimée');
+            } catch (err) {
+                if (removed) galleryImages.splice(removedIndex, 0, removed); // rollback
+                console.error('Erreur suppression photo :', err);
+                alert('❌ Échec de la suppression : ' + err.message);
+                updateAdminPhotosList();
+                initGallery();
+            }
         }
 
         // === GALLERY INITIALIZATION ===
@@ -4941,11 +4996,11 @@
                 eq.ethique.membres.map(m => `<p>${escapeHtml(m)}</p>`).join('');
         }
 
-        document.addEventListener('DOMContentLoaded', () => {
+        document.addEventListener('DOMContentLoaded', async () => {
             renderFromConfig();
-            loadPhotosFromStorage();
+            await loadGalleryPublic();
             filteredImages = [...galleryImages];
-
+            initGallery();
 
             initUploadListeners();
             updateDates();
