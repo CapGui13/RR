@@ -103,6 +103,18 @@ async function saveGallery(items, sha, message) {
 }
 
 module.exports = async function handler(req, res) {
+  // Autoriser les appels depuis le site (domaines différents = CORS nécessaire).
+  // On pourrait restreindre à ton domaine précis, mais '*' suffit ici puisque
+  // l'endpoint est de toute façon protégé par le mot de passe côté serveur.
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+
+  if (req.method === 'OPTIONS') {
+    res.status(204).end();
+    return;
+  }
+
   if (req.method !== 'POST') {
     res.status(405).json({ ok: false, error: 'Méthode non autorisée' });
     return;
