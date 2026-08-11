@@ -15,7 +15,7 @@
     <meta property="og:url" content="https://www.roy-rene-bridge.com/">
     <meta property="og:title" content="Bridge Club Roy René - Aix-en-Provence | Cours & Tournois">
     <meta property="og:description" content="Club de bridge convivial à Aix-en-Provence. Cours tous niveaux, tournois FFB, Rondes de France. Maison Provençale du Bridge.">
-    <meta property="og:image" content="https://i.imgur.com/9QqR6I9.jpeg">
+    <meta property="og:image" content="https://cdn.jsdelivr.net/gh/CapGui13/RR@main/img/hero.jpg">
     <meta property="og:locale" content="fr_FR">
     <meta property="og:site_name" content="Bridge Club Roy René">
     
@@ -23,7 +23,7 @@
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="Bridge Club Roy René - Aix-en-Provence">
     <meta name="twitter:description" content="Club de bridge convivial à Aix-en-Provence. Cours tous niveaux, tournois FFB.">
-    <meta name="twitter:image" content="https://i.imgur.com/9QqR6I9.jpeg">
+    <meta name="twitter:image" content="https://cdn.jsdelivr.net/gh/CapGui13/RR@main/img/hero.jpg">
     
     <!-- Geo Tags -->
     <meta name="geo.region" content="FR-13">
@@ -32,9 +32,9 @@
     <meta name="ICBM" content="43.521388, 5.4327295">
     
     <link rel="canonical" href="https://www.roy-rene-bridge.com/">
-    <link rel="icon" type="image/png" href="https://i.imgur.com/46NwTY8.png">
-    <link rel="apple-touch-icon" sizes="180x180" href="https://i.imgur.com/46NwTY8.png">
-    <link rel="preload" as="image" href="https://i.imgur.com/9QqR6I9.jpeg" fetchpriority="high">
+    <link rel="icon" type="image/png" href="https://cdn.jsdelivr.net/gh/CapGui13/RR@main/img/favicon.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="https://cdn.jsdelivr.net/gh/CapGui13/RR@main/img/favicon.png">
+    <link rel="preload" as="image" href="https://cdn.jsdelivr.net/gh/CapGui13/RR@main/img/hero.jpg" fetchpriority="high">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <!-- Chargement non-bloquant des polices + font-display:swap pour éviter FOIT -->
@@ -61,7 +61,7 @@
       "telephone": "+33442956203",
       "email": "royrenebridge@gmail.com",
       "foundingDate": "1967-10",
-      "image": "https://i.imgur.com/9QqR6I9.jpeg",
+      "image": "https://cdn.jsdelivr.net/gh/CapGui13/RR@main/img/hero.jpg",
       "address": {
         "@type": "PostalAddress",
         "streetAddress": "Boulevard du Maréchal Juin",
@@ -130,7 +130,7 @@
       "name": "Bridge Club Roy René",
       "legalName": "Bridge Club du Roy René",
       "url": "https://www.roy-rene-bridge.com",
-      "logo": "https://i.imgur.com/6aJikOc.png",
+      "logo": "https://cdn.jsdelivr.net/gh/CapGui13/RR@main/img/logo.png",
       "foundingDate": "1967",
       "address": {
         "@type": "PostalAddress",
@@ -2925,7 +2925,7 @@
             content: '';
             position: fixed;
             inset: 0;
-            background: url('https://i.imgur.com/SF7rXmN.jpeg') center top/cover;
+            background: url('https://cdn.jsdelivr.net/gh/CapGui13/RR@main/img/bg-desktop.jpg') center top/cover;
             z-index: -1;
             pointer-events: none;
             opacity: 1;
@@ -3298,13 +3298,13 @@
                  */
                 height: 100vh;
                 z-index: -1;
-                background: url('https://i.imgur.com/PcEwjZX.jpeg') top center / cover no-repeat;
+                background: url('https://cdn.jsdelivr.net/gh/CapGui13/RR@main/img/bg-mobile.jpg') top center / cover no-repeat;
                 pointer-events: none;
                 /* Empêche tout recalcul de layout sur cet élément */
                 will-change: transform;
                 transform: translateZ(0);
             }
-            #site-cover { background-image: url('https://i.imgur.com/PcEwjZX.jpeg') !important;
+            #site-cover { background-image: url('https://cdn.jsdelivr.net/gh/CapGui13/RR@main/img/bg-mobile.jpg') !important;
                 background-size: cover !important; background-repeat: no-repeat !important;
                 background-position: top center !important; }
         }
@@ -3363,8 +3363,8 @@
             }
             var isMobile = window.innerWidth <= 1024;
             var imgSrc = isMobile
-                ? 'https://i.imgur.com/PcEwjZX.jpeg'
-                : 'https://i.imgur.com/SF7rXmN.jpeg';
+                ? 'https://cdn.jsdelivr.net/gh/CapGui13/RR@main/img/bg-mobile.jpg'
+                : 'https://cdn.jsdelivr.net/gh/CapGui13/RR@main/img/bg-desktop.jpg';
 
             // Précharger dynamiquement la bonne image
             var preload = document.createElement('link');
@@ -3415,8 +3415,8 @@
                 }
             }
             var imgToLoad = window.innerWidth <= 1024
-                ? 'https://i.imgur.com/PcEwjZX.jpeg'
-                : 'https://i.imgur.com/SF7rXmN.jpeg';
+                ? 'https://cdn.jsdelivr.net/gh/CapGui13/RR@main/img/bg-mobile.jpg'
+                : 'https://cdn.jsdelivr.net/gh/CapGui13/RR@main/img/bg-desktop.jpg';
             img.onload = img.onerror = revealSite;
             // Réduit de 2000ms à 1200ms : évite d'attendre trop longtemps si l'image est lente
             setTimeout(revealSite, 1200);
@@ -3429,7 +3429,7 @@
     <div class="popup-overlay" id="welcomePopup" style="display:none;" onclick="if(event.target===this) closePopup()">
         <div style="position:relative; max-width: min(600px, 92vw); display:inline-block; background:transparent; line-height:0; border-radius:12px; overflow:hidden; box-shadow: 0 20px 60px rgba(0,0,0,0.5); animation: popIn 1s ease-out 0.15s both;">
             <button class="popup-close" onclick="closePopup()" aria-label="Fermer" style="position:absolute; background: rgba(0,0,0,0.6); top: 0.6rem; right: 0.6rem; z-index: 10;">✕</button>
-            <img src="https://i.imgur.com/ThYhylI.jpeg" alt="Marathon du 1er Mai - Bridge Club Roy René" loading="lazy" style="width:100%; display:block;">
+            <img src="https://cdn.jsdelivr.net/gh/CapGui13/RR@main/img/popup-marathon.jpg" alt="Marathon du 1er Mai - Bridge Club Roy René" loading="lazy" style="width:100%; display:block;">
         </div>
     </div>
 
@@ -3437,7 +3437,7 @@
     <header>
         <div class="header-content">
             <div class="logo-section">
-                <div class="logo-img"><img src="https://i.imgur.com/6aJikOc.png" alt="Roi de Pique - Bridge Club Roy René" width="90" height="128"></div>
+                <div class="logo-img"><img src="https://cdn.jsdelivr.net/gh/CapGui13/RR@main/img/logo.png" alt="Roi de Pique - Bridge Club Roy René" width="90" height="128"></div>
                 <div class="logo-text">
                     <h1 class="logo-title">Bridge Club Roy René</h1>
                     <p class="logo-subtitle-main">Bridge Club<span class="subtitle-break"> du Roy René</span></p>
@@ -3450,7 +3450,7 @@
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="white"><use href="#icon-facebook"/></svg>
                     </a>
                     <a href="https://www.bridgecomitedeprovence.com/" target="_blank" rel="noopener noreferrer" aria-label="Visiter le site du Comité de Provence">
-                        <img src="https://i.imgur.com/UYAghOf.png" alt="Logo Comité de Provence de Bridge - Partenaire officiel FFB" width="70" loading="lazy" decoding="async">
+                        <img src="https://cdn.jsdelivr.net/gh/CapGui13/RR@main/img/logo-comite-provence.jpg" alt="Logo Comité de Provence de Bridge - Partenaire officiel FFB" width="70" loading="lazy" decoding="async">
                     </a>
                 </div>
             </div>
@@ -3551,7 +3551,7 @@
                     </p>
                 </div>
                 <div class="dropdown-photo">
-                    <img src="https://i.imgur.com/9QqR6I9.jpeg" alt="Façade de la Maison Provençale du Bridge - Bridge Club Roy René Aix-en-Provence" width="600" height="400" loading="lazy" decoding="async">
+                    <img src="https://cdn.jsdelivr.net/gh/CapGui13/RR@main/img/hero.jpg" alt="Façade de la Maison Provençale du Bridge - Bridge Club Roy René Aix-en-Provence" width="600" height="400" loading="lazy" decoding="async">
                 </div>
                 <iframe class="dropdown-map" data-src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2893.086544748783!2d5.43272947654945!3d43.521387960945674!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x12c98d7624d282a7%3A0x2d24890b32d556a4!2sClub%20de%20Bridge%20Roy%20Ren%C3%A9!5e0!3m2!1sfr!2sfr!4v1777106004782!5m2!1sfr!2sfr" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade" title="Carte localisation Bridge Club Roy René"></iframe>
             </div>
