@@ -24,6 +24,55 @@ const GALLERY_JSON_PATH = process.env.GALLERY_JSON_PATH || 'gallery/gallery.json
 const GALLERY_IMAGES_DIR = process.env.GALLERY_IMAGES_DIR || 'gallery/images';
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
 
+// === Anti brute-force (protection best-effort en mémoire) ===
+// Vit tant que l'instance serverless reste "chaude" ; repart à zéro sur une
+// instance froide. Suffisant pour décourager un script qui teste des mots de
+// passe en boucle, sans dépendance externe (Redis/KV).
+const failedAttempts = new Map(); // ip -> { count, lastAttempt }
+const MAX_ATTEMPTS_BEFORE_LOCKOUT = 8;
+const LOCKOUT_MS = 5 * 60 * 1000; // 5 minutes de blocage après trop d'échecs
+
+function getClientIp(req) {
+  const fwd = req.headers['x-forwarded-for'];
+  if (fwd) return fwd.split(',')[0].trim();
+  return req.socket?.remoteAddress || 'unknown';
+}
+
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+// Retourne true si la requête doit être bloquée (trop de tentatives récentes)
+async function checkRateLimit(ip) {
+  const entry = failedAttempts.get(ip);
+  if (!entry) return false;
+
+  const elapsed = Date.now() - entry.lastAttempt;
+  if (entry.count >= MAX_ATTEMPTS_BEFORE_LOCKOUT && elapsed < LOCKOUT_MS) {
+    return true; // bloqué
+  }
+  if (elapsed >= LOCKOUT_MS) {
+    failedAttempts.delete(ip); // le blocage a expiré, on repart de zéro
+    return false;
+  }
+
+  // Délai croissant : 500ms, 1s, 1.5s... plafonné à 5s
+  const delay = Math.min(entry.count * 500, 5000);
+  if (delay > 0) await sleep(delay);
+  return false;
+}
+
+function recordFailedAttempt(ip) {
+  const entry = failedAttempts.get(ip) || { count: 0, lastAttempt: 0 };
+  entry.count += 1;
+  entry.lastAttempt = Date.now();
+  failedAttempts.set(ip, entry);
+}
+
+function clearFailedAttempts(ip) {
+  failedAttempts.delete(ip);
+}
+
 const API_BASE = `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}`;
 
 const MIME_EXT = {
@@ -127,10 +176,19 @@ module.exports = async function handler(req, res) {
   body = body || {};
   const { action, password } = body;
 
+  const ip = getClientIp(req);
+
+  if (await checkRateLimit(ip)) {
+    res.status(429).json({ ok: false, error: 'Trop de tentatives. Réessayez dans quelques minutes.' });
+    return;
+  }
+
   if (!checkPassword(password)) {
+    recordFailedAttempt(ip);
     res.status(401).json({ ok: false, error: 'Mot de passe incorrect' });
     return;
   }
+  clearFailedAttempts(ip);
 
   try {
     if (action === 'verify') {

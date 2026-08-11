@@ -4014,7 +4014,7 @@
                     body: JSON.stringify({ action: 'verify', password })
                 }).then(async res => {
                     const data = await res.json().catch(() => ({}));
-                    if (!res.ok || !data.ok) throw new Error('bad password');
+                    if (!res.ok || !data.ok) throw new Error(data.error || 'Mot de passe incorrect');
                 });
                 adminPassword = password;
                 isAdminLoggedIn = true;
@@ -4023,7 +4023,7 @@
                 updateAdminPhotosList();
                 showSuccessMessage('✓ Connexion réussie !');
             } catch (e) {
-                alert('❌ Mot de passe incorrect');
+                alert('❌ ' + (e.message || 'Mot de passe incorrect'));
             } finally {
                 if (loginBtn) { loginBtn.disabled = false; loginBtn.textContent = 'Se connecter'; }
             }
