@@ -50,7 +50,7 @@
     <link rel="preconnect" href="https://maps.googleapis.com">
     
     <!-- JSON-LD Schema.org -->
-    <script type="application/ld+json">
+    <script type="application/ld+json" id="jsonld-sports-location">
     {
       "@context": "https://schema.org",
       "@type": "SportsActivityLocation",
@@ -157,7 +157,7 @@
     }
     </script>
     
-    <script type="application/ld+json">
+    <script type="application/ld+json" id="jsonld-faq">
     {
       "@context": "https://schema.org",
       "@type": "FAQPage",
@@ -4979,6 +4979,36 @@
             setT('tarif-carnet-membre',     t.carnetMembre);
             setT('tarif-table-nonmembre',   t.droitTableNonMembre);
             setT('tarif-carnet-nonmembre',  t.carnetNonMembre);
+
+            // Synchronise les données structurées (JSON-LD) avec CONFIG.tarifs,
+            // seule source de vérité pour les prix — évite d'avoir à modifier
+            // les tarifs à 3 endroits différents à chaque changement.
+            (function syncJsonLdPrices() {
+                try {
+                    const sportsScript = document.getElementById('jsonld-sports-location');
+                    if (sportsScript) {
+                        const data = JSON.parse(sportsScript.textContent);
+                        data.priceRange = `${t.licenceFFB}-${t.cotisationCouple}`;
+                        sportsScript.textContent = JSON.stringify(data);
+                    }
+
+                    const faqScript = document.getElementById('jsonld-faq');
+                    if (faqScript) {
+                        const data = JSON.parse(faqScript.textContent);
+                        const tarifQ = data.mainEntity && data.mainEntity.find(q =>
+                            q.name && q.name.toLowerCase().includes('tarif')
+                        );
+                        if (tarifQ) {
+                            tarifQ.acceptedAnswer.text =
+                                `La licence FFB coûte ${t.licenceFFB}. La cotisation annuelle est de ${t.cotisationIndiv} en individuel ou ${t.cotisationCouple} en couple. ` +
+                                `Le droit de table est de ${t.droitTableMembre} pour les membres (carnet de 11 : ${t.carnetMembre}) et ${t.droitTableNonMembre} pour les non-membres (carnet de 11 : ${t.carnetNonMembre}).`;
+                        }
+                        faqScript.textContent = JSON.stringify(data);
+                    }
+                } catch (e) {
+                    console.error('Erreur synchronisation JSON-LD tarifs :', e);
+                }
+            })();
 
             // --- ÉQUIPE ---
             const eq = CONFIG.equipe;
