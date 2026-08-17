@@ -1086,7 +1086,7 @@
             background: #245c38;
         }
         .tarifs-content {
-            max-width: 1200px;
+            max-width: 980px;
             margin: 0 auto;
         }
 
@@ -1095,15 +1095,16 @@
             font-size: 2.5rem;
             text-align: center;
             color: #1a4d2e;
-            margin-bottom: 2rem;
+            margin-bottom: 2.2rem;
             font-style: italic;
         }
 
         .tarifs-grid {
             display: grid;
-            grid-template-columns: 0.6fr 1fr 1fr;
+            grid-template-columns: 1fr 1.15fr 1fr;
             gap: 2rem;
-            align-items: start;
+            align-items: center;
+            justify-items: center;
         }
 
         .tarif-card {
@@ -1112,11 +1113,21 @@
             padding: 2rem;
             text-align: center;
             box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            width: 100%;
         }
         
+        .tarifs-grid .tarif-card:first-child,
+        .tarifs-grid .tarif-card:last-child {
+            max-width: 220px;
+            margin: auto 0;
+        }
+
+        .tarifs-grid .tarif-card:nth-child(2) {
+            max-width: 320px;
+        }
+
         .tarifs-grid .tarif-card:first-child {
             padding: 1rem 2rem;
-            margin: auto 0;
         }
         
         .tarif-card h3 {
@@ -2050,6 +2061,13 @@
             
             .tarifs-grid .tarif-card:first-child {
                 padding: 2rem;
+            }
+
+            .tarif-card,
+            .tarifs-grid .tarif-card:first-child,
+            .tarifs-grid .tarif-card:nth-child(2),
+            .tarifs-grid .tarif-card:last-child {
+                max-width: none;
             }
 
             .contact-info-panel {
