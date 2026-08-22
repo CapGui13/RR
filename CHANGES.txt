@@ -1,0 +1,11 @@
+RR — nouvelle version structurée
+
+Modifications appliquées :
+- tarifs canoniques : licence 41 €, couple 85 €, non-membre 8 €, carnet non-membre 80 € ;
+- suppression de la duplication sémantique du texte « Nous trouver » ;
+- CSS extrait dans css/style.css ;
+- JavaScript général extrait dans js/main.js ;
+- logique galerie extraite dans js/gallery.js ;
+- chargement mobile simplifié : CSS 100lvh + cover CSS, suppression de screen.height, orientationchange et double préchargement JS.
+
+Le contenu saisonnier / point 2 de l'audit n'a pas été modifié.

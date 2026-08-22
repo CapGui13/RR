@@ -25,12 +25,9 @@ const GALLERY_IMAGES_DIR = process.env.GALLERY_IMAGES_DIR || 'gallery/images';
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
 
 // === Anti brute-force (protection best-effort en mémoire) ===
-// Vit tant que l'instance serverless reste "chaude" ; repart à zéro sur une
-// instance froide. Suffisant pour décourager un script qui teste des mots de
-// passe en boucle, sans dépendance externe (Redis/KV).
-const failedAttempts = new Map(); // ip -> { count, lastAttempt }
+const failedAttempts = new Map();
 const MAX_ATTEMPTS_BEFORE_LOCKOUT = 8;
-const LOCKOUT_MS = 5 * 60 * 1000; // 5 minutes de blocage après trop d'échecs
+const LOCKOUT_MS = 5 * 60 * 1000;
 
 function getClientIp(req) {
   const fwd = req.headers['x-forwarded-for'];
@@ -42,21 +39,15 @@ function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-// Retourne true si la requête doit être bloquée (trop de tentatives récentes)
 async function checkRateLimit(ip) {
   const entry = failedAttempts.get(ip);
   if (!entry) return false;
-
   const elapsed = Date.now() - entry.lastAttempt;
-  if (entry.count >= MAX_ATTEMPTS_BEFORE_LOCKOUT && elapsed < LOCKOUT_MS) {
-    return true; // bloqué
-  }
+  if (entry.count >= MAX_ATTEMPTS_BEFORE_LOCKOUT && elapsed < LOCKOUT_MS) return true;
   if (elapsed >= LOCKOUT_MS) {
-    failedAttempts.delete(ip); // le blocage a expiré, on repart de zéro
+    failedAttempts.delete(ip);
     return false;
   }
-
-  // Délai croissant : 500ms, 1s, 1.5s... plafonné à 5s
   const delay = Math.min(entry.count * 500, 5000);
   if (delay > 0) await sleep(delay);
   return false;
@@ -83,7 +74,6 @@ const MIME_EXT = {
   'image/gif': 'gif'
 };
 
-// Comparaison en temps constant pour éviter les attaques par timing
 function checkPassword(password) {
   if (!ADMIN_PASSWORD || typeof password !== 'string') return false;
   const a = Buffer.from(password);
@@ -93,7 +83,7 @@ function checkPassword(password) {
 }
 
 async function ghFetch(path, options = {}) {
-  const res = await fetch(`${API_BASE}${path}`, {
+  return fetch(`${API_BASE}${path}`, {
     ...options,
     headers: {
       'Authorization': `Bearer ${GITHUB_TOKEN}`,
@@ -102,7 +92,6 @@ async function ghFetch(path, options = {}) {
       ...(options.headers || {})
     }
   });
-  return res;
 }
 
 async function getFile(path) {
@@ -139,11 +128,8 @@ async function deleteFile(path, message, sha) {
 async function loadGallery() {
   const file = await getFile(GALLERY_JSON_PATH);
   if (!file) return { sha: null, items: [] };
-  try {
-    return { sha: file.sha, items: JSON.parse(file.content) };
-  } catch {
-    return { sha: file.sha, items: [] };
-  }
+  try { return { sha: file.sha, items: JSON.parse(file.content) }; }
+  catch { return { sha: file.sha, items: [] }; }
 }
 
 async function saveGallery(items, sha, message) {
@@ -152,22 +138,12 @@ async function saveGallery(items, sha, message) {
 }
 
 module.exports = async function handler(req, res) {
-  // Autoriser les appels depuis le site (domaines différents = CORS nécessaire).
-  // On pourrait restreindre à ton domaine précis, mais '*' suffit ici puisque
-  // l'endpoint est de toute façon protégé par le mot de passe côté serveur.
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
-  if (req.method === 'OPTIONS') {
-    res.status(204).end();
-    return;
-  }
-
-  if (req.method !== 'POST') {
-    res.status(405).json({ ok: false, error: 'Méthode non autorisée' });
-    return;
-  }
+  if (req.method === 'OPTIONS') { res.status(204).end(); return; }
+  if (req.method !== 'POST') { res.status(405).json({ ok: false, error: 'Méthode non autorisée' }); return; }
 
   let body = req.body;
   if (typeof body === 'string') {
@@ -175,14 +151,12 @@ module.exports = async function handler(req, res) {
   }
   body = body || {};
   const { action, password } = body;
-
   const ip = getClientIp(req);
 
   if (await checkRateLimit(ip)) {
     res.status(429).json({ ok: false, error: 'Trop de tentatives. Réessayez dans quelques minutes.' });
     return;
   }
-
   if (!checkPassword(password)) {
     recordFailedAttempt(ip);
     res.status(401).json({ ok: false, error: 'Mot de passe incorrect' });
@@ -191,36 +165,24 @@ module.exports = async function handler(req, res) {
   clearFailedAttempts(ip);
 
   try {
-    if (action === 'verify') {
-      res.status(200).json({ ok: true });
-      return;
-    }
+    if (action === 'verify') { res.status(200).json({ ok: true }); return; }
 
     if (action === 'upload') {
       const { image, title, category } = body;
-      if (!image || !title || !category) {
-        res.status(400).json({ ok: false, error: 'Champs manquants' });
-        return;
-      }
+      if (!image || !title || !category) { res.status(400).json({ ok: false, error: 'Champs manquants' }); return; }
       const match = /^data:(image\/[a-zA-Z+]+);base64,(.+)$/.exec(image);
-      if (!match) {
-        res.status(400).json({ ok: false, error: 'Format d\'image invalide' });
-        return;
-      }
+      if (!match) { res.status(400).json({ ok: false, error: 'Format d\'image invalide' }); return; }
       const ext = MIME_EXT[match[1]] || 'jpg';
       const base64Data = match[2];
       const id = Date.now();
       const filename = `${id}.${ext}`;
       const imagePath = `${GALLERY_IMAGES_DIR}/${filename}`;
-
       await putFile(imagePath, base64Data, `Ajout photo galerie : ${title}`);
-
       const { sha, items } = await loadGallery();
       const url = `https://raw.githubusercontent.com/${GITHUB_OWNER}/${GITHUB_REPO}/${BRANCH}/${imagePath}`;
       const newPhoto = { id, url, title, category };
       items.unshift(newPhoto);
       await saveGallery(items, sha, `Ajout photo galerie : ${title}`);
-
       res.status(200).json({ ok: true, photo: newPhoto });
       return;
     }
@@ -231,7 +193,6 @@ module.exports = async function handler(req, res) {
       const photo = items.find(p => p.id === id);
       const remaining = items.filter(p => p.id !== id);
       await saveGallery(remaining, sha, `Suppression photo galerie #${id}`);
-
       if (photo && photo.url) {
         const marker = `/${BRANCH}/`;
         const idx = photo.url.indexOf(marker);
@@ -273,7 +234,7 @@ module.exports = async function handler(req, res) {
       const { sha, items } = await loadGallery();
       const byId = new Map(items.map(p => [p.id, p]));
       const reordered = order.map(id => byId.get(id)).filter(Boolean);
-      items.forEach(p => { if (!order.includes(p.id)) reordered.push(p); }); // sécurité anti-perte
+      items.forEach(p => { if (!order.includes(p.id)) reordered.push(p); });
       await saveGallery(reordered, sha, 'Réordonnancement galerie');
       res.status(200).json({ ok: true });
       return;
