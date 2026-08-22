@@ -2,17 +2,17 @@
 //
 // Endpoint serverless pour la galerie photo du Bridge Club Roy René.
 // Le mot de passe admin ET le token GitHub restent CÔTÉ SERVEUR en permanence :
-// aucun des deux n'est jamais envoyé au navigateur, contrairement à l'ancien
-// système où le hash du mot de passe (et un éventuel token) vivaient dans le HTML.
+// aucun des deux n'est jamais envoyé au navigateur.
 //
 // Variables d'environnement à configurer sur Vercel (Project Settings > Environment Variables) :
 //   GITHUB_TOKEN        Fine-grained PAT, scope "Contents: Read and write" sur le repo cible UNIQUEMENT
-//   GITHUB_OWNER        ex: "capgui13"
-//   GITHUB_REPO         ex: "capgui13.github.io"
+//   GITHUB_OWNER        ex: "CapGui13"
+//   GITHUB_REPO         ex: "RR"
 //   GITHUB_BRANCH       ex: "main" (optionnel, défaut "main")
 //   GALLERY_JSON_PATH   ex: "gallery/gallery.json" (optionnel, valeur par défaut ci-dessous)
 //   GALLERY_IMAGES_DIR  ex: "gallery/images" (optionnel, valeur par défaut ci-dessous)
 //   ADMIN_PASSWORD      mot de passe en clair choisi par toi (jamais commité dans le code)
+//   ALLOWED_ORIGINS     optionnel, liste séparée par des virgules. Par défaut : domaines officiels du club.
 
 const crypto = require('crypto');
 
@@ -23,6 +23,22 @@ const BRANCH = process.env.GITHUB_BRANCH || 'main';
 const GALLERY_JSON_PATH = process.env.GALLERY_JSON_PATH || 'gallery/gallery.json';
 const GALLERY_IMAGES_DIR = process.env.GALLERY_IMAGES_DIR || 'gallery/images';
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
+
+const DEFAULT_ALLOWED_ORIGINS = [
+  'https://www.roy-rene-bridge.com',
+  'https://roy-rene-bridge.com'
+];
+const ALLOWED_ORIGINS = new Set(
+  (process.env.ALLOWED_ORIGINS || DEFAULT_ALLOWED_ORIGINS.join(','))
+    .split(',')
+    .map(origin => origin.trim())
+    .filter(Boolean)
+);
+
+const ALLOWED_CATEGORIES = new Set(['salle', 'tournois', 'cours', 'events']);
+const MAX_IMAGE_BYTES = 5 * 1024 * 1024; // 5 Mo décodés
+const MAX_TITLE_LENGTH = 120;
+const MAX_REORDER_ITEMS = 500;
 
 // === Anti brute-force (protection best-effort en mémoire) ===
 const failedAttempts = new Map();
@@ -74,12 +90,80 @@ const MIME_EXT = {
   'image/gif': 'gif'
 };
 
+function applyCors(req, res) {
+  const origin = req.headers.origin;
+  const allowed = !origin || ALLOWED_ORIGINS.has(origin);
+
+  if (origin && allowed) res.setHeader('Access-Control-Allow-Origin', origin);
+  res.setHeader('Vary', 'Origin');
+  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+
+  return allowed;
+}
+
 function checkPassword(password) {
   if (!ADMIN_PASSWORD || typeof password !== 'string') return false;
   const a = Buffer.from(password);
   const b = Buffer.from(ADMIN_PASSWORD);
   if (a.length !== b.length) return false;
   return crypto.timingSafeEqual(a, b);
+}
+
+function normalizeTitle(value) {
+  if (typeof value !== 'string') return null;
+  const title = value.trim();
+  if (!title || title.length > MAX_TITLE_LENGTH) return null;
+  if(/[\u0000-\u001F\u007F]/.test(title)) return null;
+  return title;
+}
+
+function isValidCategory(value) {
+  return typeof value === 'string' && ALLOWED_CATEGORIES.has(value);
+}
+
+function isValidId(value) {
+  return Number.isSafeInteger(value) && value > 0;
+}
+
+function hasExpectedImageSignature(buffer, mime) {
+  if (!Buffer.isBuffer(buffer) || buffer.length < 4) return false;
+
+  if (mime === 'image/jpeg' || mime === 'image/jpg') {
+    return buffer[0] === 0xFF && buffer[1] === 0xD8 && buffer[2] === 0xFF;
+  }
+  if (mime === 'image/png') {
+    const png = Buffer.from([0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A]);
+    return buffer.length >= png.length && buffer.subarray(0, png.length).equals(png);
+  }
+  if (mime === 'image/webp') {
+    return buffer.length >= 12 &&
+      buffer.toString('ascii', 0, 4) === 'RIFF' &&
+      buffer.toString('ascii', 8, 12) === 'WEBP';
+  }
+  if (mime === 'image/gif') {
+    const signature = buffer.toString('ascii', 0, 6);
+    return signature === 'GIF87a' || signature === 'GIF89a';
+  }
+  return false;
+}
+
+function parseImageDataUrl(image) {
+  if (typeof image !== 'string') return { error: 'Format d\'image invalide' };
+
+  const match = /^data:(image\/(?:jpeg|jpg|png|webp|gif));base64,([A-Za-z0-9+/]+={0,2})$/.exec(image);
+  if (!match) return { error: 'Format d\'image non autorisé (JPEG, PNG, WebP ou GIF uniquement)' };
+
+  const mime = match[1];
+  const base64Data = match[2];
+  if (base64Data.length % 4 !== 0) return { error: 'Données d\'image invalides' };
+
+  const buffer = Buffer.from(base64Data, 'base64');
+  if (!buffer.length) return { error: 'Image vide' };
+  if (buffer.length > MAX_IMAGE_BYTES) return { error: 'Image trop volumineuse (5 Mo maximum)' };
+  if (!hasExpectedImageSignature(buffer, mime)) return { error: 'Le contenu du fichier ne correspond pas au format annoncé' };
+
+  return { mime, ext: MIME_EXT[mime], base64Data };
 }
 
 async function ghFetch(path, options = {}) {
@@ -138,11 +222,14 @@ async function saveGallery(items, sha, message) {
 }
 
 module.exports = async function handler(req, res) {
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  const corsAllowed = applyCors(req, res);
 
-  if (req.method === 'OPTIONS') { res.status(204).end(); return; }
+  if (req.method === 'OPTIONS') {
+    if (!corsAllowed) { res.status(403).end(); return; }
+    res.status(204).end();
+    return;
+  }
+  if (!corsAllowed) { res.status(403).json({ ok: false, error: 'Origine non autorisée' }); return; }
   if (req.method !== 'POST') { res.status(405).json({ ok: false, error: 'Méthode non autorisée' }); return; }
 
   let body = req.body;
@@ -168,36 +255,48 @@ module.exports = async function handler(req, res) {
     if (action === 'verify') { res.status(200).json({ ok: true }); return; }
 
     if (action === 'upload') {
-      const { image, title, category } = body;
-      if (!image || !title || !category) { res.status(400).json({ ok: false, error: 'Champs manquants' }); return; }
-      const match = /^data:(image\/[a-zA-Z+]+);base64,(.+)$/.exec(image);
-      if (!match) { res.status(400).json({ ok: false, error: 'Format d\'image invalide' }); return; }
-      const ext = MIME_EXT[match[1]] || 'jpg';
-      const base64Data = match[2];
+      const title = normalizeTitle(body.title);
+      const category = body.category;
+      if (!title || !isValidCategory(category)) {
+        res.status(400).json({ ok: false, error: 'Titre ou catégorie invalide' });
+        return;
+      }
+
+      const parsedImage = parseImageDataUrl(body.image);
+      if (parsedImage.error) {
+        res.status(400).json({ ok: false, error: parsedImage.error });
+        return;
+      }
+
       const id = Date.now();
-      const filename = `${id}.${ext}`;
+      const filename = `${id}.${parsedImage.ext}`;
       const imagePath = `${GALLERY_IMAGES_DIR}/${filename}`;
-      await putFile(imagePath, base64Data, `Ajout photo galerie : ${title}`);
+      await putFile(imagePath, parsedImage.base64Data, `Ajout photo galerie : ${title}`);
+
       const { sha, items } = await loadGallery();
       const url = `https://raw.githubusercontent.com/${GITHUB_OWNER}/${GITHUB_REPO}/${BRANCH}/${imagePath}`;
       const newPhoto = { id, url, title, category };
       items.unshift(newPhoto);
       await saveGallery(items, sha, `Ajout photo galerie : ${title}`);
+
       res.status(200).json({ ok: true, photo: newPhoto });
       return;
     }
 
     if (action === 'delete') {
       const { id } = body;
+      if (!isValidId(id)) { res.status(400).json({ ok: false, error: 'Identifiant invalide' }); return; }
+
       const { sha, items } = await loadGallery();
       const photo = items.find(p => p.id === id);
       const remaining = items.filter(p => p.id !== id);
       await saveGallery(remaining, sha, `Suppression photo galerie #${id}`);
+
       if (photo && photo.url) {
         const marker = `/${BRANCH}/`;
         const idx = photo.url.indexOf(marker);
         const path = idx !== -1 ? photo.url.slice(idx + marker.length) : null;
-        if (path) {
+        if (path && path.startsWith(`${GALLERY_IMAGES_DIR}/`)) {
           const file = await getFile(path);
           if (file) await deleteFile(path, `Suppression fichier photo #${id}`, file.sha);
         }
@@ -207,7 +306,10 @@ module.exports = async function handler(req, res) {
     }
 
     if (action === 'rename') {
-      const { id, title } = body;
+      const { id } = body;
+      const title = normalizeTitle(body.title);
+      if (!isValidId(id) || !title) { res.status(400).json({ ok: false, error: 'Identifiant ou titre invalide' }); return; }
+
       const { sha, items } = await loadGallery();
       const photo = items.find(p => p.id === id);
       if (!photo) { res.status(404).json({ ok: false, error: 'Photo introuvable' }); return; }
@@ -219,6 +321,11 @@ module.exports = async function handler(req, res) {
 
     if (action === 'recategorize') {
       const { id, category } = body;
+      if (!isValidId(id) || !isValidCategory(category)) {
+        res.status(400).json({ ok: false, error: 'Identifiant ou catégorie invalide' });
+        return;
+      }
+
       const { sha, items } = await loadGallery();
       const photo = items.find(p => p.id === id);
       if (!photo) { res.status(404).json({ ok: false, error: 'Photo introuvable' }); return; }
@@ -230,7 +337,12 @@ module.exports = async function handler(req, res) {
 
     if (action === 'reorder') {
       const { order } = body;
-      if (!Array.isArray(order)) { res.status(400).json({ ok: false, error: 'order manquant' }); return; }
+      const validOrder = Array.isArray(order) &&
+        order.length <= MAX_REORDER_ITEMS &&
+        order.every(isValidId) &&
+        new Set(order).size === order.length;
+      if (!validOrder) { res.status(400).json({ ok: false, error: 'Ordre invalide' }); return; }
+
       const { sha, items } = await loadGallery();
       const byId = new Map(items.map(p => [p.id, p]));
       const reordered = order.map(id => byId.get(id)).filter(Boolean);
