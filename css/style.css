@@ -2902,7 +2902,7 @@
             content: '';
             position: fixed;
             inset: 0;
-            background: url('https://raw.githubusercontent.com/CapGui13/RR/main/img/bg-desktop.jpg') center top/cover;
+            background: url('../img/bg-desktop.jpg') center top/cover;
             z-index: -1;
             pointer-events: none;
             opacity: 1;
@@ -3210,13 +3210,13 @@
                 /* Valeur initiale seulement : JS verrouille ensuite window.screen.height en pixels. */
                 height: 100vh;
                 z-index: -1;
-                background: url('https://raw.githubusercontent.com/CapGui13/RR/main/img/bg-mobile.jpg') top center / cover no-repeat;
+                background: url('../img/bg-mobile.jpg') top center / cover no-repeat;
                 pointer-events: none;
                 will-change: transform;
                 transform: translateZ(0);
             }
             #site-cover {
-                background-image: url('https://raw.githubusercontent.com/CapGui13/RR/main/img/bg-mobile.jpg') !important;
+                background-image: url('../img/bg-mobile.jpg') !important;
                 background-size: cover !important;
                 background-repeat: no-repeat !important;
                 background-position: top center !important;

@@ -6,6 +6,37 @@ let _popupTrapCleanup = null;
             return REDUCED_MOTION_MEDIA.matches;
         }
 
+        const _resizeImmediateHandlers = new Set();
+        const _resizeDebouncedHandlers = new Set();
+        let _resizeDebounceTimer = null;
+        let _resizeTransitionTimer = null;
+
+        function registerResizeHandler(handler, options = {}) {
+            if (typeof handler !== 'function') return;
+            if (options.immediate) _resizeImmediateHandlers.add(handler);
+            else _resizeDebouncedHandlers.add(handler);
+        }
+
+        window.addEventListener('resize', function() {
+            if (document.body) document.body.classList.add('no-transition');
+
+            _resizeImmediateHandlers.forEach(function(handler) {
+                try { handler(); } catch (error) { console.error('Erreur resize immédiat :', error); }
+            });
+
+            clearTimeout(_resizeDebounceTimer);
+            _resizeDebounceTimer = setTimeout(function() {
+                _resizeDebouncedHandlers.forEach(function(handler) {
+                    try { handler(); } catch (error) { console.error('Erreur resize différé :', error); }
+                });
+            }, 80);
+
+            clearTimeout(_resizeTransitionTimer);
+            _resizeTransitionTimer = setTimeout(function() {
+                if (document.body) document.body.classList.remove('no-transition');
+            }, 100);
+        }, { passive: true });
+
         function closePopup() {
             var popup = document.getElementById('welcomePopup');
             if (!popup) return;
@@ -400,7 +431,13 @@ document.getElementById('currentYear').textContent = new Date().getFullYear();
         // Returns a cleanup function to call when the modal closes.
         function trapFocus(container) {
             const FOCUSABLE = 'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
-            function getFocusable() { return Array.from(container.querySelectorAll(FOCUSABLE)).filter(el => !el.closest('[style*="display: none"]') && !el.closest('[style*="display:none"]')); }
+            function getFocusable() {
+                return Array.from(container.querySelectorAll(FOCUSABLE)).filter((el) => {
+                    if (el.closest('[inert]')) return false;
+                    const style = window.getComputedStyle(el);
+                    return style.display !== 'none' && style.visibility !== 'hidden' && el.getClientRects().length > 0;
+                });
+            }
 
             // Focus the first focusable element (e.g. close button)
             const first = getFocusable()[0];
@@ -430,6 +467,7 @@ document.getElementById('currentYear').textContent = new Date().getFullYear();
         function toggleOverlay(id) {
             const overlay = document.getElementById(id);
             const btn = document.querySelector(`[data-overlay="${id}"]`);
+            if (!overlay) return;
 
             if (overlay.classList.contains('active')) {
                 overlay.classList.remove('active');
@@ -735,7 +773,7 @@ document.getElementById('currentYear').textContent = new Date().getFullYear();
             
             overlays.forEach(overlayId => {
                 const overlay = document.getElementById(overlayId);
-                if (!overlay.classList.contains('active')) return;
+                if (!overlay || !overlay.classList.contains('active')) return;
                 
                 if (e.target === overlay) {
                     toggleOverlay(overlayId);
@@ -1016,12 +1054,8 @@ document.getElementById('currentYear').textContent = new Date().getFullYear();
             }
 
             window.addEventListener('scroll', updateParallax, { passive: true });
-            // Debounce resize pour éviter des centaines de reflows par seconde
-            let _parallaxResizeTimer = null;
-            window.addEventListener('resize', function() {
-                clearTimeout(_parallaxResizeTimer);
-                _parallaxResizeTimer = setTimeout(updateParallax, 80);
-            }, { passive: true });
+            // Recalcul différé via le répartiteur resize central.
+            registerResizeHandler(updateParallax);
 
             // === BOUTON RETOUR EN HAUT ===
             const backToTop = document.getElementById('backToTop');
@@ -1138,19 +1172,15 @@ document.getElementById('currentYear').textContent = new Date().getFullYear();
             };
 
             // Si on redimensionne vers mobile après que le site soit déjà révélé en desktop,
-            // s'assurer que .mobile-revealed est bien appliqué
-            let _revealResizeTimer = null;
-            window.addEventListener('resize', function() {
-                clearTimeout(_revealResizeTimer);
-                _revealResizeTimer = setTimeout(function() {
-                    if (window.innerWidth <= 1024) {
-                        const mainContainer = document.querySelector('.main-container');
-                        if (mainContainer && !mainContainer.classList.contains('mobile-revealed')) {
-                            mainContainer.classList.add('mobile-revealed');
-                        }
+            // s'assurer que .mobile-revealed est bien appliqué.
+            registerResizeHandler(function() {
+                if (window.innerWidth <= 1024) {
+                    const mainContainer = document.querySelector('.main-container');
+                    if (mainContainer && !mainContainer.classList.contains('mobile-revealed')) {
+                        mainContainer.classList.add('mobile-revealed');
                     }
-                }, 80);
-            }, { passive: true });
+                }
+            });
 
             // Signale que _startReveal est prêt (pour le cas où le cover se charge avant DOMContentLoaded)
             document.dispatchEvent(new Event('_startRevealReady'));
@@ -1284,7 +1314,7 @@ document.getElementById('currentYear').textContent = new Date().getFullYear();
             } else {
                 initAccordion();
             }
-            window.addEventListener('resize', handleResize);
+            registerResizeHandler(handleResize, { immediate: true });
         })();
     
 
@@ -1354,17 +1384,7 @@ document.getElementById('currentYear').textContent = new Date().getFullYear();
         })();
     
 
-        /* Supprime les transitions pendant un redimensionnement (artefact DevTools uniquement) */
-        (function() {
-            var resizeTimer;
-            window.addEventListener('resize', function() {
-                document.body.classList.add('no-transition');
-                clearTimeout(resizeTimer);
-                resizeTimer = setTimeout(function() {
-                    document.body.classList.remove('no-transition');
-                }, 100);
-            }, { passive: true });
-        })();
+        /* Les transitions pendant resize sont gérées par le répartiteur central. */
     
 
         /* Empêche le hover CSS de "coller" sur les boutons nav pendant le scroll mobile */
@@ -1460,9 +1480,9 @@ document.getElementById('currentYear').textContent = new Date().getFullYear();
             }
 
             window.addEventListener('scroll', syncParallax, { passive: true });
-            window.addEventListener('resize', function() {
+            registerResizeHandler(function() {
                 _fadeStart = null; // recalcul au prochain scroll
-            }, { passive: true });
+            }, { immediate: true });
             // Permet à unlockScroll() de forcer un recalcul de _fadeStart après fermeture modale
             window._syncParallaxResetFade = function() { _fadeStart = null; };
             // Ne pas appeler syncParallax au DOMContentLoaded : les dimensions
@@ -1513,14 +1533,10 @@ document.getElementById('currentYear').textContent = new Date().getFullYear();
                 if (isTablet()) centerLogoText();
                 else reset();
             });
-            var _centerResizeTimer = null;
-            window.addEventListener('resize', function() {
-                clearTimeout(_centerResizeTimer);
-                _centerResizeTimer = setTimeout(function() {
-                    if (isTablet()) centerLogoText();
-                    else reset();
-                }, 80);
-            }, { passive: true });
+            registerResizeHandler(function() {
+                if (isTablet()) centerLogoText();
+                else reset();
+            });
         })();
     
 
@@ -1563,5 +1579,5 @@ document.getElementById('currentYear').textContent = new Date().getFullYear();
     }
 
     document.addEventListener('DOMContentLoaded', placeLocationDescription);
-    window.addEventListener('resize', placeLocationDescription, { passive: true });
+    registerResizeHandler(placeLocationDescription, { immediate: true });
 })();

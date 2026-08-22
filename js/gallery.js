@@ -2,8 +2,8 @@
         // sont vérifiés/utilisés côté serveur uniquement, jamais exposés ici) ===
         // ⚠️ À ajuster : URL de l'endpoint déployé sur ton projet Vercel api-gen
         const GALLERY_API_URL = 'https://rr-gallery-beta.vercel.app/api/gallery';
-        // ⚠️ À ajuster : où lire le manifeste public (owner/repo/branche/chemin)
-        const GALLERY_JSON_URL = 'https://raw.githubusercontent.com/CapGui13/RR/main/gallery/gallery.json';
+        // Manifeste public servi par le même domaine que le site
+        const GALLERY_JSON_URL = '/gallery/gallery.json';
 
         // === GALLERY DATA ===
         let galleryImages = [];
@@ -13,7 +13,7 @@
         let adminPassword = null;
         let adminSessionToken = null;
 
-        // Charger la galerie publique depuis le manifeste hébergé sur GitHub
+        // Charger la galerie publique depuis le manifeste local du site
         async function loadGalleryPublic() {
             try {
                 const res = await fetch(GALLERY_JSON_URL + '?t=' + Date.now(), { cache: 'no-store' });
@@ -120,7 +120,69 @@
             }
         }
 
+
+        const ADMIN_PANEL_HTML = `
+    <div class="dropdown-overlay" id="adminPanel" role="dialog" aria-modal="true" aria-labelledby="admin-title" aria-hidden="true" inert>
+        <div class="dropdown-modal admin-modal">
+            <button type="button" class="close-btn" id="adminPanelCloseBtn" aria-label="Fermer">✕</button>
+            <div class="admin-content">
+                <h2 class="admin-title" id="admin-title">🔒 Administration - Galerie Photos</h2>
+                <div id="adminLogin" class="admin-section">
+                    <p class="admin-subtitle">Entrez le mot de passe pour gérer les photos</p>
+                    <div class="admin-login-form"><div class="admin-password-wrap"><input type="password" id="adminPassword" placeholder="Mot de passe" autocomplete="current-password"><button type="button" class="admin-eye-btn" id="adminEyeBtn" title="Afficher/masquer le mot de passe" aria-label="Afficher le mot de passe">👁</button></div><button type="button" id="adminLoginBtn" class="admin-btn-login">Se connecter</button></div>
+                    <div class="admin-remember-row"><label class="admin-remember-label"><input type="checkbox" id="adminRememberDevice"><span>Mémoriser cette connexion sur cet appareil</span></label><button type="button" id="adminForgetDevice" class="admin-forget-btn admin-hidden-inline">Oublier cet appareil</button></div>
+                    <p id="adminRememberStatus" class="admin-remember-status admin-hidden-inline">✓ Connexion mémorisée sans expiration — le mot de passe n'est pas stocké dans le navigateur.</p>
+                </div>
+                <div id="adminDashboard" class="admin-hidden-inline">
+                    <div class="admin-dashboard-bar"><button type="button" id="adminLogoutBtn" class="admin-btn-logout">↪ Déconnexion</button></div>
+                    <div class="admin-tabs"><button type="button" class="admin-tab active" data-admin-tab="upload">📤 Ajouter des photos</button><button type="button" class="admin-tab" data-admin-tab="manage">📋 Gérer les photos</button></div>
+                    <div id="uploadTab" class="admin-tab-content">
+                        <div class="upload-zone" id="uploadZone"><div class="upload-icon">📸</div><p class="upload-text">Glissez-déposez vos photos ici</p><p class="upload-subtext">ou cliquez pour sélectionner</p><input type="file" id="fileInput" accept="image/*" multiple class="admin-hidden-inline"></div>
+                        <div id="uploadPreview" class="upload-preview"></div>
+                        <div id="uploadForm" class="admin-hidden-inline"><h3>Détails de la photo</h3><input type="text" id="photoTitle" placeholder="Titre de la photo *" class="admin-input"><select id="photoCategory" class="admin-input"><option value="">-- Choisir une catégorie --</option><option value="salle">La Salle</option><option value="tournois">Tournois</option><option value="cours">Cours</option><option value="events">Événements</option></select><div class="admin-actions"><button type="button" id="publishPhotoBtn" class="admin-btn-publish">✓ Publier</button><button type="button" id="cancelUploadBtn" class="admin-btn-cancel">✕ Annuler</button></div></div>
+                    </div>
+                    <div id="manageTab" class="admin-tab-content admin-hidden-inline"><div class="admin-photos-list" id="adminPhotosList"></div></div>
+                </div>
+            </div>
+        </div>
+    </div>`;
+
+        function bindAdminUiActions(panel) {
+            if (!panel || panel.dataset.bound === 'true') return;
+            panel.dataset.bound = 'true';
+            const closeBtn = panel.querySelector('#adminPanelCloseBtn');
+            if (closeBtn) closeBtn.addEventListener('click', function() {
+                const scrollTopBtn = document.getElementById('modalScrollTop');
+                if (scrollTopBtn) scrollTopBtn.classList.remove('visible');
+                toggleOverlay('adminPanel');
+            });
+            const adminModal = panel.querySelector('.dropdown-modal');
+            const scrollTopBtn = document.getElementById('modalScrollTop');
+            if (adminModal && scrollTopBtn) adminModal.addEventListener('scroll', function() { scrollTopBtn.classList.toggle('visible', adminModal.scrollTop > 80); }, { passive: true });
+            const adminEyeBtn = panel.querySelector('#adminEyeBtn'); if (adminEyeBtn) adminEyeBtn.addEventListener('click', toggleAdminPassword);
+            const adminLoginBtn = panel.querySelector('#adminLoginBtn'); if (adminLoginBtn) adminLoginBtn.addEventListener('click', loginAdmin);
+            const adminPasswordInput = panel.querySelector('#adminPassword'); if (adminPasswordInput) adminPasswordInput.addEventListener('keydown', function(event) { if (event.key === 'Enter') { event.preventDefault(); loginAdmin(); } });
+            const forgetBtn = panel.querySelector('#adminForgetDevice'); if (forgetBtn) forgetBtn.addEventListener('click', forgetAdminDevice);
+            const logoutBtn = panel.querySelector('#adminLogoutBtn'); if (logoutBtn) logoutBtn.addEventListener('click', logoutAdmin);
+            panel.querySelectorAll('.admin-tab[data-admin-tab]').forEach((btn) => btn.addEventListener('click', function(event) { switchAdminTab(event, btn.getAttribute('data-admin-tab')); }));
+            const publishBtn = panel.querySelector('#publishPhotoBtn'); if (publishBtn) publishBtn.addEventListener('click', publishPhoto);
+            const cancelBtn = panel.querySelector('#cancelUploadBtn'); if (cancelBtn) cancelBtn.addEventListener('click', cancelUpload);
+        }
+
+        function ensureAdminPanel() {
+            let panel = document.getElementById('adminPanel');
+            if (panel) return panel;
+            document.body.insertAdjacentHTML('beforeend', ADMIN_PANEL_HTML);
+            panel = document.getElementById('adminPanel');
+            if (!panel) throw new Error('Impossible de créer le panneau d’administration.');
+            bindAdminUiActions(panel);
+            initUploadListeners();
+            updateRememberedAdminUi();
+            return panel;
+        }
+
         function openAdmin() {
+            ensureAdminPanel();
             updateRememberedAdminUi();
             toggleOverlay('adminPanel');
             setTimeout(function() {
@@ -203,57 +265,11 @@
         }
 
         function bindGalleryUiActions() {
-            document.querySelectorAll('.gallery-filters [data-filter]').forEach((btn) => {
-                btn.addEventListener('click', function() {
-                    filterGallery(btn.getAttribute('data-filter'), btn);
-                });
-            });
-
-            const adminOpenBtn = document.querySelector('[data-admin-open]');
-            if (adminOpenBtn) adminOpenBtn.addEventListener('click', openAdmin);
-
-            const adminEyeBtn = document.getElementById('adminEyeBtn');
-            if (adminEyeBtn) adminEyeBtn.addEventListener('click', toggleAdminPassword);
-
-            const adminLoginBtn = document.getElementById('adminLoginBtn');
-            if (adminLoginBtn) adminLoginBtn.addEventListener('click', loginAdmin);
-
-            const adminPasswordInput = document.getElementById('adminPassword');
-            if (adminPasswordInput) {
-                adminPasswordInput.addEventListener('keydown', function(event) {
-                    if (event.key === 'Enter') {
-                        event.preventDefault();
-                        loginAdmin();
-                    }
-                });
-            }
-
-            const forgetBtn = document.getElementById('adminForgetDevice');
-            if (forgetBtn) forgetBtn.addEventListener('click', forgetAdminDevice);
-
-            const logoutBtn = document.getElementById('adminLogoutBtn');
-            if (logoutBtn) logoutBtn.addEventListener('click', logoutAdmin);
-
-            document.querySelectorAll('.admin-tab[data-admin-tab]').forEach((btn) => {
-                btn.addEventListener('click', function(event) {
-                    switchAdminTab(event, btn.getAttribute('data-admin-tab'));
-                });
-            });
-
-            const publishBtn = document.getElementById('publishPhotoBtn');
-            if (publishBtn) publishBtn.addEventListener('click', publishPhoto);
-
-            const cancelBtn = document.getElementById('cancelUploadBtn');
-            if (cancelBtn) cancelBtn.addEventListener('click', cancelUpload);
-
-            const lightboxCloseBtn = document.getElementById('lightboxCloseBtn');
-            if (lightboxCloseBtn) lightboxCloseBtn.addEventListener('click', closeLightbox);
-
-            const lightboxPrevBtn = document.getElementById('lightboxPrevBtn');
-            if (lightboxPrevBtn) lightboxPrevBtn.addEventListener('click', function() { navigateLightbox(-1); });
-
-            const lightboxNextBtn = document.getElementById('lightboxNextBtn');
-            if (lightboxNextBtn) lightboxNextBtn.addEventListener('click', function() { navigateLightbox(1); });
+            document.querySelectorAll('.gallery-filters [data-filter]').forEach((btn) => { btn.addEventListener('click', function() { filterGallery(btn.getAttribute('data-filter'), btn); }); });
+            const adminOpenBtn = document.querySelector('[data-admin-open]'); if (adminOpenBtn) adminOpenBtn.addEventListener('click', openAdmin);
+            const lightboxCloseBtn = document.getElementById('lightboxCloseBtn'); if (lightboxCloseBtn) lightboxCloseBtn.addEventListener('click', closeLightbox);
+            const lightboxPrevBtn = document.getElementById('lightboxPrevBtn'); if (lightboxPrevBtn) lightboxPrevBtn.addEventListener('click', function() { navigateLightbox(-1); });
+            const lightboxNextBtn = document.getElementById('lightboxNextBtn'); if (lightboxNextBtn) lightboxNextBtn.addEventListener('click', function() { navigateLightbox(1); });
         }
 
         if (document.readyState === 'loading') {

@@ -23,6 +23,31 @@ const GITHUB_REPO = process.env.GITHUB_REPO;
 const BRANCH = process.env.GITHUB_BRANCH || 'main';
 const GALLERY_JSON_PATH = process.env.GALLERY_JSON_PATH || 'gallery/gallery.json';
 const GALLERY_IMAGES_DIR = process.env.GALLERY_IMAGES_DIR || 'gallery/images';
+
+
+function galleryImagePathFromUrl(url) {
+  if (typeof url !== 'string' || !url) return null;
+
+  // Nouveau format : URL locale du site, ex. /gallery/images/123.jpg
+  const localPrefix = `/${GALLERY_IMAGES_DIR}/`;
+  if (url.startsWith(localPrefix)) return url.slice(1);
+
+  // URL absolue same-origin éventuelle.
+  try {
+    const parsed = new URL(url);
+    if (parsed.pathname.startsWith(localPrefix)) return parsed.pathname.slice(1);
+  } catch {}
+
+  // Compatibilité avec les anciens manifests raw.githubusercontent.com.
+  const marker = `/${BRANCH}/`;
+  const idx = url.indexOf(marker);
+  if (idx !== -1) {
+    const legacyPath = url.slice(idx + marker.length);
+    if (legacyPath.startsWith(`${GALLERY_IMAGES_DIR}/`)) return legacyPath;
+  }
+
+  return null;
+}
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
 const ADMIN_SESSION_SECRET = process.env.ADMIN_SESSION_SECRET
   ? `${process.env.ADMIN_SESSION_SECRET}\0${ADMIN_PASSWORD || ''}`
@@ -324,7 +349,7 @@ module.exports = async function handler(req, res) {
       await putFile(imagePath, parsedImage.base64Data, `Ajout photo galerie : ${title}`);
 
       const { sha, items } = await loadGallery();
-      const url = `https://raw.githubusercontent.com/${GITHUB_OWNER}/${GITHUB_REPO}/${BRANCH}/${imagePath}`;
+      const url = `/${imagePath}`;
       const newPhoto = { id, url, title, category };
       items.unshift(newPhoto);
       await saveGallery(items, sha, `Ajout photo galerie : ${title}`);
@@ -343,9 +368,7 @@ module.exports = async function handler(req, res) {
       await saveGallery(remaining, sha, `Suppression photo galerie #${id}`);
 
       if (photo && photo.url) {
-        const marker = `/${BRANCH}/`;
-        const idx = photo.url.indexOf(marker);
-        const path = idx !== -1 ? photo.url.slice(idx + marker.length) : null;
+        const path = galleryImagePathFromUrl(photo.url);
         if (path && path.startsWith(`${GALLERY_IMAGES_DIR}/`)) {
           const file = await getFile(path);
           if (file) await deleteFile(path, `Suppression fichier photo #${id}`, file.sha);
