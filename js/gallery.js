@@ -77,7 +77,7 @@
             if (forget) forget.style.display = token ? 'inline-block' : 'none';
             if (status) status.style.display = token ? 'block' : 'none';
             if (loginBtn) loginBtn.textContent = token ? 'Se reconnecter' : 'Se connecter';
-            if (pwdInput) pwdInput.placeholder = token ? 'Mot de passe (facultatif)' : 'Mot de passe';
+            if (pwdInput) pwdInput.placeholder = 'Mot de passe';
         }
 
         function forgetAdminDevice() {

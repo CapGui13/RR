@@ -464,6 +464,23 @@ document.getElementById('currentYear').textContent = new Date().getFullYear();
         const _overlayCleanup = {};
         const _overlayOpener = {};
 
+        function loadLocationMap() {
+            const mapIframe = document.querySelector('#locationDropdown iframe[data-src]');
+            if (!mapIframe) return;
+            mapIframe.src = mapIframe.dataset.src;
+            mapIframe.removeAttribute('data-src');
+        }
+
+        // Précharge Google Maps peu après l'arrivée sur le site afin que « Nous trouver »
+        // s'ouvre rapidement. Le clic reste un fallback si l'utilisateur ouvre la modale avant.
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', function() {
+                setTimeout(loadLocationMap, 1200);
+            }, { once: true });
+        } else {
+            setTimeout(loadLocationMap, 1200);
+        }
+
         function toggleOverlay(id) {
             const overlay = document.getElementById(id);
             const btn = document.querySelector(`[data-overlay="${id}"]`);
@@ -497,14 +514,10 @@ document.getElementById('currentYear').textContent = new Date().getFullYear();
                     initGallery();
                 }
 
-                // Google Maps est chargé uniquement à la première ouverture de « Nous trouver ».
-                // Tant que l'utilisateur n'ouvre pas cette modale, aucune iframe Maps n'est chargée.
+                // Si l'utilisateur ouvre « Nous trouver » avant le préchargement différé,
+                // on charge immédiatement la carte.
                 if (id === 'locationDropdown') {
-                    const mapIframe = overlay.querySelector('iframe[data-src]');
-                    if (mapIframe) {
-                        mapIframe.src = mapIframe.dataset.src;
-                        mapIframe.removeAttribute('data-src');
-                    }
+                    loadLocationMap();
                 }
 
                 // Activate focus trap after a short delay to let the modal render
