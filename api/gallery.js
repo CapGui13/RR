@@ -12,6 +12,7 @@
 //   GALLERY_JSON_PATH   ex: "gallery/gallery.json" (optionnel, valeur par défaut ci-dessous)
 //   GALLERY_IMAGES_DIR  ex: "gallery/images" (optionnel, valeur par défaut ci-dessous)
 //   ADMIN_PASSWORD      mot de passe en clair choisi par toi (jamais commité dans le code)
+//   ADMIN_SESSION_SECRET optionnel, secret additionnel pour signer les connexions mémorisées
 //   ALLOWED_ORIGINS     optionnel, liste séparée par des virgules. Par défaut : domaines officiels du club.
 
 const crypto = require('crypto');
@@ -23,6 +24,10 @@ const BRANCH = process.env.GITHUB_BRANCH || 'main';
 const GALLERY_JSON_PATH = process.env.GALLERY_JSON_PATH || 'gallery/gallery.json';
 const GALLERY_IMAGES_DIR = process.env.GALLERY_IMAGES_DIR || 'gallery/images';
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
+const ADMIN_SESSION_SECRET = process.env.ADMIN_SESSION_SECRET
+  ? `${process.env.ADMIN_SESSION_SECRET}\0${ADMIN_PASSWORD || ''}`
+  : ADMIN_PASSWORD;
+const ADMIN_SESSION_TTL_SECONDS = 30 * 24 * 60 * 60; // 30 jours
 
 const DEFAULT_ALLOWED_ORIGINS = [
   'https://www.roy-rene-bridge.com',
@@ -108,6 +113,33 @@ function checkPassword(password) {
   const b = Buffer.from(ADMIN_PASSWORD);
   if (a.length !== b.length) return false;
   return crypto.timingSafeEqual(a, b);
+}
+
+function createAdminSessionToken() {
+  if (!ADMIN_SESSION_SECRET) return null;
+  const now = Math.floor(Date.now() / 1000);
+  const payload = Buffer.from(JSON.stringify({ v: 1, iat: now, exp: now + ADMIN_SESSION_TTL_SECONDS })).toString('base64url');
+  const signature = crypto.createHmac('sha256', ADMIN_SESSION_SECRET).update(payload).digest('base64url');
+  return `${payload}.${signature}`;
+}
+
+function verifyAdminSessionToken(token) {
+  if (!ADMIN_SESSION_SECRET || typeof token !== 'string') return false;
+  const parts = token.split('.');
+  if (parts.length !== 2 || !parts[0] || !parts[1]) return false;
+
+  const expected = crypto.createHmac('sha256', ADMIN_SESSION_SECRET).update(parts[0]).digest();
+  let received;
+  try { received = Buffer.from(parts[1], 'base64url'); } catch { return false; }
+  if (received.length !== expected.length || !crypto.timingSafeEqual(received, expected)) return false;
+
+  try {
+    const payload = JSON.parse(Buffer.from(parts[0], 'base64url').toString('utf8'));
+    const now = Math.floor(Date.now() / 1000);
+    return payload && payload.v === 1 && Number.isSafeInteger(payload.exp) && payload.exp > now;
+  } catch {
+    return false;
+  }
 }
 
 function normalizeTitle(value) {
@@ -237,22 +269,34 @@ module.exports = async function handler(req, res) {
     try { body = JSON.parse(body); } catch { body = {}; }
   }
   body = body || {};
-  const { action, password } = body;
+  const { action, password, sessionToken } = body;
   const ip = getClientIp(req);
+  const sessionIsValid = verifyAdminSessionToken(sessionToken);
 
-  if (await checkRateLimit(ip)) {
-    res.status(429).json({ ok: false, error: 'Trop de tentatives. Réessayez dans quelques minutes.' });
-    return;
+  if (!sessionIsValid) {
+    if (sessionToken && !password) {
+      res.status(401).json({ ok: false, error: 'Connexion mémorisée expirée ou invalide' });
+      return;
+    }
+    if (await checkRateLimit(ip)) {
+      res.status(429).json({ ok: false, error: 'Trop de tentatives. Réessayez dans quelques minutes.' });
+      return;
+    }
+    if (!checkPassword(password)) {
+      recordFailedAttempt(ip);
+      res.status(401).json({ ok: false, error: 'Mot de passe incorrect' });
+      return;
+    }
+    clearFailedAttempts(ip);
   }
-  if (!checkPassword(password)) {
-    recordFailedAttempt(ip);
-    res.status(401).json({ ok: false, error: 'Mot de passe incorrect' });
-    return;
-  }
-  clearFailedAttempts(ip);
 
   try {
-    if (action === 'verify') { res.status(200).json({ ok: true }); return; }
+    if (action === 'verify') {
+      const response = { ok: true };
+      if (!sessionIsValid && body.remember === true) response.sessionToken = createAdminSessionToken();
+      res.status(200).json(response);
+      return;
+    }
 
     if (action === 'upload') {
       const title = normalizeTitle(body.title);

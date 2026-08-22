@@ -7,9 +7,11 @@
 
         // === GALLERY DATA ===
         let galleryImages = [];
-        // Mot de passe saisi par l'admin, gardé en mémoire pour la session en cours
-        // uniquement (jamais écrit dans localStorage/sessionStorage/le DOM).
+        // Auth admin : le mot de passe n'est gardé qu'en mémoire pour la session courante.
+        // Si l'utilisateur choisit « Mémoriser », seul un jeton signé de 30 jours est persisté.
+        const ADMIN_SESSION_STORAGE_KEY = 'rrGalleryAdminSessionToken';
         let adminPassword = null;
+        let adminSessionToken = null;
 
         // Charger la galerie publique depuis le manifeste hébergé sur GitHub
         async function loadGalleryPublic() {
@@ -24,11 +26,16 @@
         }
 
         // Appel générique à l'API galerie (toute écriture passe par le serveur)
+        function getAdminAuthPayload() {
+            if (adminSessionToken) return { sessionToken: adminSessionToken };
+            return { password: adminPassword };
+        }
+
         async function galleryApiCall(payload) {
             const res = await fetch(GALLERY_API_URL, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ password: adminPassword, ...payload })
+                body: JSON.stringify({ ...payload, ...getAdminAuthPayload() })
             });
             let data;
             try { data = await res.json(); } catch { data = {}; }
@@ -44,6 +51,61 @@
         let isAdminLoggedIn = false;
 
         // === ADMIN FUNCTIONS ===
+        function getRememberedAdminToken() {
+            try { return localStorage.getItem(ADMIN_SESSION_STORAGE_KEY); }
+            catch { return null; }
+        }
+
+        function saveRememberedAdminToken(token) {
+            try { localStorage.setItem(ADMIN_SESSION_STORAGE_KEY, token); return true; }
+            catch { return false; }
+        }
+
+        function clearRememberedAdminToken() {
+            try { localStorage.removeItem(ADMIN_SESSION_STORAGE_KEY); } catch {}
+        }
+
+        function updateRememberedAdminUi() {
+            const token = getRememberedAdminToken();
+            const remember = document.getElementById('adminRememberDevice');
+            const forget = document.getElementById('adminForgetDevice');
+            const status = document.getElementById('adminRememberStatus');
+            const loginBtn = document.querySelector('.admin-btn-login');
+            const pwdInput = document.getElementById('adminPassword');
+
+            if (remember) remember.checked = Boolean(token);
+            if (forget) forget.style.display = token ? 'inline-block' : 'none';
+            if (status) status.style.display = token ? 'block' : 'none';
+            if (loginBtn) loginBtn.textContent = token ? 'Se reconnecter' : 'Se connecter';
+            if (pwdInput) pwdInput.placeholder = token ? 'Mot de passe (facultatif)' : 'Mot de passe';
+        }
+
+        function forgetAdminDevice() {
+            clearRememberedAdminToken();
+            adminSessionToken = null;
+            updateRememberedAdminUi();
+            const pwdInput = document.getElementById('adminPassword');
+            if (pwdInput) pwdInput.focus();
+            showSuccessMessage('Connexion mémorisée supprimée de cet appareil.');
+        }
+
+        function resetAdminUiToLogin() {
+            const login = document.getElementById('adminLogin');
+            const dashboard = document.getElementById('adminDashboard');
+            if (login) login.style.display = 'block';
+            if (dashboard) dashboard.style.display = 'none';
+            isAdminLoggedIn = false;
+            adminPassword = null;
+            adminSessionToken = null;
+            cancelUpload();
+            updateRememberedAdminUi();
+        }
+
+        function logoutAdmin() {
+            resetAdminUiToLogin();
+            showSuccessMessage('✓ Déconnexion réussie.');
+        }
+
         function toggleAdminPassword() {
             var input = document.getElementById('adminPassword');
             var btn = document.getElementById('adminEyeBtn');
@@ -59,38 +121,72 @@
         }
 
         function openAdmin() {
+            updateRememberedAdminUi();
             toggleOverlay('adminPanel');
             setTimeout(function() {
-                var pwdInput = document.getElementById('adminPassword');
-                if (pwdInput) pwdInput.focus();
+                const token = getRememberedAdminToken();
+                const target = token ? document.querySelector('.admin-btn-login') : document.getElementById('adminPassword');
+                if (target) target.focus();
             }, 150);
         }
 
         async function loginAdmin() {
-            const password = document.getElementById('adminPassword').value;
+            const pwdInput = document.getElementById('adminPassword');
+            const rememberInput = document.getElementById('adminRememberDevice');
+            const password = pwdInput ? pwdInput.value : '';
+            const rememberedToken = getRememberedAdminToken();
+            const useRememberedToken = !password && Boolean(rememberedToken);
             const loginBtn = document.querySelector('.admin-btn-login');
+
+            if (!password && !rememberedToken) {
+                alert('❌ Entrez le mot de passe administrateur.');
+                if (pwdInput) pwdInput.focus();
+                return;
+            }
+
             if (loginBtn) { loginBtn.disabled = true; loginBtn.textContent = 'Vérification…'; }
             try {
-                // La vérification a lieu côté serveur (fonction serverless) —
-                // rien n'est comparé ni stocké en clair dans le navigateur.
-                await fetch(GALLERY_API_URL, {
+                const requestBody = useRememberedToken
+                    ? { action: 'verify', sessionToken: rememberedToken }
+                    : { action: 'verify', password, remember: Boolean(rememberInput && rememberInput.checked) };
+
+                const res = await fetch(GALLERY_API_URL, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ action: 'verify', password })
-                }).then(async res => {
-                    const data = await res.json().catch(() => ({}));
-                    if (!res.ok || !data.ok) throw new Error(data.error || 'Mot de passe incorrect');
+                    body: JSON.stringify(requestBody)
                 });
-                adminPassword = password;
+                const data = await res.json().catch(() => ({}));
+                if (!res.ok || !data.ok) throw new Error(data.error || 'Mot de passe incorrect');
+
+                if (useRememberedToken) {
+                    adminSessionToken = rememberedToken;
+                    adminPassword = null;
+                } else if (data.sessionToken && rememberInput && rememberInput.checked) {
+                    adminSessionToken = data.sessionToken;
+                    adminPassword = null;
+                    saveRememberedAdminToken(data.sessionToken);
+                    if (pwdInput) pwdInput.value = '';
+                } else {
+                    adminPassword = password;
+                    adminSessionToken = null;
+                    if (rememberInput && !rememberInput.checked) clearRememberedAdminToken();
+                }
+
                 isAdminLoggedIn = true;
                 document.getElementById('adminLogin').style.display = 'none';
                 document.getElementById('adminDashboard').style.display = 'block';
                 updateAdminPhotosList();
                 showSuccessMessage('✓ Connexion réussie !');
             } catch (e) {
-                alert('❌ ' + (e.message || 'Mot de passe incorrect'));
+                if (useRememberedToken) {
+                    clearRememberedAdminToken();
+                    adminSessionToken = null;
+                    updateRememberedAdminUi();
+                }
+                alert('❌ ' + (e.message || 'Connexion impossible'));
             } finally {
-                if (loginBtn) { loginBtn.disabled = false; loginBtn.textContent = 'Se connecter'; }
+                if (loginBtn) loginBtn.disabled = false;
+                updateRememberedAdminUi();
             }
         }
 
@@ -111,6 +207,7 @@
         let uploadZone = null;
         let fileInput = null;
         function initUploadListeners() {
+            updateRememberedAdminUi();
             uploadZone = document.getElementById('uploadZone');
             fileInput = document.getElementById('fileInput');
             if (!uploadZone || !fileInput) return;

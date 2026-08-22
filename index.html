@@ -457,14 +457,25 @@
                     <p class="admin-subtitle">Entrez le mot de passe pour gérer les photos</p>
                     <div class="admin-login-form">
                         <div class="admin-password-wrap">
-                            <input type="password" id="adminPassword" placeholder="Mot de passe" onkeypress="if(event.key==='Enter') loginAdmin()">
+                            <input type="password" id="adminPassword" placeholder="Mot de passe" autocomplete="current-password" onkeypress="if(event.key==='Enter') loginAdmin()">
                             <button type="button" class="admin-eye-btn" id="adminEyeBtn" onclick="toggleAdminPassword()" title="Afficher/masquer le mot de passe" aria-label="Afficher le mot de passe">👁</button>
                         </div>
                         <button onclick="loginAdmin()" class="admin-btn-login">Se connecter</button>
                     </div>
+                    <div class="admin-remember-row">
+                        <label class="admin-remember-label">
+                            <input type="checkbox" id="adminRememberDevice">
+                            <span>Mémoriser la connexion pendant 30 jours sur cet appareil</span>
+                        </label>
+                        <button type="button" id="adminForgetDevice" class="admin-forget-btn" onclick="forgetAdminDevice()" style="display:none;">Oublier cet appareil</button>
+                    </div>
+                    <p id="adminRememberStatus" class="admin-remember-status" style="display:none;">✓ Connexion mémorisée — le mot de passe n'est pas stocké dans le navigateur.</p>
                 </div>
 
                 <div id="adminDashboard" style="display: none;">
+                    <div class="admin-dashboard-bar">
+                        <button type="button" class="admin-btn-logout" onclick="logoutAdmin()">↪ Déconnexion</button>
+                    </div>
                     <div class="admin-tabs">
                         <button class="admin-tab active" onclick="switchAdminTab(event, 'upload')">📤 Ajouter des photos</button>
                         <button class="admin-tab" onclick="switchAdminTab(event, 'manage')">📋 Gérer les photos</button>
