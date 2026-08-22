@@ -373,6 +373,7 @@ document.getElementById('currentYear').textContent = new Date().getFullYear();
 
         let _scrollY = 0;
         let _scrollLocked = false; // ← voir commentaire ci-dessus, couplé à updateParallax()
+        let _scrollLockDepth = 0; // Supporte les modales imbriquées (galerie + lightbox/admin).
 
         function _preventScroll(e) {
             if (e.target.closest('.dropdown-modal, .lightbox, .contact-modal')) return;
@@ -380,6 +381,11 @@ document.getElementById('currentYear').textContent = new Date().getFullYear();
         }
 
         function lockScroll() {
+            _scrollLockDepth += 1;
+            // Le premier verrou fait le travail DOM. Les suivants ne font qu'incrémenter
+            // le compteur afin qu'une sous-modale ne déverrouille pas son parent.
+            if (_scrollLockDepth > 1) return;
+
             _scrollY = window.scrollY;
             _scrollLocked = true;
             window._scrollLocked = true;
@@ -397,6 +403,10 @@ document.getElementById('currentYear').textContent = new Date().getFullYear();
         }
 
         function unlockScroll() {
+            if (_scrollLockDepth === 0) return;
+            _scrollLockDepth -= 1;
+            if (_scrollLockDepth > 0) return;
+
             _scrollLocked = false;
             window._scrollLocked = false;
             window.removeEventListener('wheel', _preventScroll);

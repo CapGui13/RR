@@ -65,7 +65,7 @@ const ALLOWED_ORIGINS = new Set(
 );
 
 const ALLOWED_CATEGORIES = new Set(['salle', 'tournois', 'cours', 'events']);
-const MAX_IMAGE_BYTES = 5 * 1024 * 1024; // 5 Mo décodés
+const MAX_IMAGE_BYTES = 3 * 1024 * 1024; // 3 Mo décodés (marge sûre sous la limite de body Vercel après Base64/JSON)
 const MAX_TITLE_LENGTH = 120;
 const MAX_REORDER_ITEMS = 500;
 
@@ -223,7 +223,7 @@ function parseImageDataUrl(image) {
 
   const buffer = Buffer.from(base64Data, 'base64');
   if (!buffer.length) return { error: 'Image vide' };
-  if (buffer.length > MAX_IMAGE_BYTES) return { error: 'Image trop volumineuse (5 Mo maximum)' };
+  if (buffer.length > MAX_IMAGE_BYTES) return { error: 'Image trop volumineuse (3 Mo maximum)' };
   if (!hasExpectedImageSignature(buffer, mime)) return { error: 'Le contenu du fichier ne correspond pas au format annoncé' };
 
   return { mime, ext: MIME_EXT[mime], base64Data };
@@ -275,8 +275,17 @@ async function deleteFile(path, message, sha) {
 async function loadGallery() {
   const file = await getFile(GALLERY_JSON_PATH);
   if (!file) return { sha: null, items: [] };
-  try { return { sha: file.sha, items: JSON.parse(file.content) }; }
-  catch { return { sha: file.sha, items: [] }; }
+
+  let items;
+  try {
+    items = JSON.parse(file.content);
+  } catch {
+    throw new Error('gallery.json est invalide : aucune modification n\'a été effectuée');
+  }
+  if (!Array.isArray(items)) {
+    throw new Error('gallery.json est invalide : le contenu doit être une liste');
+  }
+  return { sha: file.sha, items };
 }
 
 async function saveGallery(items, sha, message) {
@@ -343,12 +352,15 @@ module.exports = async function handler(req, res) {
         return;
       }
 
+      // Lire et valider le manifeste AVANT d'écrire l'image : si gallery.json est
+      // corrompu, on stoppe sans écraser le manifeste ni créer de fichier orphelin.
+      const { sha, items } = await loadGallery();
+
       const id = Date.now();
       const filename = `${id}.${parsedImage.ext}`;
       const imagePath = `${GALLERY_IMAGES_DIR}/${filename}`;
       await putFile(imagePath, parsedImage.base64Data, `Ajout photo galerie : ${title}`);
 
-      const { sha, items } = await loadGallery();
       const url = `/${imagePath}`;
       const newPhoto = { id, url, title, category };
       items.unshift(newPhoto);

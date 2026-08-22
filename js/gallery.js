@@ -4,6 +4,8 @@
         const GALLERY_API_URL = 'https://rr-gallery-beta.vercel.app/api/gallery';
         // Manifeste public servi par le même domaine que le site
         const GALLERY_JSON_URL = '/gallery/gallery.json';
+        const MAX_UPLOAD_BYTES = 3 * 1024 * 1024; // Limite réelle sûre sous Vercel avec l'encodage Base64/JSON.
+        const ALLOWED_UPLOAD_MIME = new Set(['image/jpeg', 'image/png', 'image/webp', 'image/gif']);
 
         // === GALLERY DATA ===
         let galleryImages = [];
@@ -137,7 +139,7 @@
                     <div class="admin-dashboard-bar"><button type="button" id="adminLogoutBtn" class="admin-btn-logout">↪ Déconnexion</button></div>
                     <div class="admin-tabs"><button type="button" class="admin-tab active" data-admin-tab="upload">📤 Ajouter des photos</button><button type="button" class="admin-tab" data-admin-tab="manage">📋 Gérer les photos</button></div>
                     <div id="uploadTab" class="admin-tab-content">
-                        <div class="upload-zone" id="uploadZone"><div class="upload-icon">📸</div><p class="upload-text">Glissez-déposez vos photos ici</p><p class="upload-subtext">ou cliquez pour sélectionner</p><input type="file" id="fileInput" accept="image/*" multiple class="admin-hidden-inline"></div>
+                        <div class="upload-zone" id="uploadZone"><div class="upload-icon">📸</div><p class="upload-text">Glissez-déposez vos photos ici</p><p class="upload-subtext">ou cliquez pour sélectionner</p><input type="file" id="fileInput" accept="image/jpeg,image/png,image/webp,image/gif" multiple class="admin-hidden-inline"></div>
                         <div id="uploadPreview" class="upload-preview"></div>
                         <div id="uploadForm" class="admin-hidden-inline"><h3>Détails de la photo</h3><input type="text" id="photoTitle" placeholder="Titre de la photo *" class="admin-input"><select id="photoCategory" class="admin-input"><option value="">-- Choisir une catégorie --</option><option value="salle">La Salle</option><option value="tournois">Tournois</option><option value="cours">Cours</option><option value="events">Événements</option></select><div class="admin-actions"><button type="button" id="publishPhotoBtn" class="admin-btn-publish">✓ Publier</button><button type="button" id="cancelUploadBtn" class="admin-btn-cancel">✕ Annuler</button></div></div>
                     </div>
@@ -309,8 +311,12 @@
             if (files.length === 0) return;
 
             const file = files[0];
-            if (!file.type.startsWith('image/')) {
-                alert('Veuillez sélectionner une image');
+            if (!ALLOWED_UPLOAD_MIME.has(file.type)) {
+                alert('Format non autorisé. Utilisez une image JPEG, PNG, WebP ou GIF.');
+                return;
+            }
+            if (file.size > MAX_UPLOAD_BYTES) {
+                alert('Image trop volumineuse : 3 Mo maximum.');
                 return;
             }
 
@@ -646,7 +652,7 @@
                 if (welcomePopup && welcomePopup.classList.contains('active')) { closePopup(); return; }
 
                 // Fermer les overlays ouverts
-                const overlayIds = ['tarifsDropdown', 'equipeDropdown', 'locationDropdown', 'galleryDropdown', 'adminPanel'];
+                const overlayIds = ['adminPanel', 'tarifsDropdown', 'equipeDropdown', 'locationDropdown', 'galleryDropdown'];
                 for (const id of overlayIds) {
                     const el = document.getElementById(id);
                     if (el && el.classList.contains('active')) { toggleOverlay(id); return; }
