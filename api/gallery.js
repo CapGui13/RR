@@ -27,7 +27,6 @@ const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
 const ADMIN_SESSION_SECRET = process.env.ADMIN_SESSION_SECRET
   ? `${process.env.ADMIN_SESSION_SECRET}\0${ADMIN_PASSWORD || ''}`
   : ADMIN_PASSWORD;
-const ADMIN_SESSION_TTL_SECONDS = 30 * 24 * 60 * 60; // 30 jours
 
 const DEFAULT_ALLOWED_ORIGINS = [
   'https://www.roy-rene-bridge.com',
@@ -118,7 +117,7 @@ function checkPassword(password) {
 function createAdminSessionToken() {
   if (!ADMIN_SESSION_SECRET) return null;
   const now = Math.floor(Date.now() / 1000);
-  const payload = Buffer.from(JSON.stringify({ v: 1, iat: now, exp: now + ADMIN_SESSION_TTL_SECONDS })).toString('base64url');
+  const payload = Buffer.from(JSON.stringify({ v: 2, iat: now })).toString('base64url');
   const signature = crypto.createHmac('sha256', ADMIN_SESSION_SECRET).update(payload).digest('base64url');
   return `${payload}.${signature}`;
 }
@@ -135,8 +134,15 @@ function verifyAdminSessionToken(token) {
 
   try {
     const payload = JSON.parse(Buffer.from(parts[0], 'base64url').toString('utf8'));
-    const now = Math.floor(Date.now() / 1000);
-    return payload && payload.v === 1 && Number.isSafeInteger(payload.exp) && payload.exp > now;
+    if (!payload || !Number.isSafeInteger(payload.iat)) return false;
+    // v2 : connexion mémorisée sans expiration automatique.
+    // v1 : anciens jetons 30 jours conservés jusqu'à leur expiration pour compatibilité.
+    if (payload.v === 2) return true;
+    if (payload.v === 1) {
+      const now = Math.floor(Date.now() / 1000);
+      return Number.isSafeInteger(payload.exp) && payload.exp > now;
+    }
+    return false;
   } catch {
     return false;
   }
@@ -275,7 +281,7 @@ module.exports = async function handler(req, res) {
 
   if (!sessionIsValid) {
     if (sessionToken && !password) {
-      res.status(401).json({ ok: false, error: 'Connexion mémorisée expirée ou invalide' });
+      res.status(401).json({ ok: false, error: 'Connexion mémorisée invalide' });
       return;
     }
     if (await checkRateLimit(ip)) {

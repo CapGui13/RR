@@ -8,7 +8,7 @@
         // === GALLERY DATA ===
         let galleryImages = [];
         // Auth admin : le mot de passe n'est gardé qu'en mémoire pour la session courante.
-        // Si l'utilisateur choisit « Mémoriser », seul un jeton signé de 30 jours est persisté.
+        // Si l'utilisateur choisit « Mémoriser », seul un jeton signé sans expiration automatique est persisté.
         const ADMIN_SESSION_STORAGE_KEY = 'rrGalleryAdminSessionToken';
         let adminPassword = null;
         let adminSessionToken = null;

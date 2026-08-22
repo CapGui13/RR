@@ -1628,19 +1628,27 @@
         }
 
         .admin-btn-logout {
-            background: #f3f3f3;
-            color: #555;
-            border: 1px solid #d8d8d8;
-            padding: 0.55rem 0.9rem;
+            background: rgba(102, 126, 234, 0.08);
+            color: #667eea;
+            border: 1px solid rgba(102, 126, 234, 0.45);
+            padding: 0.6rem 1rem;
             border-radius: 8px;
             font-weight: 600;
             cursor: pointer;
-            transition: background 0.2s, color 0.2s;
+            transition: all 0.3s;
         }
 
         .admin-btn-logout:hover {
-            background: #e7e7e7;
-            color: #222;
+            background: rgba(102, 126, 234, 0.14);
+            color: #5a6fd6;
+            border-color: #667eea;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.22);
+        }
+
+        .admin-btn-logout:focus-visible {
+            outline: 3px solid rgba(102, 126, 234, 0.28);
+            outline-offset: 2px;
         }
 
         @media (max-width: 599px) {
