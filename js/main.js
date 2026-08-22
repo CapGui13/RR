@@ -422,8 +422,8 @@ document.getElementById('currentYear').textContent = new Date().getFullYear();
                     initGallery();
                 }
 
-                // Fallback Maps : si le préchargement post-reveal n'a pas encore eu le temps
-                // de s'exécuter (connexion très lente), on injecte le src à l'ouverture.
+                // Google Maps est chargé uniquement à la première ouverture de « Nous trouver ».
+                // Tant que l'utilisateur n'ouvre pas cette modale, aucune iframe Maps n'est chargée.
                 if (id === 'locationDropdown') {
                     const mapIframe = overlay.querySelector('iframe[data-src]');
                     if (mapIframe) {
@@ -986,30 +986,6 @@ document.getElementById('currentYear').textContent = new Date().getFullYear();
                 };
                 setTimeout(triggerAll, 400);
 
-                /*
-                 * === PRÉCHARGEMENT GOOGLE MAPS APRÈS REVEAL ===
-                 *
-                 * On injecte le src de l'iframe Maps dès que les section-cards
-                 * ont commencé à apparaître — la carte sera prête quand l'utilisateur
-                 * cliquera sur "Nous trouver", sans aucun temps de chargement.
-                 *
-                 * Pourquoi ne pas charger au DOMContentLoaded ?
-                 *   Maps envoie plusieurs requêtes réseau lourdes (tuiles, JS SDK…).
-                 *   Les charger pendant le reveal de la page créerait une contention
-                 *   réseau avec les images et polices prioritaires.
-                 *
-                 * Délai de 1200ms :
-                 *   - Laisse le temps aux section-cards de finir leur animation (max ~800ms)
-                 *   - Évite de concurrencer le chargement du fond et des images hero
-                 *   - La carte est prête bien avant qu'un utilisateur ait le temps de cliquer
-                 */
-                setTimeout(function() {
-                    var mapIframe = document.querySelector('#locationDropdown iframe[data-src]');
-                    if (mapIframe) {
-                        mapIframe.src = mapIframe.dataset.src;
-                        mapIframe.removeAttribute('data-src');
-                    }
-                }, 1200);
             };
 
             // Si on redimensionne vers mobile après que le site soit déjà révélé en desktop,
