@@ -202,6 +202,66 @@
             }
         }
 
+        function bindGalleryUiActions() {
+            document.querySelectorAll('.gallery-filters [data-filter]').forEach((btn) => {
+                btn.addEventListener('click', function() {
+                    filterGallery(btn.getAttribute('data-filter'), btn);
+                });
+            });
+
+            const adminOpenBtn = document.querySelector('[data-admin-open]');
+            if (adminOpenBtn) adminOpenBtn.addEventListener('click', openAdmin);
+
+            const adminEyeBtn = document.getElementById('adminEyeBtn');
+            if (adminEyeBtn) adminEyeBtn.addEventListener('click', toggleAdminPassword);
+
+            const adminLoginBtn = document.getElementById('adminLoginBtn');
+            if (adminLoginBtn) adminLoginBtn.addEventListener('click', loginAdmin);
+
+            const adminPasswordInput = document.getElementById('adminPassword');
+            if (adminPasswordInput) {
+                adminPasswordInput.addEventListener('keydown', function(event) {
+                    if (event.key === 'Enter') {
+                        event.preventDefault();
+                        loginAdmin();
+                    }
+                });
+            }
+
+            const forgetBtn = document.getElementById('adminForgetDevice');
+            if (forgetBtn) forgetBtn.addEventListener('click', forgetAdminDevice);
+
+            const logoutBtn = document.getElementById('adminLogoutBtn');
+            if (logoutBtn) logoutBtn.addEventListener('click', logoutAdmin);
+
+            document.querySelectorAll('.admin-tab[data-admin-tab]').forEach((btn) => {
+                btn.addEventListener('click', function(event) {
+                    switchAdminTab(event, btn.getAttribute('data-admin-tab'));
+                });
+            });
+
+            const publishBtn = document.getElementById('publishPhotoBtn');
+            if (publishBtn) publishBtn.addEventListener('click', publishPhoto);
+
+            const cancelBtn = document.getElementById('cancelUploadBtn');
+            if (cancelBtn) cancelBtn.addEventListener('click', cancelUpload);
+
+            const lightboxCloseBtn = document.getElementById('lightboxCloseBtn');
+            if (lightboxCloseBtn) lightboxCloseBtn.addEventListener('click', closeLightbox);
+
+            const lightboxPrevBtn = document.getElementById('lightboxPrevBtn');
+            if (lightboxPrevBtn) lightboxPrevBtn.addEventListener('click', function() { navigateLightbox(-1); });
+
+            const lightboxNextBtn = document.getElementById('lightboxNextBtn');
+            if (lightboxNextBtn) lightboxNextBtn.addEventListener('click', function() { navigateLightbox(1); });
+        }
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', bindGalleryUiActions);
+        } else {
+            bindGalleryUiActions();
+        }
+
         // === UPLOAD FUNCTIONS ===
         // Initialisé au DOMContentLoaded pour éviter les null sur les éléments de la modale
         let uploadZone = null;
@@ -473,7 +533,16 @@
                 const item = document.createElement('div');
                 item.className = 'gallery-item';
                 item.setAttribute('data-category', img.category);
-                item.onclick = () => openLightbox(index);
+                item.setAttribute('role', 'button');
+                item.setAttribute('tabindex', '0');
+                item.setAttribute('aria-label', `Ouvrir la photo : ${img.title}`);
+                item.onclick = () => openLightbox(index, item);
+                item.onkeydown = (event) => {
+                    if (event.key === 'Enter' || event.key === ' ') {
+                        event.preventDefault();
+                        openLightbox(index, item);
+                    }
+                };
                 
                 item.innerHTML = `
                     <img src="${escapeHtml(img.url)}" alt="${escapeHtml(img.title)}" loading="lazy" decoding="async">
@@ -508,11 +577,14 @@
 
         // === LIGHTBOX FUNCTIONS ===
         let _lightboxTrapCleanup = null;
+        let _lightboxOpener = null;
 
-        function openLightbox(index) {
+        function openLightbox(index, opener) {
             currentLightboxIndex = index;
             updateLightbox();
             const lb = document.getElementById('lightbox');
+            _lightboxOpener = opener || (document.activeElement instanceof HTMLElement ? document.activeElement : null);
+            setModalA11yState(lb, true);
             lb.classList.remove('closing');
             lb.classList.add('active');
             lockScroll();
@@ -523,9 +595,13 @@
             const lb = document.getElementById('lightbox');
             lb.classList.remove('active');
             lb.classList.add('closing');
+            setModalA11yState(lb, false);
             setTimeout(() => lb.classList.remove('closing'), 300);
             unlockScroll();
             if (_lightboxTrapCleanup) { _lightboxTrapCleanup(); _lightboxTrapCleanup = null; }
+            const returnTarget = getFocusReturnTarget(_lightboxOpener, null);
+            _lightboxOpener = null;
+            if (returnTarget) returnTarget.focus({ preventScroll: true });
         }
 
         function navigateLightbox(direction) {

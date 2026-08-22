@@ -38,6 +38,42 @@
             text-rendering: optimizeSpeed;
         }
 
+        .svg-sprite {
+            display: none;
+        }
+
+        .admin-hidden-inline {
+            display: none;
+        }
+
+        .popup-hidden {
+            display: none;
+        }
+
+        .honeypot-field {
+            position: absolute;
+            left: -9999px;
+            top: -9999px;
+        }
+
+        .form-status {
+            min-height: 1.2rem;
+            margin: 0.15rem 0 0.85rem;
+            font-size: 0.9rem;
+            color: rgba(255,255,255,0.92);
+        }
+
+        .form-status.is-error {
+            color: #ffd1d1;
+        }
+
+        .popup-image {
+            width: 100%;
+            display: block;
+            height: auto;
+        }
+
+
         h1, h2, h3, h4, h5, h6 { font-weight: 700; }
 
         /* === LIENS — SOULIGNEMENT ANIMÉ === */
@@ -1196,6 +1232,32 @@
             white-space: nowrap;
             pointer-events: none;
         }
+
+        .tarif-members-note {
+            margin-top: 1.2rem;
+        }
+
+        .tarif-card-middle {
+            margin: auto 0;
+        }
+
+        .location-description {
+            font-style: italic;
+            margin-top: 2.5rem;
+            color: #666;
+            line-height: 1.15;
+        }
+
+        .rdf-link-wrap {
+            margin-top: 0.5rem;
+        }
+
+        .footer-bottom-divider {
+            border-top: 2px solid #667eea;
+            margin: 1rem 0;
+            padding-top: 1rem;
+        }
+
         .form-row {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -2656,6 +2718,15 @@
             animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
 
+        .popup-card-image {
+            max-width: min(600px, 92vw);
+            width: auto;
+            display: inline-block;
+            line-height: 0;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+            animation: popIn 1s ease-out 0.15s both;
+        }
+
         @keyframes popIn {
             0%   { transform: scale(0.4); opacity: 0; }
             100% { transform: scale(1); opacity: 1; }
@@ -2682,6 +2753,13 @@
         }
 
         .popup-close:hover { background: rgba(255,255,255,0.3); }
+
+        .popup-close-solid {
+            background: rgba(0,0,0,0.6);
+            top: 0.6rem;
+            right: 0.6rem;
+            z-index: 10;
+        }
 
         .popup-card .popup-date {
             font-family: 'Playfair Display', serif;
@@ -3146,4 +3224,36 @@
         }
         @media (min-width: 1025px) {
             #mobile-bg { display: none; }
+        }
+
+
+        @media (prefers-reduced-motion: reduce) {
+            html:focus-within {
+                scroll-behavior: auto;
+            }
+
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+                scroll-behavior: auto !important;
+            }
+
+            .logo-img img,
+            .logo-right img,
+            .facebook-icon,
+            .nav-card button,
+            .back-to-top,
+            .modal-scroll-top {
+                transition: none !important;
+            }
+
+            .popup-card,
+            .popup-card-image,
+            .dropdown-modal,
+            .contact-modal-content,
+            .lightbox-img {
+                animation: none !important;
+                transform: none !important;
+            }
         }

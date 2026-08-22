@@ -8,7 +8,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bridge Club Roy René - Aix-en-Provence | Cours & Tournois FFB</title>
     <meta name="description" content="Bridge Club Roy René à Aix-en-Provence : cours tous niveaux (débutants, perfectionnement), tournois FFB réguliers (Rondes de France lun/mer/ven), Coupe des Clubs, Festival d'Aix. Salle climatisée, accessible PMR.">
-    <meta name="keywords" content="bridge Aix-en-Provence, cours bridge, tournoi bridge FFB, Bridge Club Roy René, apprendre bridge, cours débutant bridge, Ronde de France bridge, club bridge Provence, tournoi bridge Aix, festival bridge, bridge 13090, école bridge Aix, leçons bridge, perfectionnement bridge, Coupe des Clubs, Coupe de Provence">
     
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website">
@@ -38,8 +37,17 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <!-- Chargement non-bloquant des polices + font-display:swap pour éviter FOIT -->
-    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Great+Vibes&family=Cormorant+Garamond:ital@1&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <link id="font-preload-css" rel="preload" href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Great+Vibes&family=Cormorant+Garamond:ital@1&display=swap" as="style">
     <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Great+Vibes&family=Cormorant+Garamond:ital@1&display=swap"></noscript>
+    <script>
+        (function() {
+            var fontLink = document.getElementById('font-preload-css');
+            if (!fontLink) return;
+            fontLink.addEventListener('load', function() {
+                fontLink.rel = 'stylesheet';
+            }, { once: true });
+        })();
+    </script>
     
     <!-- Optimisation performances -->
     <link rel="dns-prefetch" href="https://cdnjs.cloudflare.com">
@@ -201,7 +209,7 @@
 </head>
 <body>
     <!-- SVG symbols réutilisables -->
-    <svg xmlns="http://www.w3.org/2000/svg" style="display:none">
+    <svg xmlns="http://www.w3.org/2000/svg" class="svg-sprite" aria-hidden="true">
         <symbol id="icon-facebook" viewBox="0 0 24 24">
             <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
         </symbol>
@@ -227,7 +235,7 @@
             }, { passive: true });
         })();
     </script>
-    <div id="site-cover" style="position:fixed;inset:0;z-index:9998;transition:opacity 0.4s ease;background:#1a2e1a;"></div>
+    <div id="site-cover"></div>
     <script>
         (function() {
             var cover = document.getElementById('site-cover');
@@ -297,10 +305,10 @@
     <!-- BOUTON RETOUR EN HAUT -->
     <button class="back-to-top" id="backToTop" aria-label="Retour en haut">↑</button>
     <!-- POPUP ACCUEIL -->
-    <div class="popup-overlay" id="welcomePopup" style="display:none;" onclick="if(event.target===this) closePopup()">
-        <div style="position:relative; max-width: min(600px, 92vw); display:inline-block; background:transparent; line-height:0; border-radius:12px; overflow:hidden; box-shadow: 0 20px 60px rgba(0,0,0,0.5); animation: popIn 1s ease-out 0.15s both;">
-            <button class="popup-close" onclick="closePopup()" aria-label="Fermer" style="position:absolute; background: rgba(0,0,0,0.6); top: 0.6rem; right: 0.6rem; z-index: 10;">✕</button>
-            <img src="https://raw.githubusercontent.com/CapGui13/RR/main/img/popup-marathon.jpg" alt="Marathon du 1er Mai - Bridge Club Roy René" loading="lazy" style="width:100%; display:block;">
+    <div class="popup-overlay popup-hidden" id="welcomePopup" aria-hidden="true" inert>
+        <div class="popup-card popup-card-image">
+            <button type="button" class="popup-close popup-close-solid" id="welcomePopupClose" aria-label="Fermer">✕</button>
+            <img src="https://raw.githubusercontent.com/CapGui13/RR/main/img/popup-marathon.jpg" alt="Marathon du 1er Mai - Bridge Club Roy René" loading="lazy" class="popup-image">
         </div>
     </div>
 
@@ -333,19 +341,19 @@
             </a>
         </div>
         <div class="nav-card">
-            <button onclick="toggleOverlay('locationDropdown')" data-overlay="locationDropdown" aria-label="Afficher les informations de localisation" aria-expanded="false" aria-controls="locationDropdown">Nous trouver</button>
-            <button onclick="toggleOverlay('tarifsDropdown')" data-overlay="tarifsDropdown" aria-label="Consulter les tarifs du club" aria-expanded="false" aria-controls="tarifsDropdown">Les tarifs</button>
-            <button onclick="toggleOverlay('equipeDropdown')" data-overlay="equipeDropdown" aria-label="Découvrir l'équipe dirigeante" aria-expanded="false" aria-controls="equipeDropdown">L'équipe</button>
-            <button onclick="toggleOverlay('galleryDropdown')" data-overlay="galleryDropdown" aria-label="Voir la galerie photos" aria-expanded="false" aria-controls="galleryDropdown">Les photos</button>
-            <button onclick="toggleContact()" data-overlay="contactModal" aria-label="Contacter le club" aria-expanded="false" aria-controls="contactModal">Contact</button>
+            <button type="button" data-overlay="locationDropdown" aria-label="Afficher les informations de localisation" aria-expanded="false" aria-controls="locationDropdown">Nous trouver</button>
+            <button type="button" data-overlay="tarifsDropdown" aria-label="Consulter les tarifs du club" aria-expanded="false" aria-controls="tarifsDropdown">Les tarifs</button>
+            <button type="button" data-overlay="equipeDropdown" aria-label="Découvrir l'équipe dirigeante" aria-expanded="false" aria-controls="equipeDropdown">L'équipe</button>
+            <button type="button" data-overlay="galleryDropdown" aria-label="Voir la galerie photos" aria-expanded="false" aria-controls="galleryDropdown">Les photos</button>
+            <button type="button" data-overlay="contactModal" aria-label="Contacter le club" aria-expanded="false" aria-controls="contactModal">Contact</button>
         </div>
     </nav>
 </header>
 
     <!-- Tarifs Dropdown -->
-    <div class="dropdown-overlay" id="tarifsDropdown" role="dialog" aria-modal="true" aria-labelledby="tarifs-title">
+    <div class="dropdown-overlay" id="tarifsDropdown" role="dialog" aria-modal="true" aria-labelledby="tarifs-title" aria-hidden="true" inert>
         <div class="dropdown-modal">
-            <button class="close-btn" onclick="toggleOverlay('tarifsDropdown')" aria-label="Fermer">✕</button>
+            <button type="button" class="close-btn" data-close-overlay="tarifsDropdown" aria-label="Fermer">✕</button>
             <div class="tarifs-content">
                 <h2 class="tarifs-title" id="tarifs-title">Tarifs</h2>
                 <div class="tarifs-grid">
@@ -357,10 +365,10 @@
                         <h3>Cotisation annuelle</h3>
                         <p><strong>Individuelle : <span id="tarif-cotis-indiv"></span></strong></p>
                         <p><strong>Couple : <span id="tarif-cotis-couple"></span></strong></p>
-                        <p style="margin-top: 1.2rem;"><strong>Droit de table : <span id="tarif-table-membre"></span></strong></p>
+                        <p class="tarif-members-note"><strong>Droit de table : <span id="tarif-table-membre"></span></strong></p>
                         <p><strong>Carnet de 11 : <span id="tarif-carnet-membre"></span></strong></p>
                     </div>
-                    <div class="tarif-card" style="margin: auto 0;">
+                    <div class="tarif-card tarif-card-middle">
                         <h3>Non Membre</h3>
                         <p><strong>Droit de table : <span id="tarif-table-nonmembre"></span></strong></p>
                         <p><strong>Carnet de 11 : <span id="tarif-carnet-nonmembre"></span></strong></p>
@@ -371,9 +379,9 @@
     </div>
 
     <!-- Equipe Dropdown -->
-    <div class="dropdown-overlay" id="equipeDropdown" role="dialog" aria-modal="true" aria-labelledby="equipe-title">
+    <div class="dropdown-overlay" id="equipeDropdown" role="dialog" aria-modal="true" aria-labelledby="equipe-title" aria-hidden="true" inert>
         <div class="dropdown-modal">
-            <button class="close-btn" onclick="toggleOverlay('equipeDropdown')" aria-label="Fermer">✕</button>
+            <button type="button" class="close-btn" data-close-overlay="equipeDropdown" aria-label="Fermer">✕</button>
             <div class="equipe-content">
                 <h2 class="equipe-title" id="equipe-title">L'Équipe</h2>
                 <p class="equipe-intro" id="equipe-intro"></p>
@@ -397,9 +405,9 @@
     </div>
 
     <!-- Location Dropdown -->
-    <div class="dropdown-overlay" id="locationDropdown" role="dialog" aria-modal="true" aria-labelledby="location-title">
+    <div class="dropdown-overlay" id="locationDropdown" role="dialog" aria-modal="true" aria-labelledby="location-title" aria-hidden="true" inert>
         <div class="dropdown-modal">
-            <button class="close-btn" onclick="toggleOverlay('locationDropdown')" aria-label="Fermer">✕</button>
+            <button type="button" class="close-btn" data-close-overlay="locationDropdown" aria-label="Fermer">✕</button>
             <div class="location-content">
                 <div class="dropdown-info dropdown-info-coords">
                     <h2 id="location-title">Nous trouver</h2>
@@ -409,7 +417,7 @@
                     <p><strong>Téléphone :</strong> 04 42 95 62 03</p>
                     <!-- EMAIL EN CLAIR — ne pas laisser Cloudflare obfusquer cette ligne -->
                     <p><strong>Email :</strong> <a href="mailto:royrenebridge@gmail.com">royrenebridge@gmail.com</a></p>
-                    <p id="location-description" class="dropdown-info-desc" style="font-style: italic; margin-top: 2.5rem; color: #666; line-height: 1.15;">
+                    <p id="location-description" class="dropdown-info-desc location-description">
                         Créé en Octobre 1967, le Bridge Club du Roy René occupe maintenant le rez-de-chaussée de la Maison du Bridge à Aix-en-Provence.<br><br>
                         Le bâtiment est accessible aux handicapés et notre salle, climatisée et très lumineuse, peut accueillir jusqu'à 120 joueurs.
                     </p>
@@ -417,26 +425,26 @@
                 <div class="dropdown-photo">
                     <img src="https://raw.githubusercontent.com/CapGui13/RR/main/img/hero.jpg" alt="Façade de la Maison Provençale du Bridge - Bridge Club Roy René Aix-en-Provence" width="600" height="400" loading="lazy" decoding="async">
                 </div>
-                <iframe class="dropdown-map" data-src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2893.086544748783!2d5.43272947654945!3d43.521387960945674!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x12c98d7624d282a7%3A0x2d24890b32d556a4!2sClub%20de%20Bridge%20Roy%20Ren%C3%A9!5e0!3m2!1sfr!2sfr!4v1777106004782!5m2!1sfr!2sfr" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade" title="Carte localisation Bridge Club Roy René"></iframe>
+                <iframe class="dropdown-map" data-src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2893.086544748783!2d5.43272947654945!3d43.521387960945674!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x12c98d7624d282a7%3A0x2d24890b32d556a4!2sClub%20de%20Bridge%20Roy%20Ren%C3%A9!5e0!3m2!1sfr!2sfr!4v1777106004782!5m2!1sfr!2sfr" allowfullscreen="" loading="lazy" referrerpolicy="strict-origin-when-cross-origin" title="Carte localisation Bridge Club Roy René"></iframe>
             </div>
         </div>
     </div>
 
     <!-- Gallery Dropdown -->
-    <div class="dropdown-overlay" id="galleryDropdown" role="dialog" aria-modal="true" aria-labelledby="gallery-title">
+    <div class="dropdown-overlay" id="galleryDropdown" role="dialog" aria-modal="true" aria-labelledby="gallery-title" aria-hidden="true" inert>
         <div class="dropdown-modal gallery-modal">
-            <button class="close-btn" onclick="toggleOverlay('galleryDropdown')" aria-label="Fermer">✕</button>
+            <button type="button" class="close-btn" data-close-overlay="galleryDropdown" aria-label="Fermer">✕</button>
             <div class="gallery-content">
                 <h2 class="gallery-title" id="gallery-title">Galerie Photos</h2>
 
                 
                 <div class="gallery-filters">
-                    <button class="filter-btn active" onclick="filterGallery('all', this)">Toutes</button>
-                    <button class="filter-btn" onclick="filterGallery('salle', this)">La Salle</button>
-                    <button class="filter-btn" onclick="filterGallery('tournois', this)">Tournois</button>
-                    <button class="filter-btn" onclick="filterGallery('cours', this)">Cours</button>
-                    <button class="filter-btn" onclick="filterGallery('events', this)">Événements</button>
-                    <button class="filter-btn admin-btn" onclick="openAdmin()" title="Administration" aria-label="Accès à l'administration">⚙️</button>
+                    <button type="button" class="filter-btn active" data-filter="all">Toutes</button>
+                    <button type="button" class="filter-btn" data-filter="salle">La Salle</button>
+                    <button type="button" class="filter-btn" data-filter="tournois">Tournois</button>
+                    <button type="button" class="filter-btn" data-filter="cours">Cours</button>
+                    <button type="button" class="filter-btn" data-filter="events">Événements</button>
+                    <button type="button" class="filter-btn admin-btn" data-admin-open title="Administration" aria-label="Accès à l'administration">⚙️</button>
                 </div>
 
                 <div class="gallery-grid" id="galleryGrid">
@@ -447,9 +455,9 @@
     </div>
 
     <!-- Admin Panel -->
-    <div class="dropdown-overlay" id="adminPanel" role="dialog" aria-modal="true" aria-labelledby="admin-title">
+    <div class="dropdown-overlay" id="adminPanel" role="dialog" aria-modal="true" aria-labelledby="admin-title" aria-hidden="true" inert>
         <div class="dropdown-modal admin-modal">
-            <button class="close-btn" onclick="toggleOverlay('adminPanel')" aria-label="Fermer">✕</button>
+            <button type="button" class="close-btn" data-close-overlay="adminPanel" aria-label="Fermer">✕</button>
             <div class="admin-content">
                 <h2 class="admin-title" id="admin-title">🔒 Administration - Galerie Photos</h2>
                 
@@ -457,28 +465,28 @@
                     <p class="admin-subtitle">Entrez le mot de passe pour gérer les photos</p>
                     <div class="admin-login-form">
                         <div class="admin-password-wrap">
-                            <input type="password" id="adminPassword" placeholder="Mot de passe" autocomplete="current-password" onkeypress="if(event.key==='Enter') loginAdmin()">
-                            <button type="button" class="admin-eye-btn" id="adminEyeBtn" onclick="toggleAdminPassword()" title="Afficher/masquer le mot de passe" aria-label="Afficher le mot de passe">👁</button>
+                            <input type="password" id="adminPassword" placeholder="Mot de passe" autocomplete="current-password">
+                            <button type="button" class="admin-eye-btn" id="adminEyeBtn" title="Afficher/masquer le mot de passe" aria-label="Afficher le mot de passe">👁</button>
                         </div>
-                        <button onclick="loginAdmin()" class="admin-btn-login">Se connecter</button>
+                        <button type="button" id="adminLoginBtn" class="admin-btn-login">Se connecter</button>
                     </div>
                     <div class="admin-remember-row">
                         <label class="admin-remember-label">
                             <input type="checkbox" id="adminRememberDevice">
                             <span>Mémoriser cette connexion sur cet appareil</span>
                         </label>
-                        <button type="button" id="adminForgetDevice" class="admin-forget-btn" onclick="forgetAdminDevice()" style="display:none;">Oublier cet appareil</button>
+                        <button type="button" id="adminForgetDevice" class="admin-forget-btn admin-hidden-inline">Oublier cet appareil</button>Oublier cet appareil</button>
                     </div>
-                    <p id="adminRememberStatus" class="admin-remember-status" style="display:none;">✓ Connexion mémorisée sans expiration — le mot de passe n'est pas stocké dans le navigateur.</p>
+                    <p id="adminRememberStatus" class="admin-remember-status admin-hidden-inline">✓ Connexion mémorisée sans expiration — le mot de passe n'est pas stocké dans le navigateur.</p>
                 </div>
 
-                <div id="adminDashboard" style="display: none;">
+                <div id="adminDashboard" class="admin-hidden-inline">
                     <div class="admin-dashboard-bar">
-                        <button type="button" class="admin-btn-logout" onclick="logoutAdmin()">↪ Déconnexion</button>
+                        <button type="button" id="adminLogoutBtn" class="admin-btn-logout">↪ Déconnexion</button>
                     </div>
                     <div class="admin-tabs">
-                        <button class="admin-tab active" onclick="switchAdminTab(event, 'upload')">📤 Ajouter des photos</button>
-                        <button class="admin-tab" onclick="switchAdminTab(event, 'manage')">📋 Gérer les photos</button>
+                        <button type="button" class="admin-tab active" data-admin-tab="upload">📤 Ajouter des photos</button>
+                        <button type="button" class="admin-tab" data-admin-tab="manage">📋 Gérer les photos</button>
                     </div>
 
                     <div id="uploadTab" class="admin-tab-content">
@@ -486,12 +494,12 @@
                             <div class="upload-icon">📸</div>
                             <p class="upload-text">Glissez-déposez vos photos ici</p>
                             <p class="upload-subtext">ou cliquez pour sélectionner</p>
-                            <input type="file" id="fileInput" accept="image/*" multiple style="display: none;">
+                            <input type="file" id="fileInput" accept="image/*" multiple class="admin-hidden-inline">
                         </div>
 
                         <div id="uploadPreview" class="upload-preview"></div>
 
-                        <div id="uploadForm" style="display: none;">
+                        <div id="uploadForm" class="admin-hidden-inline">
                             <h3>Détails de la photo</h3>
                             <input type="text" id="photoTitle" placeholder="Titre de la photo *" class="admin-input">
                             <select id="photoCategory" class="admin-input">
@@ -502,13 +510,13 @@
                                 <option value="events">Événements</option>
                             </select>
                             <div class="admin-actions">
-                                <button onclick="publishPhoto()" class="admin-btn-publish">✓ Publier</button>
-                                <button onclick="cancelUpload()" class="admin-btn-cancel">✕ Annuler</button>
+                                <button type="button" id="publishPhotoBtn" class="admin-btn-publish">✓ Publier</button>
+                                <button type="button" id="cancelUploadBtn" class="admin-btn-cancel">✕ Annuler</button>
                             </div>
                         </div>
                     </div>
 
-                    <div id="manageTab" class="admin-tab-content" style="display: none;">
+                    <div id="manageTab" class="admin-tab-content admin-hidden-inline">
                         <div class="admin-photos-list" id="adminPhotosList">
                             <!-- Photos list will be generated here -->
                         </div>
@@ -522,17 +530,17 @@
     <button class="modal-scroll-top" id="modalScrollTop" aria-label="Remonter en haut">↑</button>
 
     <!-- Lightbox -->
-    <div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="Visionneuse de photos">
-        <button class="lightbox-close" onclick="closeLightbox()" aria-label="Fermer">✕</button>
-        <button class="lightbox-prev" onclick="navigateLightbox(-1)" aria-label="Précédent">‹</button>
-        <button class="lightbox-next" onclick="navigateLightbox(1)" aria-label="Suivant">›</button>
+    <div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="Visionneuse de photos" aria-hidden="true" inert>
+        <button type="button" class="lightbox-close" id="lightboxCloseBtn" aria-label="Fermer">✕</button>
+        <button type="button" class="lightbox-prev" id="lightboxPrevBtn" aria-label="Précédent">‹</button>
+        <button type="button" class="lightbox-next" id="lightboxNextBtn" aria-label="Suivant">›</button>
         <img class="lightbox-img" id="lightboxImg" alt="Photo du Bridge Club Roy René">
         <div class="lightbox-caption" id="lightboxCaption"></div>
         <div class="lightbox-counter" id="lightboxCounter"></div>
     </div>
 
     <!-- Contact Info Panel -->
-    <div class="contact-info-panel" id="contactInfoPanel">
+    <div class="contact-info-panel" id="contactInfoPanel" aria-hidden="true" inert>
         <h3>Nos coordonnées</h3>
         <div class="contact-info-item">
             <label>Téléphone</label>
@@ -546,33 +554,34 @@
     </div>
 
     <!-- Contact Modal -->
-    <div class="contact-modal" id="contactModal" role="dialog" aria-modal="true" aria-labelledby="contact-title">
+    <div class="contact-modal" id="contactModal" role="dialog" aria-modal="true" aria-labelledby="contact-title" aria-hidden="true" inert>
         <div class="contact-modal-content">
-            <button class="close-btn" onclick="toggleContact()" aria-label="Fermer">✕</button>
+            <button type="button" class="close-btn" data-contact-toggle aria-label="Fermer">✕</button>
             <h2 id="contact-title">Contacter le club</h2>
-            <form id="contactForm" onsubmit="handleSubmit(event)" novalidate>
+            <form id="contactForm" novalidate>
                 <div class="form-row">
                     <div class="field-wrap">
-                        <input type="text" name="name" placeholder="Nom et prénom *" required aria-label="Nom et prénom" autocomplete="name">
-                        <span class="field-error" id="err-name"></span>
+                        <input type="text" name="name" placeholder="Nom et prénom *" required aria-label="Nom et prénom" autocomplete="name" aria-describedby="err-name" aria-invalid="false">
+                        <span class="field-error" id="err-name" aria-live="polite"></span>
                     </div>
                     <div class="field-wrap">
-                        <input type="tel" name="phone" placeholder="Numéro de téléphone *" required aria-label="Téléphone" autocomplete="tel">
-                        <span class="field-error" id="err-phone"></span>
+                        <input type="tel" name="phone" placeholder="Numéro de téléphone *" required aria-label="Téléphone" autocomplete="tel" aria-describedby="err-phone" aria-invalid="false">
+                        <span class="field-error" id="err-phone" aria-live="polite"></span>
                     </div>
                 </div>
                 <div class="field-wrap">
-                    <input type="email" name="email" placeholder="E-mail *" required aria-label="Email" autocomplete="email">
-                    <span class="field-error" id="err-email"></span>
+                    <input type="email" name="email" placeholder="E-mail *" required aria-label="Email" autocomplete="email" aria-describedby="err-email" aria-invalid="false">
+                    <span class="field-error" id="err-email" aria-live="polite"></span>
                 </div>
                 <div class="field-wrap">
-                    <textarea name="message" placeholder="Message *" rows="6" aria-label="Message" required></textarea>
-                    <span class="field-error" id="err-message"></span>
+                    <textarea name="message" placeholder="Message *" rows="6" aria-label="Message" required aria-describedby="err-message" aria-invalid="false"></textarea>
+                    <span class="field-error" id="err-message" aria-live="polite"></span>
                 </div>
                 <!-- Honeypot — invisible pour les humains, piège pour les bots -->
-                <div style="position:absolute;left:-9999px;top:-9999px;" aria-hidden="true">
+                <div class="honeypot-field" aria-hidden="true">
                     <input type="text" name="website" tabindex="-1" autocomplete="off" value="">
                 </div>
+                <div id="contactFormStatus" class="form-status" role="status" aria-live="polite"></div>
                 <button type="submit" class="submit-btn">Envoyer</button>
             </form>
             <div class="contact-modal-infos">
@@ -618,7 +627,7 @@
                 <div class="highlight">
                     <p><strong>Rondes de France à <span id="rdf-heure"></span></strong></p>
                     <p id="rdf-jours"></p>
-                    <p style="margin-top: 0.5rem;"><strong><a id="rdf-btn" href="#" target="_blank" rel="noopener noreferrer" class="ffb-btn">Inscriptions sur le site FFB</a></strong></p>
+                    <p class="rdf-link-wrap"><strong><a id="rdf-btn" href="#" target="_blank" rel="noopener noreferrer" class="ffb-btn">Inscriptions sur le site FFB</a></strong></p>
                 </div>
 
                 <div class="info-block">
@@ -627,7 +636,7 @@
                     <p>- Un tournoi réservé aux Non classés, 4<sup>e</sup> et 3<sup>e</sup> séries</p>
                 </div>
 
-                <div style="border-top: 2px solid #667eea; margin: 1rem 0; padding-top: 1rem;">
+                <div class="footer-bottom-divider">
                     <div class="coupes-grid">
                         <div class="info-block">
                             <h3>Coupe des Clubs</h3>

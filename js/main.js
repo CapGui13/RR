@@ -1,11 +1,21 @@
 let _popupTrapCleanup = null;
+        let _popupOpener = null;
+
+        const REDUCED_MOTION_MEDIA = window.matchMedia('(prefers-reduced-motion: reduce)');
+        function prefersReducedMotion() {
+            return REDUCED_MOTION_MEDIA.matches;
+        }
 
         function closePopup() {
             var popup = document.getElementById('welcomePopup');
             if (!popup) return;
             popup.classList.remove('active');
             popup.classList.add('closing');
+            setModalA11yState(popup, false);
             if (_popupTrapCleanup) { _popupTrapCleanup(); _popupTrapCleanup = null; }
+            const returnTarget = getFocusReturnTarget(_popupOpener, null);
+            _popupOpener = null;
+            if (returnTarget) returnTarget.focus({ preventScroll: true });
             setTimeout(function(){ if (popup.parentNode) popup.remove(); }, 300);
         }
 
@@ -15,6 +25,9 @@ let _popupTrapCleanup = null;
             popup.setAttribute('role', 'dialog');
             popup.setAttribute('aria-modal', 'true');
             popup.setAttribute('aria-label', 'Annonce du club');
+            _popupOpener = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+            setModalA11yState(popup, true);
+            popup.classList.remove('popup-hidden');
             popup.style.display = 'flex';
             requestAnimationFrame(function() {
                 requestAnimationFrame(function() {
@@ -212,7 +225,7 @@ document.getElementById('currentYear').textContent = new Date().getFullYear();
                 scrollableSelectors.forEach(sel => {
                     document.querySelectorAll(sel).forEach(el => {
                         if (el.scrollTop > 0) {
-                            el.scrollTo({ top: 0, behavior: 'smooth' });
+                            el.scrollTo({ top: 0, behavior: prefersReducedMotion() ? 'auto' : 'smooth' });
                         }
                     });
                 });
@@ -367,6 +380,21 @@ document.getElementById('currentYear').textContent = new Date().getFullYear();
             if (window._syncParallaxResetFade) window._syncParallaxResetFade();
         }
 
+        // === MODAL ACCESSIBILITY STATE ===
+        // Closed dialogs stay out of the accessibility tree and keyboard navigation.
+        function setModalA11yState(element, isOpen) {
+            if (!element) return;
+            element.setAttribute('aria-hidden', isOpen ? 'false' : 'true');
+            if (isOpen) element.removeAttribute('inert');
+            else element.setAttribute('inert', '');
+        }
+
+        function getFocusReturnTarget(preferred, fallback) {
+            if (preferred && preferred.isConnected && typeof preferred.focus === 'function') return preferred;
+            if (fallback && fallback.isConnected && typeof fallback.focus === 'function') return fallback;
+            return null;
+        }
+
         // === FOCUS TRAP ===
         // Keeps keyboard focus inside an active modal.
         // Returns a cleanup function to call when the modal closes.
@@ -397,6 +425,7 @@ document.getElementById('currentYear').textContent = new Date().getFullYear();
 
         // === OVERLAY MANAGEMENT ===
         const _overlayCleanup = {};
+        const _overlayOpener = {};
 
         function toggleOverlay(id) {
             const overlay = document.getElementById(id);
@@ -405,11 +434,19 @@ document.getElementById('currentYear').textContent = new Date().getFullYear();
             if (overlay.classList.contains('active')) {
                 overlay.classList.remove('active');
                 overlay.classList.add('closing');
+                setModalA11yState(overlay, false);
                 setTimeout(() => overlay.classList.remove('closing'), 300);
                 unlockScroll();
                 if (_overlayCleanup[id]) { _overlayCleanup[id](); delete _overlayCleanup[id]; }
-                if (btn) { btn.classList.remove('nav-active'); btn.setAttribute('aria-expanded', 'false'); btn.focus({ preventScroll: true }); }
+                if (btn) { btn.classList.remove('nav-active'); btn.setAttribute('aria-expanded', 'false'); }
+                const form = document.getElementById('contactForm');
+                if (form) clearContactFormValidation(form);
+                const returnTarget = getFocusReturnTarget(_overlayOpener[id], btn);
+                delete _overlayOpener[id];
+                if (returnTarget) returnTarget.focus({ preventScroll: true });
             } else {
+                _overlayOpener[id] = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+                setModalA11yState(overlay, true);
                 overlay.classList.remove('closing');
                 overlay.classList.add('active');
                 lockScroll();
@@ -439,6 +476,36 @@ document.getElementById('currentYear').textContent = new Date().getFullYear();
 
         // === CONTACT MANAGEMENT ===
         let _contactTrapCleanup = null;
+        let _contactOpener = null;
+
+        function setContactFormStatus(message, isError) {
+            const status = document.getElementById('contactFormStatus');
+            if (!status) return;
+            status.textContent = message || '';
+            status.classList.toggle('is-error', Boolean(isError));
+        }
+
+        function setFieldValidationState(el, errEl, isValid, message) {
+            if (!el) return;
+            el.classList.toggle('invalid', !isValid);
+            el.classList.toggle('valid', isValid && !!el.value.trim());
+            el.setAttribute('aria-invalid', isValid ? 'false' : 'true');
+            if (errEl) errEl.textContent = isValid ? '' : (message || '');
+        }
+
+        function clearContactFormValidation(form) {
+            ['name', 'phone', 'email', 'message'].forEach((name) => {
+                const el = form.elements[name];
+                if (!el) return;
+                el.classList.remove('invalid', 'valid');
+                el.setAttribute('aria-invalid', 'false');
+            });
+            ['err-name', 'err-phone', 'err-email', 'err-message'].forEach((id) => {
+                const errEl = document.getElementById(id);
+                if (errEl) errEl.textContent = '';
+            });
+            setContactFormStatus('', false);
+        }
 
         function toggleContact() {
             const modal = document.getElementById('contactModal');
@@ -449,11 +516,21 @@ document.getElementById('currentYear').textContent = new Date().getFullYear();
                 modal.classList.remove('active');
                 modal.classList.add('closing');
                 panel.classList.remove('active');
+                setModalA11yState(modal, false);
+                setModalA11yState(panel, false);
                 setTimeout(() => modal.classList.remove('closing'), 300);
                 unlockScroll();
                 if (_contactTrapCleanup) { _contactTrapCleanup(); _contactTrapCleanup = null; }
-                if (btn) { btn.classList.remove('nav-active'); btn.setAttribute('aria-expanded', 'false'); btn.focus({ preventScroll: true }); }
+                if (btn) { btn.classList.remove('nav-active'); btn.setAttribute('aria-expanded', 'false'); }
+                const form = document.getElementById('contactForm');
+                if (form) clearContactFormValidation(form);
+                const returnTarget = getFocusReturnTarget(_contactOpener, btn);
+                _contactOpener = null;
+                if (returnTarget) returnTarget.focus({ preventScroll: true });
             } else {
+                _contactOpener = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+                setModalA11yState(modal, true);
+                setModalA11yState(panel, true);
                 modal.classList.remove('closing');
                 modal.classList.add('active');
                 panel.classList.add('active');
@@ -476,6 +553,8 @@ document.getElementById('currentYear').textContent = new Date().getFullYear();
                 // Silence total : on fait semblant que ça marche
                 showSuccessMessage('✓ Message envoyé avec succès !');
                 form.reset();
+                clearContactFormValidation(form);
+                setContactFormStatus('Message envoyé avec succès.', false);
                 setTimeout(() => toggleContact(), 1500);
                 return;
             }
@@ -509,28 +588,31 @@ document.getElementById('currentYear').textContent = new Date().getFullYear();
             ];
 
             let valid = true;
+            let firstInvalidField = null;
             fields.forEach(({ el, errId, test, msg }) => {
                 const errEl = document.getElementById(errId);
-                if (!test(el.value)) {
-                    el.classList.add('invalid');
-                    el.classList.remove('valid');
-                    if (errEl) errEl.textContent = msg;
+                const isValid = test(el.value);
+                setFieldValidationState(el, errEl, isValid, msg);
+                if (!isValid) {
                     valid = false;
-                } else {
-                    el.classList.remove('invalid');
-                    el.classList.add('valid');
-                    if (errEl) errEl.textContent = '';
+                    if (!firstInvalidField) firstInvalidField = el;
                 }
             });
 
-            if (!valid) return;
+            if (!valid) {
+                setContactFormStatus('Le formulaire contient des erreurs. Vérifiez les champs indiqués.', true);
+                if (firstInvalidField) firstInvalidField.focus();
+                return;
+            }
 
+            setContactFormStatus('', false);
             // Effacer les erreurs résiduelles et feedback valid
             fields.forEach(({ el }) => el.classList.remove('valid'));
 
             // === 3. ANTI-DOUBLE-ENVOI ===
             submitBtn.disabled = true;
             submitBtn.textContent = 'Envoi en cours…';
+            setContactFormStatus('Envoi en cours…', false);
 
             // === 4. ENVOI ===
             const formData = new FormData(form);
@@ -560,7 +642,8 @@ document.getElementById('currentYear').textContent = new Date().getFullYear();
                 if (data.success === "true" || data.success === true) {
                     showSuccessMessage('✓ Message envoyé avec succès !');
                     form.reset();
-                    fields.forEach(({ el }) => el.classList.remove('invalid', 'valid'));
+                    clearContactFormValidation(form);
+                    setContactFormStatus('Message envoyé avec succès.', false);
                     setTimeout(() => toggleContact(), 1500);
                 } else {
                     throw new Error('Erreur d\'envoi');
@@ -585,6 +668,8 @@ document.getElementById('currentYear').textContent = new Date().getFullYear();
                 window.location.href = mailto;
                 showSuccessMessage('📧 Ouverture de votre messagerie…');
                 form.reset();
+                clearContactFormValidation(form);
+                setContactFormStatus('Ouverture de votre messagerie…', false);
                 setTimeout(() => toggleContact(), 2000);
             })
             .finally(() => {
@@ -612,16 +697,22 @@ document.getElementById('currentYear').textContent = new Date().getFullYear();
                 const errEl = document.getElementById(errId);
                 if (!el || !errEl) return;
                 el.addEventListener('blur', function() {
-                    if (el.value === '') { el.classList.remove('invalid', 'valid'); errEl.textContent = ''; return; }
-                    if (!test(el.value)) {
-                        el.classList.add('invalid'); el.classList.remove('valid'); errEl.textContent = msg;
-                    } else {
-                        el.classList.remove('invalid'); el.classList.add('valid'); errEl.textContent = '';
+                    if (el.value === '') {
+                        el.classList.remove('invalid', 'valid');
+                        el.setAttribute('aria-invalid', 'false');
+                        errEl.textContent = '';
+                        return;
                     }
+                    setFieldValidationState(el, errEl, test(el.value), msg);
                 });
                 el.addEventListener('input', function() {
                     if (el.classList.contains('invalid') && test(el.value)) {
-                        el.classList.remove('invalid'); el.classList.add('valid'); errEl.textContent = '';
+                        setFieldValidationState(el, errEl, true, '');
+                    }
+                    if (el.value === '') {
+                        el.classList.remove('invalid', 'valid');
+                        el.setAttribute('aria-invalid', 'false');
+                        errEl.textContent = '';
                     }
                 });
             });
@@ -631,6 +722,8 @@ document.getElementById('currentYear').textContent = new Date().getFullYear();
             const message = document.createElement('div');
             message.className = 'success-message';
             message.textContent = text;
+            message.setAttribute('role', 'status');
+            message.setAttribute('aria-live', 'polite');
             document.body.appendChild(message);
             
             setTimeout(() => message.remove(), 3000);
@@ -657,6 +750,54 @@ document.getElementById('currentYear').textContent = new Date().getFullYear();
                 }
             }
         });
+
+        function bindMainUiActions() {
+            document.querySelectorAll('.nav-card button[data-overlay]').forEach((btn) => {
+                btn.addEventListener('click', function() {
+                    const overlayId = btn.getAttribute('data-overlay');
+                    if (!overlayId) return;
+                    if (overlayId === 'contactModal') {
+                        toggleContact();
+                    } else {
+                        toggleOverlay(overlayId);
+                    }
+                });
+            });
+
+            document.querySelectorAll('[data-close-overlay]').forEach((btn) => {
+                btn.addEventListener('click', function() {
+                    const overlayId = btn.getAttribute('data-close-overlay');
+                    if (overlayId) toggleOverlay(overlayId);
+                });
+            });
+
+            document.querySelectorAll('[data-contact-toggle]').forEach((btn) => {
+                btn.addEventListener('click', function() {
+                    toggleContact();
+                });
+            });
+
+            const popup = document.getElementById('welcomePopup');
+            if (popup) {
+                popup.addEventListener('click', function(e) {
+                    if (e.target === popup) closePopup();
+                });
+            }
+
+            const popupClose = document.getElementById('welcomePopupClose');
+            if (popupClose) popupClose.addEventListener('click', closePopup);
+
+            const contactForm = document.getElementById('contactForm');
+            if (contactForm) {
+                contactForm.addEventListener('submit', handleSubmit);
+            }
+        }
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', bindMainUiActions);
+        } else {
+            bindMainUiActions();
+        }
 
         // === POPUP ACCUEIL ===
         // closePopup défini dans le <head>
@@ -798,6 +939,14 @@ document.getElementById('currentYear').textContent = new Date().getFullYear();
             animatedEls.forEach(({ sel, finalTransform, restoreTransition }) => {
                 const el = document.querySelector(sel);
                 if (!el) return;
+                if (prefersReducedMotion()) {
+                    el.style.animation = 'none';
+                    el.style.opacity = '1';
+                    el.style.transform = finalTransform;
+                    el.style.transition = 'none';
+                    if (el.classList.contains('anim-pending')) el.classList.remove('anim-pending');
+                    return;
+                }
                 el.addEventListener('animationend', () => {
                     if (el.classList.contains('anim-pending')) {
                         el.classList.remove('anim-pending');
@@ -843,7 +992,7 @@ document.getElementById('currentYear').textContent = new Date().getFullYear();
             function updateParallax(forceScrollY) {
                 const isMobile = window.innerWidth <= 599;
                 const isTablet = window.innerWidth >= 600 && window.innerWidth <= 1024;
-                if (isMobile || isTablet) {
+                if (prefersReducedMotion() || isMobile || isTablet) {
                     if (logoSection) {
                         logoSection.style.transform = '';
                         logoSection.style.opacity = '';
@@ -901,7 +1050,7 @@ document.getElementById('currentYear').textContent = new Date().getFullYear();
             if (backToTop) {
                 backToTop.addEventListener('click', () => {
                     _scrollingToTop = true;
-                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                    window.scrollTo({ top: 0, behavior: prefersReducedMotion() ? 'auto' : 'smooth' });
                     setTimeout(() => {
                         _scrollingToTop = false;
                         backToTop.classList.remove('visible');
