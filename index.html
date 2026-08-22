@@ -35,8 +35,6 @@
     <link rel="icon" type="image/png" href="https://raw.githubusercontent.com/CapGui13/RR/main/img/favicon.png">
     <link rel="apple-touch-icon" sizes="180x180" href="https://raw.githubusercontent.com/CapGui13/RR/main/img/favicon.png">
     <link rel="preload" as="image" href="https://raw.githubusercontent.com/CapGui13/RR/main/img/hero.jpg" fetchpriority="high">
-    <link rel="preload" as="image" href="https://raw.githubusercontent.com/CapGui13/RR/main/img/bg-mobile.jpg" media="(max-width: 1024px)">
-    <link rel="preload" as="image" href="https://raw.githubusercontent.com/CapGui13/RR/main/img/bg-desktop.jpg" media="(min-width: 1025px)">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <!-- Chargement non-bloquant des polices + font-display:swap pour éviter FOIT -->
@@ -212,12 +210,93 @@
         </symbol>
     </svg>
     <noscript><style>#site-cover{display:none}</style></noscript>
-    <!-- Fond mobile stable, géré en CSS -->
+    <!-- Fond mobile : comportement stable restauré depuis la dernière version validée -->
     <div id="mobile-bg"></div>
-    
-    <div id="site-cover"></div>
-    
-    
+    <script>
+        /* Verrouillage de hauteur mobile : conserver la hauteur écran stable. */
+        (function() {
+            if (window.innerWidth > 1024) return;
+            var bg = document.getElementById('mobile-bg');
+            if (!bg) return;
+
+            function lockHeight() {
+                var h = window.screen.height;
+                bg.style.height = h + 'px';
+            }
+
+            lockHeight();
+            window.addEventListener('orientationchange', function() {
+                setTimeout(lockHeight, 300);
+            }, { passive: true });
+        })();
+    </script>
+    <div id="site-cover" style="position:fixed;inset:0;z-index:9998;transition:opacity 0.4s ease;background:#1a2e1a;"></div>
+    <script>
+        (function() {
+            var cover = document.getElementById('site-cover');
+            if (!cover) return;
+            if (window.innerWidth <= 1024) {
+                cover.style.height = window.screen.height + 'px';
+                cover.style.bottom = 'auto';
+            }
+            var isMobile = window.innerWidth <= 1024;
+            var imgSrc = isMobile
+                ? 'https://raw.githubusercontent.com/CapGui13/RR/main/img/bg-mobile.jpg'
+                : 'https://raw.githubusercontent.com/CapGui13/RR/main/img/bg-desktop.jpg';
+
+            var preload = document.createElement('link');
+            preload.rel = 'preload';
+            preload.as = 'image';
+            preload.href = imgSrc;
+            document.head.appendChild(preload);
+
+            if (isMobile) {
+                cover.style.backgroundImage = "url('" + imgSrc + "')";
+                cover.style.backgroundSize = 'cover';
+                cover.style.backgroundRepeat = 'no-repeat';
+                cover.style.backgroundPosition = 'top center';
+            } else {
+                cover.style.background = "url('" + imgSrc + "') center top/cover";
+            }
+        })();
+    </script>
+    <script>
+        (function() {
+            var img = new Image();
+            var done = false;
+            function revealSite() {
+                if (done) return; done = true;
+                function doReveal() {
+                    var c = document.getElementById('site-cover');
+                    if (c) c.style.opacity = '0';
+                    requestAnimationFrame(function() {
+                        requestAnimationFrame(function() {
+                            document.body.classList.add('animate');
+                            if (window._startReveal) {
+                                window._startReveal();
+                            } else {
+                                document.addEventListener('_startRevealReady', function() {
+                                    if (window._startReveal) window._startReveal();
+                                }, { once: true });
+                            }
+                        });
+                    });
+                    setTimeout(function(){ if(c && c.parentNode) c.remove(); }, 400);
+                }
+                if (document.readyState === 'loading') {
+                    document.addEventListener('DOMContentLoaded', doReveal);
+                } else {
+                    doReveal();
+                }
+            }
+            var imgToLoad = window.innerWidth <= 1024
+                ? 'https://raw.githubusercontent.com/CapGui13/RR/main/img/bg-mobile.jpg'
+                : 'https://raw.githubusercontent.com/CapGui13/RR/main/img/bg-desktop.jpg';
+            img.onload = img.onerror = revealSite;
+            setTimeout(revealSite, 1200);
+            img.src = imgToLoad;
+        })();
+    </script>
     <!-- BOUTON RETOUR EN HAUT -->
     <button class="back-to-top" id="backToTop" aria-label="Retour en haut">↑</button>
     <!-- POPUP ACCUEIL -->
@@ -286,7 +365,6 @@
                     </div>
                     <div class="tarif-card" style="margin: auto 0;">
                         <h3>Non Membre</h3>
-                        <p>Se présenter 30 minutes avant le début du tournoi.</p>
                         <p><strong>Droit de table : <span id="tarif-table-nonmembre"></span></strong></p>
                         <p><strong>Carnet de 11 : <span id="tarif-carnet-nonmembre"></span></strong></p>
                     </div>

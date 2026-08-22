@@ -886,7 +886,7 @@
             background: #245c38;
         }
         .tarifs-content {
-            max-width: 1200px;
+            max-width: 980px;
             margin: 0 auto;
         }
 
@@ -895,15 +895,16 @@
             font-size: 2.5rem;
             text-align: center;
             color: #1a4d2e;
-            margin-bottom: 2rem;
+            margin-bottom: 2.2rem;
             font-style: italic;
         }
 
         .tarifs-grid {
             display: grid;
-            grid-template-columns: 0.6fr 1fr 1fr;
+            grid-template-columns: 1fr 1.15fr 1fr;
             gap: 2rem;
-            align-items: start;
+            align-items: center;
+            justify-items: center;
         }
 
         .tarif-card {
@@ -912,11 +913,21 @@
             padding: 2rem;
             text-align: center;
             box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            width: 100%;
         }
         
+        .tarifs-grid .tarif-card:first-child,
+        .tarifs-grid .tarif-card:last-child {
+            max-width: 220px;
+            margin: auto 0;
+        }
+
+        .tarifs-grid .tarif-card:nth-child(2) {
+            max-width: 320px;
+        }
+
         .tarifs-grid .tarif-card:first-child {
             padding: 1rem 2rem;
-            margin: auto 0;
         }
         
         .tarif-card h3 {
@@ -1848,6 +1859,13 @@
             
             .tarifs-grid .tarif-card:first-child {
                 padding: 2rem;
+            }
+
+            .tarif-card,
+            .tarifs-grid .tarif-card:first-child,
+            .tarifs-grid .tarif-card:nth-child(2),
+            .tarifs-grid .tarif-card:last-child {
+                max-width: none;
             }
 
             .contact-info-panel {
@@ -3012,41 +3030,33 @@
             line-height: 0;
         }
 
-        /* === FOND & COVER — VERSION SIMPLIFIÉE === */
-        #mobile-bg { display: none; }
-
-        #site-cover {
-            position: fixed;
-            inset: 0;
-            z-index: 9998;
-            transition: opacity 0.4s ease;
-            background: #1a2e1a url('https://raw.githubusercontent.com/CapGui13/RR/main/img/bg-desktop.jpg') center top / cover no-repeat;
-            pointer-events: none;
-        }
-
+        /* === FOND MOBILE — COMPORTEMENT STABLE RESTAURÉ === */
         @media (max-width: 1024px) {
-            html { background-color: #0d1f10; }
+            html {
+                background-color: #0d1f10;
+            }
             html::before { display: none; }
-
             #mobile-bg {
                 display: block;
                 position: fixed;
                 top: 0;
                 left: 0;
-                right: 0;
-                bottom: auto;
                 width: 100%;
-                height: 100vh;   /* fallback anciens navigateurs */
-                height: 100lvh;  /* viewport large et stable : évite le zoom Safari */
+                /* Valeur initiale seulement : JS verrouille ensuite window.screen.height en pixels. */
+                height: 100vh;
                 z-index: -1;
                 background: url('https://raw.githubusercontent.com/CapGui13/RR/main/img/bg-mobile.jpg') top center / cover no-repeat;
                 pointer-events: none;
+                will-change: transform;
                 transform: translateZ(0);
             }
-
             #site-cover {
-                background-image: url('https://raw.githubusercontent.com/CapGui13/RR/main/img/bg-mobile.jpg');
-                background-position: top center;
+                background-image: url('https://raw.githubusercontent.com/CapGui13/RR/main/img/bg-mobile.jpg') !important;
+                background-size: cover !important;
+                background-repeat: no-repeat !important;
+                background-position: top center !important;
             }
         }
-
+        @media (min-width: 1025px) {
+            #mobile-bg { display: none; }
+        }

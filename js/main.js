@@ -42,50 +42,6 @@ let _popupTrapCleanup = null;
         });
     
 
-// === CHARGEMENT INITIAL SIMPLIFIÉ ===
-// Le fond est entièrement géré en CSS avec 100lvh sur mobile.
-// On ne mesure plus screen.height, on n'écoute plus orientationchange,
-// et on ne charge plus une deuxième fois l'image via new Image().
-(function () {
-    if ('scrollRestoration' in history) {
-        history.scrollRestoration = 'manual';
-    }
-
-    window.addEventListener('pageshow', function () {
-        window.scrollTo(0, 0);
-    });
-
-    function revealSite() {
-        var cover = document.getElementById('site-cover');
-        if (!cover || cover.dataset.revealed === '1') return;
-        cover.dataset.revealed = '1';
-
-        requestAnimationFrame(function () {
-            requestAnimationFrame(function () {
-                cover.style.opacity = '0';
-                document.body.classList.add('animate');
-
-                if (window._startReveal) {
-                    window._startReveal();
-                } else {
-                    document.addEventListener('_startRevealReady', function () {
-                        if (window._startReveal) window._startReveal();
-                    }, { once: true });
-                }
-            });
-        });
-
-        setTimeout(function () {
-            if (cover.parentNode) cover.remove();
-        }, 420);
-    }
-
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', revealSite, { once: true });
-    } else {
-        revealSite();
-    }
-})();
 
 document.getElementById('currentYear').textContent = new Date().getFullYear();
 
