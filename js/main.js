@@ -1044,8 +1044,21 @@ document.getElementById('currentYear').textContent = new Date().getFullYear();
                         if (!desktopFlyout) {
                             stopDesktopTracking();
                             restorePanelHome();
-                            panel.hidden = !open;
-                            panel.classList.toggle('is-open', open);
+
+                            if (open) {
+                                panel.hidden = false;
+                                panel.classList.remove('is-open');
+                                requestAnimationFrame(() => {
+                                    requestAnimationFrame(() => panel.classList.add('is-open'));
+                                });
+                            } else {
+                                panel.classList.remove('is-open');
+                                closeTimer = setTimeout(() => {
+                                    if (toggle.getAttribute('aria-expanded') === 'false') {
+                                        panel.hidden = true;
+                                    }
+                                }, 760);
+                            }
                             return;
                         }
 
@@ -1762,16 +1775,29 @@ document.getElementById('currentYear').textContent = new Date().getFullYear();
                 }
             }
 
+            const refreshTabletLogoText = () => {
+                if (isTablet()) centerLogoText();
+                else reset();
+            };
+
             document.addEventListener('DOMContentLoaded', function() {
-                // Plus besoin de délai : logo-text est déjà position:absolute en CSS.
-                // Le JS ne fait que calculer les coordonnées left/bottom → pas de reflow.
-                if (isTablet()) centerLogoText();
-                else reset();
+                refreshTabletLogoText();
+
+                // Au tout premier affichage, le logo Comité peut ne pas encore avoir
+                // sa largeur définitive. On recentre dès son chargement pour éviter
+                // que « Bridge Club du Roy René » parte derrière le bouton Facebook.
+                const committeeLogo = document.querySelector('.logo-right-inner img');
+                if (committeeLogo && !committeeLogo.complete) {
+                    committeeLogo.addEventListener('load', refreshTabletLogoText, { once: true });
+                }
+
+                if (document.fonts && document.fonts.ready) {
+                    document.fonts.ready.then(refreshTabletLogoText).catch(() => {});
+                }
             });
-            registerResizeHandler(function() {
-                if (isTablet()) centerLogoText();
-                else reset();
-            });
+
+            window.addEventListener('load', refreshTabletLogoText, { once: true });
+            registerResizeHandler(refreshTabletLogoText);
         })();
     
 

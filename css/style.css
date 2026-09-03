@@ -1013,6 +1013,64 @@
             transform: translateY(-50%) rotate(225deg);
         }
 
+        /* Tablette/mobile : le programme s'ouvre vers le bas, donc la flèche suit ce sens. */
+        @media (max-width: 1200px) {
+            .atelier-program-toggle::before {
+                right: 1rem;
+                top: 50%;
+                width: 2px;
+                height: 0.76rem;
+                transform: translate(50%, -54%);
+            }
+
+            .atelier-program-toggle::after {
+                right: calc(1rem - 0.21rem);
+                top: calc(50% + 0.13rem);
+                width: 0.42rem;
+                height: 0.42rem;
+                border-top: 0;
+                border-right: 2px solid currentColor;
+                border-bottom: 2px solid currentColor;
+                transform: rotate(45deg);
+            }
+
+            .atelier-program-toggle[aria-expanded="true"]::before {
+                transform: translate(50%, -54%);
+            }
+
+            .atelier-program-toggle[aria-expanded="true"]::after {
+                top: calc(50% - 0.05rem);
+                transform: rotate(225deg);
+            }
+
+            .atelier-program-full:not(.atelier-program-full--portal) {
+                max-height: 0;
+                overflow: hidden;
+                opacity: 0;
+                transform: translateY(-10px);
+                margin-top: 0;
+                padding-top: 0;
+                border-top: 1px solid transparent;
+                transition:
+                    max-height 0.75s cubic-bezier(0.22, 1, 0.36, 1),
+                    opacity 0.5s ease,
+                    transform 0.75s cubic-bezier(0.22, 1, 0.36, 1),
+                    margin-top 0.75s cubic-bezier(0.22, 1, 0.36, 1),
+                    padding-top 0.75s cubic-bezier(0.22, 1, 0.36, 1),
+                    border-color 0.35s ease;
+            }
+
+            .atelier-program-full:not(.atelier-program-full--portal).is-open {
+                max-height: 1200px;
+                overflow: hidden;
+                opacity: 1;
+                transform: translateY(0);
+                margin-top: 0.55rem;
+                padding-top: 0.5rem;
+                border-top-color: rgba(0,0,0,0.08);
+            }
+        }
+
         .atelier-program-full[hidden] { display: none !important; }
 
         @media (min-width: 1201px) {
@@ -1051,7 +1109,7 @@
             }
         }
 
-        @media (max-width: 720px) {
+        @media (max-width: 599px) {
             .course-list {
                 grid-template-columns: 1fr;
             }
@@ -1067,12 +1125,6 @@
             .atelier-next-label {
                 grid-column: 2;
                 width: max-content;
-            }
-
-            .atelier-program-full {
-                margin-top: 0.55rem;
-                padding-top: 0.5rem;
-                border-top: 1px solid rgba(0,0,0,0.08);
             }
 
             .course-list.single-course {
