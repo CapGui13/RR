@@ -205,7 +205,10 @@
     }
     </script>
     
-        <link rel="stylesheet" href="css/style.css?v=20260903-8">
+        <!-- Fond de secours immédiat : évite le flash blanc avant le chargement du CSS / de l'image -->
+        <style>html { background-color: #1a2e1f; }</style>
+        <link rel="preload" as="image" href="img/bg-desktop.jpg" media="(min-width: 1025px)">
+        <link rel="stylesheet" href="css/style.css?v=20260903-1">
     
     
 </head>
@@ -611,6 +614,6 @@
     </footer>
 
     <script defer src="js/gallery.js?v=20260903-1"></script>
-    <script defer src="js/main.js?v=20260903-6"></script>
+    <script defer src="js/main.js?v=20260903-1"></script>
 </body>
 </html>

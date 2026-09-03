@@ -976,19 +976,65 @@ document.getElementById('currentYear').textContent = new Date().getFullYear();
                 coursContainer.innerHTML = html;
 
                 coursContainer.querySelectorAll('.atelier-program-toggle').forEach(toggle => {
+                    const panel = document.getElementById(toggle.getAttribute('aria-controls'));
+                    if (!panel) return;
+
+                    const originalParent = panel.parentNode;
+                    const originalNextSibling = panel.nextSibling;
+                    const programmeCard = toggle.closest('.atelier-program-card');
                     let closeTimer = null;
+                    let desktopTracking = false;
+
+                    const restorePanelHome = () => {
+                        if (panel.parentNode !== originalParent) {
+                            originalParent.insertBefore(panel, originalNextSibling);
+                        }
+                        panel.classList.remove('atelier-program-full--portal', 'is-open');
+                        panel.style.removeProperty('left');
+                        panel.style.removeProperty('top');
+                        panel.style.removeProperty('max-height');
+                    };
+
+                    const positionDesktopPanel = () => {
+                        if (!programmeCard || panel.parentNode !== document.body) return;
+
+                        const anchor = programmeCard.getBoundingClientRect();
+                        const viewportPadding = 12;
+                        const gap = 14;
+                        const panelWidth = Math.min(390, window.innerWidth * 0.34);
+                        const naturalLeft = anchor.right + gap;
+                        const left = Math.min(
+                            naturalLeft,
+                            Math.max(viewportPadding, window.innerWidth - panelWidth - viewportPadding)
+                        );
+                        const top = Math.max(viewportPadding, Math.min(anchor.top, window.innerHeight - 190));
+                        const availableHeight = Math.max(180, window.innerHeight - top - viewportPadding);
+
+                        panel.style.left = `${Math.round(left)}px`;
+                        panel.style.top = `${Math.round(top)}px`;
+                        panel.style.maxHeight = `${Math.floor(availableHeight)}px`;
+                    };
+
+                    const startDesktopTracking = () => {
+                        if (desktopTracking) return;
+                        window.addEventListener('scroll', positionDesktopPanel, { passive: true });
+                        window.addEventListener('resize', positionDesktopPanel, { passive: true });
+                        desktopTracking = true;
+                    };
+
+                    const stopDesktopTracking = () => {
+                        if (!desktopTracking) return;
+                        window.removeEventListener('scroll', positionDesktopPanel);
+                        window.removeEventListener('resize', positionDesktopPanel);
+                        desktopTracking = false;
+                    };
 
                     toggle.addEventListener('click', () => {
-                        const panel = document.getElementById(toggle.getAttribute('aria-controls'));
-                        if (!panel) return;
-
                         const open = toggle.getAttribute('aria-expanded') !== 'true';
                         const desktopFlyout = window.matchMedia('(min-width: 1201px)').matches;
-                        const sectionCard = toggle.closest('.section-card');
 
                         toggle.setAttribute('aria-expanded', String(open));
                         toggle.textContent = open ? 'Masquer les autres dates' : 'Voir les autres dates';
-                        if (sectionCard) sectionCard.classList.toggle('workshop-flyout-open', open);
 
                         if (closeTimer) {
                             clearTimeout(closeTimer);
@@ -996,6 +1042,8 @@ document.getElementById('currentYear').textContent = new Date().getFullYear();
                         }
 
                         if (!desktopFlyout) {
+                            stopDesktopTracking();
+                            restorePanelHome();
                             panel.hidden = !open;
                             panel.classList.toggle('is-open', open);
                             return;
@@ -1004,14 +1052,32 @@ document.getElementById('currentYear').textContent = new Date().getFullYear();
                         if (open) {
                             panel.hidden = false;
                             panel.classList.remove('is-open');
+                            panel.classList.add('atelier-program-full--portal');
+                            document.body.appendChild(panel);
+                            positionDesktopPanel();
+                            startDesktopTracking();
                             requestAnimationFrame(() => {
                                 requestAnimationFrame(() => panel.classList.add('is-open'));
                             });
                         } else {
                             panel.classList.remove('is-open');
+                            stopDesktopTracking();
                             closeTimer = setTimeout(() => {
-                                if (toggle.getAttribute('aria-expanded') === 'false') panel.hidden = true;
+                                if (toggle.getAttribute('aria-expanded') === 'false') {
+                                    panel.hidden = true;
+                                    restorePanelHome();
+                                }
                             }, 900);
+                        }
+                    });
+
+                    window.matchMedia('(min-width: 1201px)').addEventListener?.('change', () => {
+                        if (toggle.getAttribute('aria-expanded') === 'true') {
+                            toggle.setAttribute('aria-expanded', 'false');
+                            toggle.textContent = 'Voir les autres dates';
+                            stopDesktopTracking();
+                            panel.hidden = true;
+                            restorePanelHome();
                         }
                     });
                 });

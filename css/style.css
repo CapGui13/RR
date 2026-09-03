@@ -1016,21 +1016,19 @@
         .atelier-program-full[hidden] { display: none !important; }
 
         @media (min-width: 1201px) {
-            .section-card.workshop-flyout-open {
-                content-visibility: visible;
-                overflow: visible;
-                position: relative;
-                z-index: 20;
-            }
-
-            .atelier-program-full {
-                position: absolute;
-                left: calc(100% + 0.85rem);
-                top: 0;
+            /*
+             * Le détail des ateliers est déplacé temporairement dans <body> par le JS.
+             * En position:fixed, il reste visuellement collé au bloc « Ateliers à venir »
+             * mais ne participe jamais au scroll/overflow du document : aucun décalage du
+             * fond ni du footer, même quand on fait défiler la liste jusqu'en bas.
+             */
+            .atelier-program-full.atelier-program-full--portal {
+                position: fixed;
                 width: 390px;
                 max-width: min(390px, 34vw);
-                max-height: min(430px, 70vh);
                 overflow-y: auto;
+                overscroll-behavior: contain;
+                scrollbar-gutter: stable;
                 margin: 0;
                 padding: 0.75rem 0.9rem;
                 border: 1px solid rgba(102, 126, 234, 0.28);
@@ -1038,15 +1036,16 @@
                 border-radius: 8px;
                 background: #fff;
                 box-shadow: 0 10px 28px rgba(0,0,0,0.16);
-                z-index: 40;
+                z-index: 1000;
                 opacity: 0;
                 transform: translateX(-34px);
                 transition: opacity 0.9s cubic-bezier(0.22, 1, 0.36, 1),
                             transform 0.9s cubic-bezier(0.22, 1, 0.36, 1);
                 will-change: opacity, transform;
+                contain: layout paint style;
             }
 
-            .atelier-program-full.is-open {
+            .atelier-program-full.atelier-program-full--portal.is-open {
                 opacity: 1;
                 transform: translateX(0);
             }
