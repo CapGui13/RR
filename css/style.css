@@ -1860,6 +1860,17 @@
             max-height: 80vh;
             object-fit: contain;
             border-radius: 8px;
+            transform: translate3d(0, 0, 0);
+            opacity: 1;
+            transition: transform 0.24s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.18s ease-out;
+            will-change: transform, opacity;
+            backface-visibility: hidden;
+        }
+
+        /* Pendant un swipe tactile, l'image suit le doigt sans interpolation.
+           Au relâchement, JS remet la transition ci-dessus pour une arrivée fluide. */
+        .lightbox-img.is-touch-dragging {
+            transition: none !important;
         }
 
         .lightbox-close {
@@ -2459,6 +2470,44 @@
                 grid-row: 3;
                 align-self: center;
                 margin-top: 0 !important;
+            }
+        }
+
+
+        /* === TABLETTE : finitions modales (sans impact desktop/mobile) === */
+        @media (min-width: 600px) and (max-width: 1199px) {
+            /* "Email : adresse" reste sur la même ligne dans Nous trouver. */
+            .dropdown-info-coords .location-email {
+                white-space: nowrap;
+                letter-spacing: -0.01em;
+                font-size: 0.96rem;
+            }
+
+            /* Tarifs : même contenu, simplement un peu moins d'air pour éviter
+               un petit scroll vertical inutile sur tablette. */
+            #tarifsDropdown .dropdown-modal {
+                padding-top: 1.55rem;
+                padding-bottom: 1.55rem;
+            }
+            #tarifsDropdown .tarifs-title {
+                margin-bottom: 1.25rem;
+            }
+            #tarifsDropdown .tarifs-grid {
+                gap: 0.9rem;
+            }
+            #tarifsDropdown .tarif-card,
+            #tarifsDropdown .tarifs-grid .tarif-card:first-child {
+                padding: 1.3rem 1.5rem;
+            }
+            #tarifsDropdown .tarif-card h3 {
+                margin-bottom: 0.85rem;
+            }
+            #tarifsDropdown .tarif-card p {
+                margin: 0.3rem 0;
+                line-height: 1.55;
+            }
+            #tarifsDropdown .tarif-price {
+                margin: 0.45rem 0;
             }
         }
 
