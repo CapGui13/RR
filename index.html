@@ -205,8 +205,21 @@
     }
     </script>
     
-        <!-- Fond de secours immédiat : évite le flash blanc avant le chargement du CSS / de l'image -->
-        <style>html { background-color: #1a2e1f; }</style>
+        <!-- Fond de secours immédiat + stabilité du premier layout -->
+        <style>
+            html { background-color: #1a2e1f; }
+            /* Le contenu principal est rempli par JS au DOMContentLoaded. Masquer le footer
+               pendant ces toutes premières frames évite qu'il apparaisse trop haut à froid. */
+            html:not(.rr-layout-ready) .site-footer {
+                visibility: hidden !important;
+                opacity: 0 !important;
+            }
+            html.rr-layout-ready .site-footer {
+                visibility: visible;
+                opacity: 1;
+                transition: opacity 160ms ease-out;
+            }
+        </style>
         <link rel="preload" as="image" href="img/bg-desktop.jpg" media="(min-width: 1025px)">
         <link rel="preload" as="image" href="img/bg-mobile.jpg" media="(max-width: 1024px)">
         <link rel="stylesheet" href="css/style.css?v=20260903-4">
@@ -220,7 +233,7 @@
             <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
         </symbol>
     </svg>
-    <noscript><style>#site-cover{display:none}</style></noscript>
+    <noscript><style>#site-cover{display:none} .site-footer{visibility:visible!important;opacity:1!important}</style></noscript>
     <!-- Fond mobile : comportement stable restauré depuis la dernière version validée -->
     <div id="mobile-bg"></div>
     <script>
@@ -273,9 +286,14 @@
                 if (done) return; done = true;
                 function doReveal() {
                     var c = document.getElementById('site-cover');
-                    if (c) c.style.opacity = '0';
+
+                    /* Attendre la fin de DOMContentLoaded + deux frames : les listeners de
+                       main.js ont alors rempli Cours/Tournois/Actualités et le footer est à
+                       sa position définitive avant que la page soit découverte. */
                     requestAnimationFrame(function() {
                         requestAnimationFrame(function() {
+                            document.documentElement.classList.add('rr-layout-ready');
+                            if (c) c.style.opacity = '0';
                             document.body.classList.add('animate');
                             if (window._startReveal) {
                                 window._startReveal();
@@ -284,9 +302,9 @@
                                     if (window._startReveal) window._startReveal();
                                 }, { once: true });
                             }
+                            setTimeout(function(){ if(c && c.parentNode) c.remove(); }, 400);
                         });
                     });
-                    setTimeout(function(){ if(c && c.parentNode) c.remove(); }, 400);
                 }
                 if (document.readyState === 'loading') {
                     document.addEventListener('DOMContentLoaded', doReveal);
