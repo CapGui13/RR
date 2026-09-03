@@ -1047,27 +1047,32 @@
                 max-height: 0;
                 overflow: hidden;
                 opacity: 0;
-                transform: translateY(-10px);
+                transform: translate3d(0, -6px, 0);
                 margin-top: 0;
                 padding-top: 0;
                 border-top: 1px solid transparent;
                 transition:
-                    max-height 0.75s cubic-bezier(0.22, 1, 0.36, 1),
-                    opacity 0.5s ease,
-                    transform 0.75s cubic-bezier(0.22, 1, 0.36, 1),
-                    margin-top 0.75s cubic-bezier(0.22, 1, 0.36, 1),
-                    padding-top 0.75s cubic-bezier(0.22, 1, 0.36, 1),
-                    border-color 0.35s ease;
+                    max-height 0.62s cubic-bezier(0.22, 1, 0.36, 1),
+                    opacity 0.34s ease,
+                    transform 0.52s cubic-bezier(0.22, 1, 0.36, 1),
+                    margin-top 0.52s cubic-bezier(0.22, 1, 0.36, 1),
+                    padding-top 0.52s cubic-bezier(0.22, 1, 0.36, 1),
+                    border-color 0.28s ease;
+                will-change: max-height, opacity, transform;
             }
 
             .atelier-program-full:not(.atelier-program-full--portal).is-open {
-                max-height: 1200px;
+                max-height: var(--atelier-panel-height, 1200px);
                 overflow: hidden;
                 opacity: 1;
-                transform: translateY(0);
+                transform: translate3d(0, 0, 0);
                 margin-top: 0.55rem;
                 padding-top: 0.5rem;
                 border-top-color: rgba(0,0,0,0.08);
+            }
+
+            .atelier-program-full:not(.atelier-program-full--portal).is-closing {
+                transition-duration: 0.44s, 0.25s, 0.38s, 0.38s, 0.38s, 0.22s;
             }
         }
 
@@ -1096,16 +1101,23 @@
                 box-shadow: 0 10px 28px rgba(0,0,0,0.16);
                 z-index: 1000;
                 opacity: 0;
-                transform: translateX(-34px);
-                transition: opacity 0.9s cubic-bezier(0.22, 1, 0.36, 1),
-                            transform 0.9s cubic-bezier(0.22, 1, 0.36, 1);
+                transform: translate3d(-18px, 0, 0);
+                pointer-events: none;
+                transition: opacity 0.46s cubic-bezier(0.22, 1, 0.36, 1),
+                            transform 0.58s cubic-bezier(0.22, 1, 0.36, 1);
                 will-change: opacity, transform;
+                backface-visibility: hidden;
                 contain: layout paint style;
             }
 
             .atelier-program-full.atelier-program-full--portal.is-open {
                 opacity: 1;
-                transform: translateX(0);
+                transform: translate3d(0, 0, 0);
+                pointer-events: auto;
+            }
+
+            .atelier-program-full.atelier-program-full--portal.is-closing {
+                transition-duration: 0.28s, 0.34s;
             }
         }
 

@@ -984,15 +984,34 @@ document.getElementById('currentYear').textContent = new Date().getFullYear();
                     const programmeCard = toggle.closest('.atelier-program-card');
                     let closeTimer = null;
                     let desktopTracking = false;
+                    let closeEndHandler = null;
 
-                    const restorePanelHome = () => {
+                    const cancelPendingClose = () => {
+                        if (closeTimer) {
+                            clearTimeout(closeTimer);
+                            closeTimer = null;
+                        }
+                        if (closeEndHandler) {
+                            panel.removeEventListener('transitionend', closeEndHandler);
+                            closeEndHandler = null;
+                        }
+                        panel.classList.remove('is-closing');
+                    };
+
+                    const movePanelHome = () => {
                         if (panel.parentNode !== originalParent) {
                             originalParent.insertBefore(panel, originalNextSibling);
                         }
-                        panel.classList.remove('atelier-program-full--portal', 'is-open');
+                        panel.classList.remove('atelier-program-full--portal');
                         panel.style.removeProperty('left');
                         panel.style.removeProperty('top');
                         panel.style.removeProperty('max-height');
+                    };
+
+                    const restorePanelHome = () => {
+                        movePanelHome();
+                        panel.classList.remove('is-open', 'is-closing');
+                        panel.style.removeProperty('--atelier-panel-height');
                     };
 
                     const positionDesktopPanel = () => {
@@ -1029,58 +1048,77 @@ document.getElementById('currentYear').textContent = new Date().getFullYear();
                         desktopTracking = false;
                     };
 
+                    const hideWhenTransitionFinishes = (propertyName, fallbackMs, onDone) => {
+                        cancelPendingClose();
+                        panel.classList.add('is-closing');
+
+                        const finish = () => {
+                            if (closeEndHandler) {
+                                panel.removeEventListener('transitionend', closeEndHandler);
+                                closeEndHandler = null;
+                            }
+                            if (closeTimer) {
+                                clearTimeout(closeTimer);
+                                closeTimer = null;
+                            }
+                            panel.classList.remove('is-closing');
+                            if (toggle.getAttribute('aria-expanded') === 'false') onDone();
+                        };
+
+                        closeEndHandler = (event) => {
+                            if (event.target !== panel || event.propertyName !== propertyName) return;
+                            finish();
+                        };
+                        panel.addEventListener('transitionend', closeEndHandler);
+                        closeTimer = setTimeout(finish, fallbackMs);
+                    };
+
                     toggle.addEventListener('click', () => {
                         const open = toggle.getAttribute('aria-expanded') !== 'true';
                         const desktopFlyout = window.matchMedia('(min-width: 1201px)').matches;
 
                         toggle.setAttribute('aria-expanded', String(open));
                         toggle.textContent = open ? 'Masquer les autres dates' : 'Voir les autres dates';
-
-                        if (closeTimer) {
-                            clearTimeout(closeTimer);
-                            closeTimer = null;
-                        }
+                        cancelPendingClose();
 
                         if (!desktopFlyout) {
                             stopDesktopTracking();
-                            restorePanelHome();
+                            movePanelHome();
 
                             if (open) {
                                 panel.hidden = false;
-                                panel.classList.remove('is-open');
-                                requestAnimationFrame(() => {
-                                    requestAnimationFrame(() => panel.classList.add('is-open'));
-                                });
+                                panel.classList.remove('is-open', 'is-closing');
+                                panel.style.setProperty('--atelier-panel-height', `${panel.scrollHeight}px`);
+                                void panel.offsetHeight;
+                                requestAnimationFrame(() => panel.classList.add('is-open'));
                             } else {
+                                panel.style.setProperty('--atelier-panel-height', `${panel.scrollHeight}px`);
+                                void panel.offsetHeight;
                                 panel.classList.remove('is-open');
-                                closeTimer = setTimeout(() => {
-                                    if (toggle.getAttribute('aria-expanded') === 'false') {
-                                        panel.hidden = true;
-                                    }
-                                }, 760);
+                                hideWhenTransitionFinishes('max-height', 520, () => {
+                                    panel.hidden = true;
+                                    panel.style.removeProperty('--atelier-panel-height');
+                                });
                             }
                             return;
                         }
 
                         if (open) {
                             panel.hidden = false;
-                            panel.classList.remove('is-open');
+                            panel.classList.remove('is-open', 'is-closing');
                             panel.classList.add('atelier-program-full--portal');
                             document.body.appendChild(panel);
                             positionDesktopPanel();
                             startDesktopTracking();
-                            requestAnimationFrame(() => {
-                                requestAnimationFrame(() => panel.classList.add('is-open'));
-                            });
+                            void panel.offsetWidth;
+                            requestAnimationFrame(() => panel.classList.add('is-open'));
                         } else {
                             panel.classList.remove('is-open');
                             stopDesktopTracking();
-                            closeTimer = setTimeout(() => {
-                                if (toggle.getAttribute('aria-expanded') === 'false') {
-                                    panel.hidden = true;
-                                    restorePanelHome();
-                                }
-                            }, 900);
+                            hideWhenTransitionFinishes('transform', 430, () => {
+                                panel.hidden = true;
+                                restorePanelHome();
+                            });
                         }
                     });
 
@@ -1088,6 +1126,7 @@ document.getElementById('currentYear').textContent = new Date().getFullYear();
                         if (toggle.getAttribute('aria-expanded') === 'true') {
                             toggle.setAttribute('aria-expanded', 'false');
                             toggle.textContent = 'Voir les autres dates';
+                            cancelPendingClose();
                             stopDesktopTracking();
                             panel.hidden = true;
                             restorePanelHome();
