@@ -95,28 +95,28 @@
           "dayOfWeek": "Monday",
           "opens": "10:00",
           "closes": "12:00",
-          "description": "Cours débutants et perfectionnement"
-        },
-        {
-          "@type": "OpeningHoursSpecification",
-          "dayOfWeek": "Thursday",
-          "opens": "18:00",
-          "closes": "20:00",
-          "description": "Cours débutants"
+          "description": "Cours débutants et 2ème année"
         },
         {
           "@type": "OpeningHoursSpecification",
           "dayOfWeek": "Wednesday",
           "opens": "10:00",
           "closes": "12:00",
-          "description": "Cours 2ème année et perfectionnement"
+          "description": "Cours 3ème année et jeu de la carte (perfectionnement)"
+        },
+        {
+          "@type": "OpeningHoursSpecification",
+          "dayOfWeek": "Wednesday",
+          "opens": "18:00",
+          "closes": "20:00",
+          "description": "Cours 1ère année avancé / 2ème année"
         },
         {
           "@type": "OpeningHoursSpecification",
           "dayOfWeek": "Friday",
           "opens": "10:00",
           "closes": "12:00",
-          "description": "Cours 3ème année"
+          "description": "Ateliers enchères (perfectionnement)"
         }
       ],
       "priceRange": "41€-85€",
@@ -174,7 +174,7 @@
           "name": "Quels sont les horaires des cours de bridge ?",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "Le Bridge Club Roy René propose des cours de bridge pour débutants le lundi de 10h à 12h et le jeudi de 18h à 20h. Les cours de 2ème année ont lieu le lundi de 18h à 20h et le mercredi de 10h à 12h. Les cours de 3ème année se déroulent le vendredi de 10h à 12h."
+            "text": "À partir du 14 septembre 2026, les débutants et la 2ème année ont cours le lundi de 10h à 12h. Le mercredi de 10h à 12h, le club propose la 3ème année et le jeu de la carte (perfectionnement) ; de 18h à 20h, un cours 1ère année avancé / 2ème année. Le vendredi de 10h à 12h ont lieu les ateliers enchères (perfectionnement)."
           }
         },
         {
@@ -306,11 +306,11 @@
     </script>
     <!-- BOUTON RETOUR EN HAUT -->
     <button class="back-to-top" id="backToTop" aria-label="Retour en haut">↑</button>
-    <!-- POPUP ACCUEIL -->
+    <!-- POPUP ACCUEIL — structure conservée pour une prochaine annonce ; contenu actuellement vide et popup désactivé -->
     <div class="popup-overlay popup-hidden" id="welcomePopup" aria-hidden="true" inert>
         <div class="popup-card popup-card-image">
             <button type="button" class="popup-close popup-close-solid" id="welcomePopupClose" aria-label="Fermer">✕</button>
-            <img src="/img/popup-marathon.jpg" alt="Marathon du 1er Mai - Bridge Club Roy René" loading="lazy" class="popup-image">
+            <div id="welcomePopupContent"></div>
         </div>
     </div>
 

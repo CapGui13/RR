@@ -9,3 +9,22 @@ Modifications appliquées :
 - chargement mobile simplifié : CSS 100lvh + cover CSS, suppression de screen.height, orientationchange et double préchargement JS.
 
 Le contenu saisonnier / point 2 de l'audit n'a pas été modifié.
+- Cours : suppression des mentions de date de début dans chaque sous-section ; la reprise est affichée uniquement en haut au 14 septembre 2026.
+
+- Cours : horaires centrés ; « Jeu de la carte (perfectionnement) » avec parenthèse à la ligne ; césure avant « / 2ème année » ; « Ateliers thématiques enchères (perfectionnement) ».
+
+- Cours : « Ateliers enchères (perfectionnement) » avec « (perfectionnement) » à la ligne ; retour à la ligne entre « Frédéric Le Gall » et « & Muriel Trouillez ».
+- Coupe de Provence : finale ajoutée au 23/06.
+
+- Cours : centrage des créneaux avec un seul cours (mercredi 18 h à 20 h et vendredi 10 h à 12 h).
+- Ajustement des cours seuls : carte conservée à la largeur d'une demi-colonne et centrée horizontalement.
+- Actualités : suppression des anciennes annonces obsolètes et ajout des Ateliers du 1er trimestre.
+- Actualités : les ateliers passés deviennent automatiquement grisés et barrés selon la date.
+- Ateliers : saut de ligne après « 12 h. », dates au format JJ/MM et léger espacement supplémentaire entre les lignes.
+- Coupe des Clubs : anciennes dates retirées ; affichage temporaire « Calendrier 2026–2027 / Dates à venir » sans modifier la carte.
+- Le mécanisme automatique du badge « PROCHAIN » est conservé pour les futures dates.
+
+- Ateliers : correction du 26/09 en 25/09/2026.
+- Dates : ajout d’années explicites pour les calculs automatiques des ateliers et de la Coupe de Provence, sans changement d’affichage.
+- Sitemap : lastmod mis à jour au 03/09/2026.
+- Popup : suppression du contenu/visuel obsolète « Marathon du 1er Mai » ; infrastructure conservée et désactivée pour une future annonce.

@@ -739,6 +739,44 @@
             color: #777;
         }
 
+        .ateliers-item .atelier-intro {
+            margin-bottom: 0.65rem;
+        }
+
+        .ateliers-item .atelier-intro span {
+            display: block;
+        }
+
+        .atelier-list {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 0.42rem;
+        }
+
+        .atelier-line {
+            color: #444;
+            font-size: 0.8rem;
+            line-height: 1.35;
+        }
+
+        .atelier-date {
+            font-weight: 700;
+            color: #c0392b;
+        }
+
+        .atelier-line.past {
+            color: #8a8a8a;
+            text-decoration: line-through;
+        }
+
+        .atelier-line.past .atelier-date,
+        .atelier-line.past .atelier-theme {
+            color: inherit;
+        }
+
         .teacher-section {
             margin-bottom: 1rem;
         }
@@ -764,6 +802,97 @@
 
         .schedule .day { min-width: 80px; }
         .schedule .time { margin-left: 1rem; }
+
+
+        /* === COURS — organisation par jour === */
+        .course-day-section {
+            margin-bottom: 1.1rem;
+        }
+
+        .course-day-title {
+            color: white;
+            font-size: 1rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            margin-bottom: 0.65rem;
+            padding: 0.6rem 0.75rem;
+            border-radius: 6px;
+            text-align: center;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .course-timeslot {
+            margin-bottom: 0.85rem;
+        }
+
+        .course-time {
+            display: block;
+            width: max-content;
+            max-width: 100%;
+            color: #5f4c91;
+            background: #f0ecf9;
+            border: 1px solid rgba(118, 75, 162, 0.18);
+            border-radius: 999px;
+            padding: 0.25rem 0.7rem;
+            margin: 0 auto 0.5rem;
+            font-size: 0.86rem;
+            font-weight: 700;
+            text-align: center;
+        }
+
+        .course-list {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 0.7rem;
+        }
+
+        .course-list.single-course {
+            display: flex;
+            justify-content: center;
+        }
+
+        .course-list.single-course .course-info {
+            width: calc((100% - 0.7rem) / 2);
+        }
+
+        .course-info {
+            margin-bottom: 0;
+        }
+
+        .course-info h3 {
+            white-space: pre-line;
+        }
+
+        .course-teacher {
+            margin-top: 0.1rem;
+        }
+
+        .course-teacher strong {
+            white-space: pre-line;
+        }
+
+        .course-start {
+            margin-top: 0.25rem;
+        }
+
+        @media (max-width: 720px) {
+            .course-list {
+                grid-template-columns: 1fr;
+            }
+
+            .course-list.single-course {
+                display: grid;
+            }
+
+            .course-list.single-course .course-info {
+                width: 100%;
+            }
+
+            .course-day-title {
+                font-size: 0.95rem;
+            }
+        }
 
         /* Toggle accordion — masqué sur desktop, visible seulement via media mobile */
         .section-card-toggle {

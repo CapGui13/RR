@@ -114,22 +114,33 @@ document.getElementById('currentYear').textContent = new Date().getFullYear();
             },
 
             // --- Cours ---
-            reprise: "15 Septembre 2025",
+            reprise: "14 septembre 2026",
 
             enseignants: [
                 {
-                    nom: "Muriel Trouillez & Frédéric Le Gall",
+                    nom: "Muriel Trouillez",
                     cours: [
-                        { niveau: "Débutants",    horaires: [{ jour: "Lundi",    heure: "10 h à 12 h" }, { jour: "Jeudi",     heure: "18 h à 20 h" }] },
-                        { niveau: "2ème année",   horaires: [{ jour: "Lundi",    heure: "18 h à 20 h" }, { jour: "Mercredi",  heure: "10 h à 12 h" }] },
-                        { niveau: "3ème année",   horaires: [{ jour: "Vendredi", heure: "10 h à 12 h" }] },
+                        { niveau: "Débutants", horaires: [{ jour: "Lundi", heure: "10 h à 12 h" }] },
+                        { niveau: "3ème année", horaires: [{ jour: "Mercredi", heure: "10 h à 12 h" }] },
+                    ]
+                },
+                {
+                    nom: "Frédéric Le Gall",
+                    cours: [
+                        { niveau: "2ème année", horaires: [{ jour: "Lundi", heure: "10 h à 12 h" }] },
+                        { niveau: "1ère année avancé\n/ 2ème année", horaires: [{ jour: "Mercredi", heure: "18 h à 20 h" }] },
                     ]
                 },
                 {
                     nom: "William Audibert",
                     cours: [
-                        { niveau: "Perfectionnement 1", horaires: [{ jour: "Lundi",    heure: "10 h à 12 h" }] },
-                        { niveau: "Perfectionnement 2", horaires: [{ jour: "Mercredi", heure: "10 h à 12 h" }] },
+                        { niveau: "Jeu de la carte\n(perfectionnement)", horaires: [{ jour: "Mercredi", heure: "10 h à 12 h" }] },
+                    ]
+                },
+                {
+                    nom: "Frédéric Le Gall\n& Muriel Trouillez",
+                    cours: [
+                        { niveau: "Ateliers enchères\n(perfectionnement)", horaires: [{ jour: "Vendredi", heure: "10 h à 12 h" }] },
                     ]
                 },
             ],
@@ -141,52 +152,49 @@ document.getElementById('currentYear').textContent = new Date().getFullYear();
                 inscriptionsUrl: "https://www.ffbridge.fr/competitions/entries?competitionType=club&page=1&itemsPerPage=80&clubId=1302",
             },
 
-            // Mettre passed:true pour barrer une date
+            // Remplacer ce contenu d'attente par les nouvelles dates dès publication.
+            // Utiliser { date: "JJ/MM", dateTri: "JJ/MM/AAAA" } : le badge « PROCHAIN »
+            // se replace automatiquement sur la première date future, sans ambiguïté d'année.
             coupeDesClubs: [
-                { date: "08/10", passed: true  },
-                { date: "22/10", passed: true  },
-                { date: "12/11", passed: true  },
-                { date: "19/11", passed: true  },
-                { date: "10/12", passed: true  },
-                { date: "11/12", passed: true  },
-                { date: "21/01", passed: true  },
-                { date: "18/02", passed: true  },
-                { date: "11/03", passed: true  },
-                { date: "25/03", passed: true  },
-                { date: "08/04", passed: true  },
-                { date: "22/04", passed: false, prochain: true },
-                { date: "06/05", passed: false },
-                { date: "13/05", passed: false },
-                { date: "20/06", passed: false, finale: true  },
+                { placeholder: "Calendrier 2026–2027" },
+                { placeholder: "Dates à venir" },
             ],
 
             coupeDeProvence: [
-                { date: "26/11", passed: true  },
-                { date: "28/01", passed: true  },
-                { date: "25/02", passed: true  },
-                { date: "18/03", passed: true  },
-                { date: "29/04", passed: false, prochain: true },
-                { date: "27/05", passed: false },
-                { date: "24/06", passed: false, finale: true  },
+                { date: "26/11", dateTri: "26/11/2026" },
+                { date: "27/01", dateTri: "27/01/2027" },
+                { date: "24/02", dateTri: "24/02/2027" },
+                { date: "24/03", dateTri: "24/03/2027" },
+                { date: "14/04", dateTri: "14/04/2027" },
+                { date: "19/05", dateTri: "19/05/2027" },
+                { date: "23/06", dateTri: "23/06/2027", finale: true },
             ],
 
             // --- Actualités ---
             actualites: [
                 {
-                    dateAffichee: "Vendredi 17 Avril 2026",
-                    dateTri:      "17/04",
-                    description:  "Tournoi Tutorat suivi d'un apéritif.",
-                },
-                {
-                    dateAffichee: "Vendredi 1er Mai 2026",
-                    dateTri:      "01/05",
-                    description:  "Tournoi le matin à 10h — Paëlla — Tournoi l'après-midi à 14h30.",
-                    note:         "Gratuit pour les membres du club.",
-                },
-                {
-                    dateAffichee: "11 & 12 Juin 2026 — Voyage de fin d'année",
-                    dateTri:      "11/06",
-                    description:  "Escapade dans les Alpilles.",
+                    type: "ateliers",
+                    titre: "Ateliers du 1er trimestre",
+                    introLignes: [
+                        "Ces ateliers sont ouverts à tous et se déroulent le vendredi de 10 h à 12 h.",
+                        "Si vous souhaitez y participer, vous pouvez vous inscrire sur le site de la fédération, comme pour un tournoi du club.",
+                    ],
+                    lignes: [
+                        { dateAffichee: "18/09", dateTri: "18/09/2026", description: "Les Texas Mineurs" },
+                        { dateAffichee: "25/09", dateTri: "25/09/2026", description: "Les enchères après passe" },
+                        { dateAffichee: "02/10", dateTri: "02/10/2026", description: "Donnes d’entraînement" },
+                        { dateAffichee: "09/10", dateTri: "09/10/2026", description: "Trouver le meilleur contrat, SA ou en majeure ? (Roudi)" },
+                        { dateAffichee: "16/10", dateTri: "16/10/2026", description: "4ème couleur forcing" },
+                        { dateAffichee: "23/10", dateTri: "23/10/2026", description: "Donnes d’entraînement" },
+                        { dateAffichee: "30/10", dateTri: "30/10/2026", description: "Les interventions du numéro 2 avec une main bicolore" },
+                        { dateAffichee: "06/11", dateTri: "06/11/2026", description: "Développements après une répétition à saut de l’ouverture" },
+                        { dateAffichee: "13/11", dateTri: "13/11/2026", description: "Donnes d’entraînement" },
+                        { dateAffichee: "20/11", dateTri: "20/11/2026", description: "Les enchères d’essai : partielle ou manche ?" },
+                        { dateAffichee: "27/11", dateTri: "27/11/2026", description: "Les enchères déclic, espoir de chelem" },
+                        { dateAffichee: "04/12", dateTri: "04/12/2026", description: "Donnes d’entraînement" },
+                        { dateAffichee: "11/12", dateTri: "11/12/2026", description: "Réponses sur la redemande de l’ouvreur à 2 SA après 1 sur 1" },
+                        { dateAffichee: "18/12", dateTri: "18/12/2026", description: "Donnes d’entraînement" },
+                    ],
                 },
             ],
 
@@ -274,7 +282,9 @@ document.getElementById('currentYear').textContent = new Date().getFullYear();
 
         // === DATE UTILITIES ===
         function formatDate(dateStr) {
-            const [day, month] = dateStr.split('/');
+            const [day, month, explicitYear] = String(dateStr).split('/').map(Number);
+            if (explicitYear) return new Date(explicitYear, month - 1, day);
+
             const today = new Date();
             const currentMonth = today.getMonth();
             const currentYear = today.getFullYear();
@@ -875,18 +885,59 @@ document.getElementById('currentYear').textContent = new Date().getFullYear();
                 const repriseEl = document.getElementById('cours-reprise');
                 if (repriseEl) repriseEl.textContent = CONFIG.reprise;
 
-                let html = '';
+                // Organisation par jour puis par créneau horaire.
+                // Les enseignants restent une information secondaire dans chaque cours.
+                const dayOrder = ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi', 'Dimanche'];
+                const groupedCourses = {};
+
                 CONFIG.enseignants.forEach(ens => {
-                    html += `<div class="teacher-section"><h3>Avec ${escapeHtml(ens.nom)}</h3>`;
                     ens.cours.forEach(c => {
-                        html += `<div class="info-block"><h3>${escapeHtml(c.niveau)}</h3>`;
                         c.horaires.forEach(h => {
-                            html += `<div class="schedule"><span class="day">${escapeHtml(h.jour)}</span><span class="time">${escapeHtml(h.heure)}</span></div>`;
+                            if (!groupedCourses[h.jour]) groupedCourses[h.jour] = {};
+                            if (!groupedCourses[h.jour][h.heure]) groupedCourses[h.jour][h.heure] = [];
+                            groupedCourses[h.jour][h.heure].push({
+                                niveau: c.niveau,
+                                enseignant: ens.nom
+                            });
                         });
-                        html += `</div>`;
                     });
+                });
+
+                const timeToMinutes = (label) => {
+                    const match = String(label).match(/(\d{1,2})\s*h(?:\s*(\d{1,2}))?/i);
+                    if (!match) return 9999;
+                    return Number(match[1]) * 60 + Number(match[2] || 0);
+                };
+
+                let html = '';
+                dayOrder.forEach(day => {
+                    const slots = groupedCourses[day];
+                    if (!slots) return;
+
+                    html += `<div class="course-day-section">`;
+                    html += `<h3 class="course-day-title">${escapeHtml(day)}</h3>`;
+
+                    Object.keys(slots)
+                        .sort((a, b) => timeToMinutes(a) - timeToMinutes(b))
+                        .forEach(time => {
+                            const singleCourseClass = slots[time].length === 1 ? ' single-course' : '';
+                            html += `<div class="course-timeslot">`;
+                            html += `<div class="course-time">${escapeHtml(time)}</div>`;
+                            html += `<div class="course-list${singleCourseClass}">`;
+
+                            slots[time].forEach(c => {
+                                html += `<div class="info-block course-info">`;
+                                html += `<h3>${escapeHtml(c.niveau)}</h3>`;
+                                html += `<p class="course-teacher">Avec <strong>${escapeHtml(c.enseignant)}</strong></p>`;
+                                html += `</div>`;
+                            });
+
+                            html += `</div></div>`;
+                        });
+
                     html += `</div>`;
                 });
+
                 coursContainer.innerHTML = html;
             }
 
@@ -903,8 +954,10 @@ document.getElementById('currentYear').textContent = new Date().getFullYear();
                 const el = document.getElementById(containerId);
                 if (!el) return;
                 el.innerHTML = dates.map(d => {
-                    if (d.finale) return `<p data-date="${d.date}"><strong>Finale : ${d.date}</strong></p>`;
-                    return `<p data-date="${d.date}">- ${d.date}</p>`;
+                    if (d.placeholder) return `<p>- ${escapeHtml(d.placeholder)}</p>`;
+                    const dateTri = d.dateTri || d.date;
+                    if (d.finale) return `<p data-date="${escapeHtml(dateTri)}"><strong>Finale : ${escapeHtml(d.date)}</strong></p>`;
+                    return `<p data-date="${escapeHtml(dateTri)}">- ${escapeHtml(d.date)}</p>`;
                 }).join('');
             };
             renderCoupe(CONFIG.coupeDesClubs,   'coupe-clubs-dates');
@@ -914,6 +967,23 @@ document.getElementById('currentYear').textContent = new Date().getFullYear();
             const actContainer = document.getElementById('actualites-container');
             if (actContainer) {
                 actContainer.innerHTML = CONFIG.actualites.map(a => {
+                    if (a.type === 'ateliers') {
+                        const lignes = (a.lignes || []).map(l => `
+                            <li class="atelier-line" data-event-date="${escapeHtml(l.dateTri)}">
+                                <span class="atelier-date">${escapeHtml(l.dateAffichee)} :</span>
+                                <span class="atelier-theme">${escapeHtml(l.description)}</span>
+                            </li>
+                        `).join('');
+
+                        const intro = (a.introLignes || []).map(line => `<span>${escapeHtml(line)}</span>`).join('');
+
+                        return `<div class="event-item ateliers-item">
+                            <h4>${escapeHtml(a.titre)}</h4>
+                            <p class="atelier-intro">${intro}</p>
+                            <ul class="atelier-list">${lignes}</ul>
+                        </div>`;
+                    }
+
                     const note = a.note ? `<p><strong>${escapeHtml(a.note)}</strong></p>` : '';
                     return `<div class="event-item" data-event-date="${escapeHtml(a.dateTri)}">
                         <h4>${escapeHtml(a.dateAffichee)}</h4>
