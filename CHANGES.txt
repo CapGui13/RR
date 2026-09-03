@@ -30,3 +30,6 @@ Le contenu saisonnier / point 2 de l'audit n'a pas été modifié.
 - Popup : suppression du contenu/visuel obsolète « Marathon du 1er Mai » ; infrastructure conservée et désactivée pour une future annonce.
 
 - Cache busting : ajout de ?v=20260903-1 à style.css, gallery.js et main.js afin qu’un rechargement normal récupère la dernière version des fichiers statiques.
+
+- Coupe de Provence : calendrier corrigé en 25/11, 27/01, 24/02, 24/03, 14/04, 05/05 ; finale maintenue au 23/06.
+- Cache busting : main.js passe à ?v=20260903-2 pour forcer le chargement du calendrier corrigé.

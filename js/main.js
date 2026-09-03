@@ -161,12 +161,12 @@ document.getElementById('currentYear').textContent = new Date().getFullYear();
             ],
 
             coupeDeProvence: [
-                { date: "26/11", dateTri: "26/11/2026" },
+                { date: "25/11", dateTri: "25/11/2026" },
                 { date: "27/01", dateTri: "27/01/2027" },
                 { date: "24/02", dateTri: "24/02/2027" },
                 { date: "24/03", dateTri: "24/03/2027" },
                 { date: "14/04", dateTri: "14/04/2027" },
-                { date: "19/05", dateTri: "19/05/2027" },
+                { date: "05/05", dateTri: "05/05/2027" },
                 { date: "23/06", dateTri: "23/06/2027", finale: true },
             ],
 
