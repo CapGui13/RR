@@ -984,6 +984,7 @@ document.getElementById('currentYear').textContent = new Date().getFullYear();
                     const programmeCard = toggle.closest('.atelier-program-card');
                     let closeTimer = null;
                     let desktopTracking = false;
+                    let desktopPositionRAF = null;
                     let closeEndHandler = null;
 
                     const cancelPendingClose = () => {
@@ -1034,18 +1035,31 @@ document.getElementById('currentYear').textContent = new Date().getFullYear();
                         panel.style.maxHeight = `${Math.floor(availableHeight)}px`;
                     };
 
+                    const scheduleDesktopPanelPosition = () => {
+                        if (desktopPositionRAF !== null) return;
+                        desktopPositionRAF = requestAnimationFrame(() => {
+                            desktopPositionRAF = null;
+                            positionDesktopPanel();
+                        });
+                    };
+
                     const startDesktopTracking = () => {
                         if (desktopTracking) return;
-                        window.addEventListener('scroll', positionDesktopPanel, { passive: true });
-                        window.addEventListener('resize', positionDesktopPanel, { passive: true });
+                        window.addEventListener('scroll', scheduleDesktopPanelPosition, { passive: true });
+                        window.addEventListener('resize', scheduleDesktopPanelPosition, { passive: true });
                         desktopTracking = true;
                     };
 
                     const stopDesktopTracking = () => {
-                        if (!desktopTracking) return;
-                        window.removeEventListener('scroll', positionDesktopPanel);
-                        window.removeEventListener('resize', positionDesktopPanel);
-                        desktopTracking = false;
+                        if (desktopTracking) {
+                            window.removeEventListener('scroll', scheduleDesktopPanelPosition);
+                            window.removeEventListener('resize', scheduleDesktopPanelPosition);
+                            desktopTracking = false;
+                        }
+                        if (desktopPositionRAF !== null) {
+                            cancelAnimationFrame(desktopPositionRAF);
+                            desktopPositionRAF = null;
+                        }
                     };
 
                     const hideWhenTransitionFinishes = (propertyName, fallbackMs, onDone) => {
@@ -1766,7 +1780,6 @@ document.getElementById('currentYear').textContent = new Date().getFullYear();
                 logoSection.style.opacity = '';
             }
 
-            window.addEventListener('scroll', syncParallax, { passive: true });
             registerResizeHandler(function() {
                 _fadeStart = null; // recalcul au prochain scroll
             }, { immediate: true });

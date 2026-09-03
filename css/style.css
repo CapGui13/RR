@@ -585,8 +585,6 @@
             padding: 1.2rem;
             box-shadow: 0 8px 20px rgba(0,0,0,0.15);
             border-top: 2px solid transparent;
-            content-visibility: auto;
-            contain-intrinsic-size: 0 400px;
         }
 
         .section-card:nth-child(1) { border-top-color: #667eea; }
@@ -1047,32 +1045,38 @@
                 max-height: 0;
                 overflow: hidden;
                 opacity: 0;
-                transform: translate3d(0, -6px, 0);
-                margin-top: 0;
-                padding-top: 0;
-                border-top: 1px solid transparent;
                 transition:
-                    max-height 0.62s cubic-bezier(0.22, 1, 0.36, 1),
-                    opacity 0.34s ease,
-                    transform 0.52s cubic-bezier(0.22, 1, 0.36, 1),
-                    margin-top 0.52s cubic-bezier(0.22, 1, 0.36, 1),
-                    padding-top 0.52s cubic-bezier(0.22, 1, 0.36, 1),
-                    border-color 0.28s ease;
-                will-change: max-height, opacity, transform;
+                    max-height 0.56s cubic-bezier(0.22, 1, 0.36, 1),
+                    opacity 0.26s ease-out;
+                will-change: max-height, opacity;
+            }
+
+            /*
+             * L'espace + le séparateur vivent DANS la zone rognée : on n'anime plus
+             * margin/padding/border à chaque frame, ce qui réduit les recalculs de layout.
+             */
+            .atelier-program-full:not(.atelier-program-full--portal)::before {
+                content: '';
+                display: block;
+                height: 1.05rem;
+                background:
+                    linear-gradient(
+                        to bottom,
+                        transparent 0,
+                        transparent calc(0.55rem - 1px),
+                        rgba(0,0,0,0.08) calc(0.55rem - 1px),
+                        rgba(0,0,0,0.08) 0.55rem,
+                        transparent 0.55rem
+                    );
             }
 
             .atelier-program-full:not(.atelier-program-full--portal).is-open {
                 max-height: var(--atelier-panel-height, 1200px);
-                overflow: hidden;
                 opacity: 1;
-                transform: translate3d(0, 0, 0);
-                margin-top: 0.55rem;
-                padding-top: 0.5rem;
-                border-top-color: rgba(0,0,0,0.08);
             }
 
             .atelier-program-full:not(.atelier-program-full--portal).is-closing {
-                transition-duration: 0.44s, 0.25s, 0.38s, 0.38s, 0.38s, 0.22s;
+                transition-duration: 0.42s, 0.22s;
             }
         }
 
@@ -1101,10 +1105,10 @@
                 box-shadow: 0 10px 28px rgba(0,0,0,0.16);
                 z-index: 1000;
                 opacity: 0;
-                transform: translate3d(-18px, 0, 0);
+                transform: translate3d(-10px, 0, 0);
                 pointer-events: none;
-                transition: opacity 0.46s cubic-bezier(0.22, 1, 0.36, 1),
-                            transform 0.58s cubic-bezier(0.22, 1, 0.36, 1);
+                transition: opacity 0.28s ease-out,
+                            transform 0.42s cubic-bezier(0.22, 1, 0.36, 1);
                 will-change: opacity, transform;
                 backface-visibility: hidden;
                 contain: layout paint style;
@@ -1117,7 +1121,7 @@
             }
 
             .atelier-program-full.atelier-program-full--portal.is-closing {
-                transition-duration: 0.28s, 0.34s;
+                transition-duration: 0.22s, 0.28s;
             }
         }
 
