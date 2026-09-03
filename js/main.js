@@ -140,10 +140,30 @@ document.getElementById('currentYear').textContent = new Date().getFullYear();
                 {
                     nom: "Frédéric Le Gall\n& Muriel Trouillez",
                     cours: [
-                        { niveau: "Ateliers enchères\n(perfectionnement)", horaires: [{ jour: "Vendredi", heure: "10 h à 12 h" }] },
+                        { niveau: "Ateliers enchères\n(perfectionnement)", horaires: [{ jour: "Vendredi", heure: "10 h à 12 h" }], programme: "ateliersEncheres" },
                     ]
                 },
             ],
+
+            ateliersEncheres: {
+                note: "Ateliers ouverts à tous. Inscription sur le site de la Fédération, comme pour un tournoi du club.",
+                lignes: [
+                    { dateAffichee: "18/09", dateTri: "18/09/2026", description: "Les Texas Mineurs" },
+                    { dateAffichee: "25/09", dateTri: "25/09/2026", description: "Les enchères après passe" },
+                    { dateAffichee: "02/10", dateTri: "02/10/2026", description: "Donnes d’entraînement" },
+                    { dateAffichee: "09/10", dateTri: "09/10/2026", description: "Trouver le meilleur contrat, SA ou en majeure ? (Roudi)" },
+                    { dateAffichee: "16/10", dateTri: "16/10/2026", description: "4ème couleur forcing" },
+                    { dateAffichee: "23/10", dateTri: "23/10/2026", description: "Donnes d’entraînement" },
+                    { dateAffichee: "30/10", dateTri: "30/10/2026", description: "Les interventions du numéro 2 avec une main bicolore" },
+                    { dateAffichee: "06/11", dateTri: "06/11/2026", description: "Développements après une répétition à saut de l’ouverture" },
+                    { dateAffichee: "13/11", dateTri: "13/11/2026", description: "Donnes d’entraînement" },
+                    { dateAffichee: "20/11", dateTri: "20/11/2026", description: "Les enchères d’essai : partielle ou manche ?" },
+                    { dateAffichee: "27/11", dateTri: "27/11/2026", description: "Les enchères déclic, espoir de chelem" },
+                    { dateAffichee: "04/12", dateTri: "04/12/2026", description: "Donnes d’entraînement" },
+                    { dateAffichee: "11/12", dateTri: "11/12/2026", description: "Réponses sur la redemande de l’ouvreur à 2 SA après 1 sur 1" },
+                    { dateAffichee: "18/12", dateTri: "18/12/2026", description: "Donnes d’entraînement" },
+                ],
+            },
 
             // --- Tournois ---
             rondesDeFrance: {
@@ -171,32 +191,7 @@ document.getElementById('currentYear').textContent = new Date().getFullYear();
             ],
 
             // --- Actualités ---
-            actualites: [
-                {
-                    type: "ateliers",
-                    titre: "Ateliers du 1er trimestre",
-                    introLignes: [
-                        "Ces ateliers sont ouverts à tous et se déroulent le vendredi de 10 h à 12 h.",
-                        "Si vous souhaitez y participer, vous pouvez vous inscrire sur le site de la fédération, comme pour un tournoi du club.",
-                    ],
-                    lignes: [
-                        { dateAffichee: "18/09", dateTri: "18/09/2026", description: "Les Texas Mineurs" },
-                        { dateAffichee: "25/09", dateTri: "25/09/2026", description: "Les enchères après passe" },
-                        { dateAffichee: "02/10", dateTri: "02/10/2026", description: "Donnes d’entraînement" },
-                        { dateAffichee: "09/10", dateTri: "09/10/2026", description: "Trouver le meilleur contrat, SA ou en majeure ? (Roudi)" },
-                        { dateAffichee: "16/10", dateTri: "16/10/2026", description: "4ème couleur forcing" },
-                        { dateAffichee: "23/10", dateTri: "23/10/2026", description: "Donnes d’entraînement" },
-                        { dateAffichee: "30/10", dateTri: "30/10/2026", description: "Les interventions du numéro 2 avec une main bicolore" },
-                        { dateAffichee: "06/11", dateTri: "06/11/2026", description: "Développements après une répétition à saut de l’ouverture" },
-                        { dateAffichee: "13/11", dateTri: "13/11/2026", description: "Donnes d’entraînement" },
-                        { dateAffichee: "20/11", dateTri: "20/11/2026", description: "Les enchères d’essai : partielle ou manche ?" },
-                        { dateAffichee: "27/11", dateTri: "27/11/2026", description: "Les enchères déclic, espoir de chelem" },
-                        { dateAffichee: "04/12", dateTri: "04/12/2026", description: "Donnes d’entraînement" },
-                        { dateAffichee: "11/12", dateTri: "11/12/2026", description: "Réponses sur la redemande de l’ouvreur à 2 SA après 1 sur 1" },
-                        { dateAffichee: "18/12", dateTri: "18/12/2026", description: "Donnes d’entraînement" },
-                    ],
-                },
-            ],
+            actualites: [],
 
             // --- Tarifs ---
             tarifs: {
@@ -897,7 +892,8 @@ document.getElementById('currentYear').textContent = new Date().getFullYear();
                             if (!groupedCourses[h.jour][h.heure]) groupedCourses[h.jour][h.heure] = [];
                             groupedCourses[h.jour][h.heure].push({
                                 niveau: c.niveau,
-                                enseignant: ens.nom
+                                enseignant: ens.nom,
+                                programme: c.programme || null
                             });
                         });
                     });
@@ -907,6 +903,38 @@ document.getElementById('currentYear').textContent = new Date().getFullYear();
                     const match = String(label).match(/(\d{1,2})\s*h(?:\s*(\d{1,2}))?/i);
                     if (!match) return 9999;
                     return Number(match[1]) * 60 + Number(match[2] || 0);
+                };
+
+                const renderAtelierLine = (line, isNext = false) => `
+                    <li class="atelier-program-line" data-event-date="${escapeHtml(line.dateTri)}">
+                        <span class="atelier-program-date">${escapeHtml(line.dateAffichee)}</span>
+                        <span class="atelier-program-theme">${escapeHtml(line.description)}</span>
+                        ${isNext ? '<span class="atelier-next-label">Prochain</span>' : ''}
+                    </li>`;
+
+                const renderAtelierProgramme = (programmeKey) => {
+                    const programme = CONFIG[programmeKey];
+                    const allLines = (programme?.lignes || []).slice()
+                        .sort((a, b) => formatDate(a.dateTri) - formatDate(b.dateTri));
+                    const upcoming = allLines.filter(line => !isDatePassed(line.dateTri));
+                    const preview = upcoming.slice(0, 3);
+                    const previewDates = new Set(preview.map(line => line.dateTri));
+                    const remaining = allLines.filter(line => !previewDates.has(line.dateTri));
+                    const panelId = `atelier-program-full-${programmeKey}`;
+
+                    const previewHtml = preview.length
+                        ? preview.map((line, index) => renderAtelierLine(line, index === 0)).join('')
+                        : '<li class="atelier-program-empty">Programme terminé pour cette période.</li>';
+
+                    return `<aside class="atelier-program-card" aria-label="Programme des ateliers d’enchères">
+                        <h3>Ateliers à venir</h3>
+                        <ul class="atelier-program-list">${previewHtml}</ul>
+                        ${remaining.length ? `
+                            <button type="button" class="atelier-program-toggle" aria-expanded="false" aria-controls="${escapeHtml(panelId)}">Voir les autres dates</button>
+                            <div class="atelier-program-full" id="${escapeHtml(panelId)}" hidden>
+                                <ul class="atelier-program-list">${remaining.map(line => renderAtelierLine(line)).join('')}</ul>
+                            </div>` : ''}
+                    </aside>`;
                 };
 
                 let html = '';
@@ -920,16 +948,23 @@ document.getElementById('currentYear').textContent = new Date().getFullYear();
                     Object.keys(slots)
                         .sort((a, b) => timeToMinutes(a) - timeToMinutes(b))
                         .forEach(time => {
-                            const singleCourseClass = slots[time].length === 1 ? ' single-course' : '';
+                            const workshopCourse = slots[time].length === 1 && slots[time][0].programme ? slots[time][0] : null;
+                            const singleCourseClass = slots[time].length === 1 && !workshopCourse ? ' single-course' : '';
+                            const workshopClass = workshopCourse ? ' course-list-workshop' : '';
+
                             html += `<div class="course-timeslot">`;
                             html += `<div class="course-time">${escapeHtml(time)}</div>`;
-                            html += `<div class="course-list${singleCourseClass}">`;
+                            html += `<div class="course-list${singleCourseClass}${workshopClass}">`;
 
                             slots[time].forEach(c => {
-                                html += `<div class="info-block course-info">`;
+                                html += `<div class="info-block course-info${c.programme ? ' workshop-course-info' : ''}">`;
                                 html += `<h3>${escapeHtml(c.niveau)}</h3>`;
                                 html += `<p class="course-teacher">Avec <strong>${escapeHtml(c.enseignant)}</strong></p>`;
+                                if (c.programme && CONFIG[c.programme]?.note) {
+                                    html += `<p class="workshop-course-note">${escapeHtml(CONFIG[c.programme].note)}</p>`;
+                                }
                                 html += `</div>`;
+                                if (c.programme) html += renderAtelierProgramme(c.programme);
                             });
 
                             html += `</div></div>`;
@@ -939,6 +974,47 @@ document.getElementById('currentYear').textContent = new Date().getFullYear();
                 });
 
                 coursContainer.innerHTML = html;
+
+                coursContainer.querySelectorAll('.atelier-program-toggle').forEach(toggle => {
+                    let closeTimer = null;
+
+                    toggle.addEventListener('click', () => {
+                        const panel = document.getElementById(toggle.getAttribute('aria-controls'));
+                        if (!panel) return;
+
+                        const open = toggle.getAttribute('aria-expanded') !== 'true';
+                        const desktopFlyout = window.matchMedia('(min-width: 1201px)').matches;
+                        const sectionCard = toggle.closest('.section-card');
+
+                        toggle.setAttribute('aria-expanded', String(open));
+                        toggle.textContent = open ? 'Masquer les autres dates' : 'Voir les autres dates';
+                        if (sectionCard) sectionCard.classList.toggle('workshop-flyout-open', open);
+
+                        if (closeTimer) {
+                            clearTimeout(closeTimer);
+                            closeTimer = null;
+                        }
+
+                        if (!desktopFlyout) {
+                            panel.hidden = !open;
+                            panel.classList.toggle('is-open', open);
+                            return;
+                        }
+
+                        if (open) {
+                            panel.hidden = false;
+                            panel.classList.remove('is-open');
+                            requestAnimationFrame(() => {
+                                requestAnimationFrame(() => panel.classList.add('is-open'));
+                            });
+                        } else {
+                            panel.classList.remove('is-open');
+                            closeTimer = setTimeout(() => {
+                                if (toggle.getAttribute('aria-expanded') === 'false') panel.hidden = true;
+                            }, 900);
+                        }
+                    });
+                });
             }
 
             // --- TOURNOIS : Rondes de France ---

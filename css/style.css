@@ -876,9 +876,204 @@
             margin-top: 0.25rem;
         }
 
+        /* === COURS — programme des ateliers d'enchères === */
+        .course-list.course-list-workshop {
+            grid-template-columns: minmax(0, 0.82fr) minmax(0, 1.28fr);
+            align-items: start;
+            gap: 0.85rem;
+        }
+
+        .workshop-course-note {
+            margin: 0.45rem 0 0;
+            color: #6d6d6d;
+            font-size: 0.68rem;
+            line-height: 1.35;
+            font-style: italic;
+        }
+
+        .atelier-program-card {
+            position: relative;
+            background: #fff;
+            border: 1px solid rgba(212, 175, 55, 0.32);
+            border-left: 4px solid #d4af37;
+            border-radius: 8px;
+            padding: 0.75rem 0.8rem 1.45rem;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+        }
+
+        .atelier-program-card > h3 {
+            color: #2d5a3d;
+            font-size: 0.95rem;
+            margin: 0 0 0.6rem;
+        }
+
+        .atelier-program-list {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 0.42rem;
+        }
+
+        .atelier-program-line {
+            display: grid;
+            grid-template-columns: auto minmax(0, 1fr) auto;
+            align-items: start;
+            gap: 0.55rem;
+            color: #444;
+            font-size: 0.82rem;
+            line-height: 1.35;
+            padding: 0.36rem 0;
+            border-bottom: 1px solid rgba(0,0,0,0.06);
+        }
+
+        .atelier-program-line:last-child { border-bottom: 0; }
+
+        .atelier-program-date {
+            font-weight: 800;
+            color: #c0392b;
+            white-space: nowrap;
+        }
+
+        .atelier-next-label {
+            display: inline-block;
+            background: linear-gradient(135deg, #d4af37, #e8c84a);
+            color: #1a4d2e;
+            font-size: 0.62rem;
+            font-weight: 800;
+            letter-spacing: 0.04em;
+            padding: 0.12rem 0.38rem;
+            border-radius: 999px;
+            text-transform: uppercase;
+            white-space: nowrap;
+        }
+
+        .atelier-program-line.past {
+            opacity: 0.48;
+            text-decoration: line-through;
+        }
+
+        .atelier-program-empty {
+            color: #666;
+            font-size: 0.82rem;
+            font-style: italic;
+        }
+
+        .atelier-program-toggle {
+            position: relative;
+            display: block;
+            width: 100%;
+            margin-top: 0.65rem;
+            padding: 0.48rem 0.7rem;
+            border: 1px solid rgba(102, 126, 234, 0.3);
+            border-radius: 6px;
+            background: #f2f4ff;
+            color: #5f4c91;
+            font: inherit;
+            font-size: 0.78rem;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        /* Flèche complète dessinée en CSS, à l'extrémité droite du bouton. */
+        .atelier-program-toggle::before {
+            content: '';
+            position: absolute;
+            right: 0.82rem;
+            top: 50%;
+            width: 0.72rem;
+            height: 2px;
+            background: currentColor;
+            border-radius: 999px;
+            transform: translateY(-50%);
+            transform-origin: center;
+            transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+
+        .atelier-program-toggle::after {
+            content: '';
+            position: absolute;
+            right: 0.8rem;
+            top: 50%;
+            width: 0.42rem;
+            height: 0.42rem;
+            border-top: 2px solid currentColor;
+            border-right: 2px solid currentColor;
+            transform: translateY(-50%) rotate(45deg);
+            transform-origin: center;
+            transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+
+        .atelier-program-toggle[aria-expanded="true"]::before {
+            transform: translateY(-50%) rotate(180deg);
+        }
+
+        .atelier-program-toggle[aria-expanded="true"]::after {
+            transform: translateY(-50%) rotate(225deg);
+        }
+
+        .atelier-program-full[hidden] { display: none !important; }
+
+        @media (min-width: 1201px) {
+            .section-card.workshop-flyout-open {
+                content-visibility: visible;
+                overflow: visible;
+                position: relative;
+                z-index: 20;
+            }
+
+            .atelier-program-full {
+                position: absolute;
+                left: calc(100% + 0.85rem);
+                top: 0;
+                width: 390px;
+                max-width: min(390px, 34vw);
+                max-height: min(430px, 70vh);
+                overflow-y: auto;
+                margin: 0;
+                padding: 0.75rem 0.9rem;
+                border: 1px solid rgba(102, 126, 234, 0.28);
+                border-left: 4px solid #667eea;
+                border-radius: 8px;
+                background: #fff;
+                box-shadow: 0 10px 28px rgba(0,0,0,0.16);
+                z-index: 40;
+                opacity: 0;
+                transform: translateX(-34px);
+                transition: opacity 0.9s cubic-bezier(0.22, 1, 0.36, 1),
+                            transform 0.9s cubic-bezier(0.22, 1, 0.36, 1);
+                will-change: opacity, transform;
+            }
+
+            .atelier-program-full.is-open {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
         @media (max-width: 720px) {
             .course-list {
                 grid-template-columns: 1fr;
+            }
+
+            .course-list.course-list-workshop {
+                grid-template-columns: 1fr;
+            }
+
+            .atelier-program-line {
+                grid-template-columns: auto minmax(0, 1fr);
+            }
+
+            .atelier-next-label {
+                grid-column: 2;
+                width: max-content;
+            }
+
+            .atelier-program-full {
+                margin-top: 0.55rem;
+                padding-top: 0.5rem;
+                border-top: 1px solid rgba(0,0,0,0.08);
             }
 
             .course-list.single-course {
