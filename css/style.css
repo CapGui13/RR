@@ -438,7 +438,7 @@
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            transition: all 0.3s;
+            transition: background 0.3s, color 0.3s, border-color 0.3s, transform 0.3s, box-shadow 0.3s;
             box-shadow: 0 4px 12px rgba(0,0,0,0.15);
         }
         
@@ -636,7 +636,7 @@
             padding: 0.7rem;
             margin-bottom: 0.7rem;
             border-left: 4px solid #667eea;
-            transition: all 0.3s;
+            transition: background 0.3s, color 0.3s, border-color 0.3s, transform 0.3s, box-shadow 0.3s;
         }
         
         .info-block:hover {
@@ -1759,7 +1759,7 @@
             border-radius: 25px;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.3s;
+            transition: background 0.3s, color 0.3s, border-color 0.3s, transform 0.3s, box-shadow 0.3s;
             font-size: 0.9rem;
         }
 
@@ -1788,7 +1788,7 @@
             border-radius: 12px;
             cursor: pointer;
             box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-            transition: all 0.3s;
+            transition: background 0.3s, color 0.3s, border-color 0.3s, transform 0.3s, box-shadow 0.3s;
             aspect-ratio: 4/3;
         }
 
@@ -1885,7 +1885,7 @@
             height: 50px;
             border-radius: 50%;
             cursor: pointer;
-            transition: all 0.3s;
+            transition: background 0.3s, color 0.3s, border-color 0.3s, transform 0.3s, box-shadow 0.3s;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -1910,7 +1910,7 @@
             height: 60px;
             border-radius: 50%;
             cursor: pointer;
-            transition: all 0.3s;
+            transition: background 0.3s, color 0.3s, border-color 0.3s, transform 0.3s, box-shadow 0.3s;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -2034,7 +2034,7 @@
             border-radius: 8px;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.3s;
+            transition: background 0.3s, color 0.3s, border-color 0.3s, transform 0.3s, box-shadow 0.3s;
         }
 
         .admin-btn-login:hover {
@@ -2099,7 +2099,7 @@
             border-radius: 8px;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.3s;
+            transition: background 0.3s, color 0.3s, border-color 0.3s, transform 0.3s, box-shadow 0.3s;
         }
 
         .admin-btn-logout:hover {
@@ -2159,7 +2159,7 @@
             font-weight: 600;
             color: #666;
             cursor: pointer;
-            transition: all 0.3s;
+            transition: background 0.3s, color 0.3s, border-color 0.3s, transform 0.3s, box-shadow 0.3s;
             border-bottom: 3px solid transparent;
         }
 
@@ -2178,7 +2178,7 @@
             padding: 3rem;
             text-align: center;
             cursor: pointer;
-            transition: all 0.3s;
+            transition: background 0.3s, color 0.3s, border-color 0.3s, transform 0.3s, box-shadow 0.3s;
             background: linear-gradient(135deg, #f5f7fa 0%, #e8ebf5 100%);
         }
 
@@ -2255,7 +2255,7 @@
             font-size: 1.1rem;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.3s;
+            transition: background 0.3s, color 0.3s, border-color 0.3s, transform 0.3s, box-shadow 0.3s;
         }
 
         .admin-btn-publish:hover {
@@ -2273,7 +2273,7 @@
             font-size: 1.1rem;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.3s;
+            transition: background 0.3s, color 0.3s, border-color 0.3s, transform 0.3s, box-shadow 0.3s;
         }
 
         .admin-btn-cancel:hover {
@@ -2291,7 +2291,7 @@
             border-radius: 12px;
             overflow: hidden;
             box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-            transition: all 0.3s;
+            transition: background 0.3s, color 0.3s, border-color 0.3s, transform 0.3s, box-shadow 0.3s;
         }
 
         .admin-photo-card:hover {
@@ -2335,7 +2335,7 @@
             border-radius: 6px;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.3s;
+            transition: background 0.3s, color 0.3s, border-color 0.3s, transform 0.3s, box-shadow 0.3s;
         }
 
         .admin-photo-delete:hover {
@@ -3239,7 +3239,7 @@
             font-weight: 700;
             font-size: 1rem;
             cursor: pointer;
-            transition: all 0.2s;
+            transition: background 0.2s, color 0.2s, border-color 0.2s, transform 0.2s, box-shadow 0.2s;
         }
 
         .popup-btn:hover {

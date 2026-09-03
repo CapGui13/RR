@@ -423,7 +423,6 @@ document.getElementById('currentYear').textContent = new Date().getFullYear();
                 document.body.style.overflowX = '';
                 window.scrollTo(0, _scrollY);
             }
-            if (window._syncParallaxResetFade) window._syncParallaxResetFade();
         }
 
         // === MODAL ACCESSIBILITY STATE ===
@@ -1688,8 +1687,11 @@ document.getElementById('currentYear').textContent = new Date().getFullYear();
         /* Les transitions pendant resize sont gérées par le répartiteur central. */
     
 
-        /* Empêche le hover CSS de "coller" sur les boutons nav pendant le scroll mobile */
+        /* Empêche le hover CSS de "coller" pendant le scroll uniquement sur écrans tactiles. */
         (function() {
+            var coarsePointer = window.matchMedia && window.matchMedia('(hover: none) and (pointer: coarse)').matches;
+            if (!coarsePointer) return;
+
             var scrollTimer;
             window.addEventListener('scroll', function() {
                 document.body.classList.add('is-scrolling');
@@ -1699,95 +1701,6 @@ document.getElementById('currentYear').textContent = new Date().getFullYear();
                 }, 150);
             }, { passive: true });
 
-            /* Feedback visuel is-tapped uniquement sur tap réel (pas scroll) */
-            var THRESHOLD = 10;
-            document.querySelectorAll('.nav-card button').forEach(function(btn) {
-                var sx = 0, sy = 0;
-                btn.addEventListener('touchstart', function(e) {
-                    sx = e.touches[0].clientX;
-                    sy = e.touches[0].clientY;
-                }, { passive: true });
-            });
-        })();
-    
-
-        /* === PARALLAXE LOGO-RIGHT (TABLETTE UNIQUEMENT) === */
-        /*
-         * Fade out logo-section + logo-right au moment précis où ils "touchent"
-         * la nav en remontant, pas avant (et surtout pas dès le premier pixel de scroll).
-         *
-         * Pourquoi ce script existe :
-         *   Sur tablette, la nav est en position:static sous les logos dans le DOM.
-         *   Au scroll, logo-section monte via translateY(scrollY × 0.25). Sans fade,
-         *   les logos glissent sous la nav (z-index les cache) mais restent cliquables.
-         *   Le fondu les rend invisibles au bon moment et évite tout overflow:hidden
-         *   qui clipperait trop tôt.
-         *
-         * Calcul du point de contact (getFadeStartScrollY) :
-         *   1. On mesure la distance réelle entre le bas de logo-section et le haut
-         *      de la nav en coordonnées document (getBoundingClientRect + scrollY).
-         *   2. logo-section monte de scrollY × 0.25 px.
-         *      Contact quand : scrollY × 0.25 = gap  →  fadeStart = gap / 0.25
-         *   3. _fadeStart est recalculé à chaque resize (rotation, redimensionnement)
-         *      et au premier scroll réel (évite les dimensions fausses au DOMContentLoaded
-         *      quand les images ne sont pas encore chargées).
-         *
-         * ⚠️  Si tu modifies la vitesse du parallaxe (× 0.25), mets à jour le
-         *     diviseur dans getFadeStartScrollY en conséquence.
-         * ⚠️  Si tu modifies la hauteur du header ou de la nav, _fadeStart se
-         *     recalcule automatiquement — pas besoin de toucher aux valeurs en dur.
-         */
-        (function() {
-            function isTablet() { return window.innerWidth >= 481 && window.innerWidth <= 1024; }
-
-            var logoRight = document.querySelector('.logo-right');
-            var logoSection = document.querySelector('.logo-section');
-            var navContainer = document.querySelector('.nav-card-container');
-
-            // scrollY auquel le bas de logo-section atteint le haut de la nav.
-            // Sur tablette la nav est SOUS les logos dans le DOM.
-            // logo-section monte de scrollY*0.25 px → contact quand scrollY*0.25 = logoBottom - navTop
-            // donc fadeStart = (logoBottom - navTop) / 0.25
-            function getFadeStartScrollY() {
-                if (!logoSection || !navContainer) return 220;
-                // Mesures à scrollY courant → on ramène en coordonnées document
-                var scrollY0 = window.scrollY;
-                var logoBottom = logoSection.getBoundingClientRect().bottom + scrollY0;
-                var navTop    = navContainer.getBoundingClientRect().top    + scrollY0;
-                // Distance (en px de document) entre bas du logo et haut de la nav au repos
-                var gap = navTop - logoBottom; // positif : logo est au-dessus de la nav
-                if (gap <= 0) return 0;
-                // Pour combler ce gap avec translateY(scrollY*0.25), il faut scrollY = gap/0.25
-                return gap / 0.25;
-            }
-
-            var _fadeStart = null;
-            var _fadeDist = 80; // px de scroll sur lesquels s'effectue le fondu
-
-            function syncParallax() {
-                if (!logoRight || !logoSection) return;
-                if (!isTablet()) {
-                    // Sur desktop/mobile, syncParallax ne touche PAS logoSection
-                    // (géré exclusivement par updateParallax) — on reset seulement logo-right
-                    logoRight.style.transform = '';
-                    logoRight.style.opacity = '';
-                    return;
-                }
-                // Sur tablette : éléments fixes, pas de parallaxe ni de fondu
-                logoRight.style.transform = '';
-                logoRight.style.opacity = '';
-                logoSection.style.transform = '';
-                logoSection.style.opacity = '';
-            }
-
-            registerResizeHandler(function() {
-                _fadeStart = null; // recalcul au prochain scroll
-            }, { immediate: true });
-            // Permet à unlockScroll() de forcer un recalcul de _fadeStart après fermeture modale
-            window._syncParallaxResetFade = function() { _fadeStart = null; };
-            // Ne pas appeler syncParallax au DOMContentLoaded : les dimensions
-            // peuvent être fausses avant que les images soient chargées.
-            // Le premier appel depuis l'événement scroll calculera _fadeStart correctement.
         })();
     
 
