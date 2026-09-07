@@ -31,6 +31,51 @@
     <meta name="ICBM" content="43.521388, 5.4327295">
     
     <link rel="canonical" href="https://www.roy-rene-bridge.com/">
+    <meta name="rr-build" content="20260907-2">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <script>
+        /*
+         * RR cache guard : à chaque déploiement, version.json et rr-build changent.
+         * Même si un visiteur reçoit encore un ancien index.html depuis son cache,
+         * ce contrôle demande la version courante sans cache et recharge l'URL avec
+         * une clé de version différente. Un hard refresh manuel n'est alors plus
+         * nécessaire pour les mises à jour suivantes.
+         */
+        (function() {
+            var currentBuild = '20260907-2';
+            window.RR_BUILD = currentBuild;
+            var checking = false;
+
+            function checkSiteVersion() {
+                if (checking) return;
+                checking = true;
+                fetch('/version.json?rr_probe=' + Date.now(), { cache: 'no-store' })
+                    .then(function(response) {
+                        if (!response.ok) return null;
+                        return response.json();
+                    })
+                    .then(function(data) {
+                        var remoteBuild = data && String(data.version || '').trim();
+                        if (!remoteBuild || remoteBuild === currentBuild) return;
+
+                        var url = new URL(window.location.href);
+                        if (url.searchParams.get('rrv') === remoteBuild) return;
+                        url.searchParams.set('rrv', remoteBuild);
+                        url.searchParams.set('rr_reload', Date.now());
+                        window.location.replace(url.toString());
+                    })
+                    .catch(function() { /* Réseau indisponible : ne rien casser. */ })
+                    .finally(function() { checking = false; });
+            }
+
+            checkSiteVersion();
+            document.addEventListener('visibilitychange', function() {
+                if (document.visibilityState === 'visible') checkSiteVersion();
+            });
+        })();
+    </script>
     <link rel="icon" type="image/png" href="/img/favicon.png">
     <link rel="apple-touch-icon" sizes="180x180" href="/img/favicon.png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -222,7 +267,7 @@
         </style>
         <link rel="preload" as="image" href="img/bg-desktop.jpg" media="(min-width: 1025px)">
         <link rel="preload" as="image" href="img/bg-mobile.jpg" media="(max-width: 1024px)">
-        <link rel="stylesheet" href="css/style.css?v=20260903-4">
+        <link rel="stylesheet" href="css/style.css?v=20260907-2">
     
     
 </head>
@@ -626,7 +671,7 @@
         </div>
     </footer>
 
-    <script defer src="js/gallery.js?v=20260903-2"></script>
-    <script defer src="js/main.js?v=20260903-3"></script>
+    <script defer src="js/gallery.js?v=20260907-2"></script>
+    <script defer src="js/main.js?v=20260907-2"></script>
 </body>
 </html>

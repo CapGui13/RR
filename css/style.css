@@ -3406,30 +3406,45 @@
             opacity: 0;
         }
 
-        /* Le contenu est en place mais recouvert par un masque blanc */
+        /*
+         * Révélation initiale des 3 cartes — du haut vers le bas, SANS masque blanc.
+         *
+         * L'ancien effet utilisait un rectangle blanc posé au-dessus du contenu puis
+         * rétracté vers le bas. Visuellement, on voyait donc de grands cadres blancs
+         * avant le texte. Ici on conserve exactement le principe de dévoilement
+         * vertical, mais on découpe directement la carte : la zone pas encore révélée
+         * est transparente et laisse voir le fond du site.
+         */
         .card-content {
             position: relative;
         }
 
         .card-content::after {
-            content: '';
-            position: absolute;
-            inset: 0;
-            background: rgba(255, 255, 255, 0.97);
-            transform-origin: bottom;
-            transform: scaleY(1);
-            pointer-events: none;
-            z-index: 2;
+            content: none;
         }
 
-        /* Quand la card a .content-reveal, le masque se rétracte vers le bas */
-        .section-card.content-reveal .card-content::after {
-            animation: maskShrink 1.3s cubic-bezier(0.76, 0, 0.24, 1) forwards;
+        .section-card {
+            clip-path: inset(0 0 100% 0 round 12px);
+            -webkit-clip-path: inset(0 0 100% 0 round 12px);
         }
 
-        @keyframes maskShrink {
-            0%   { transform: scaleY(1); }
-            100% { transform: scaleY(0); }
+        .section-card.content-reveal {
+            animation: cardRevealTopDown 1.3s cubic-bezier(0.76, 0, 0.24, 1) forwards;
+        }
+
+        @keyframes cardRevealTopDown {
+            0% {
+                clip-path: inset(0 0 100% 0 round 12px);
+                -webkit-clip-path: inset(0 0 100% 0 round 12px);
+            }
+            99.9% {
+                clip-path: inset(0 0 0 0 round 12px);
+                -webkit-clip-path: inset(0 0 0 0 round 12px);
+            }
+            100% {
+                clip-path: none;
+                -webkit-clip-path: none;
+            }
         }
 
         @media (max-width: 599px) {
