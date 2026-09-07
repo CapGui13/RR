@@ -191,7 +191,29 @@ document.getElementById('currentYear').textContent = new Date().getFullYear();
             ],
 
             // --- Actualités ---
-            actualites: [],
+            actualites: [
+                {
+                    dateAffichee: "Dimanche 13 septembre",
+                    dateTri: "13/09/2026",
+                    description: "Forum des Associations",
+                },
+                {
+                    dateAffichee: "Lundi 21 septembre",
+                    dateTri: "21/09/2026",
+                    description: "Apéro de rentrée après le tournoi",
+                },
+                {
+                    dateAffichee: "Lundi 12 octobre",
+                    dateTri: "12/10/2026",
+                    description: "Assemblée Générale du club après le tournoi",
+                },
+                {
+                    dateAffichee: "Samedi 24 & Dimanche 25 octobre",
+                    dateTri: "25/10/2026",
+                    description: "Festival du Roy René",
+                    detail: "(Mixte/2 le samedi, Open/2 le dimanche)",
+                },
+            ],
 
             // --- Tarifs ---
             tarifs: {
@@ -1191,10 +1213,11 @@ document.getElementById('currentYear').textContent = new Date().getFullYear();
                         </div>`;
                     }
 
+                    const detail = a.detail ? `<p>${escapeHtml(a.detail)}</p>` : '';
                     const note = a.note ? `<p><strong>${escapeHtml(a.note)}</strong></p>` : '';
                     return `<div class="event-item" data-event-date="${escapeHtml(a.dateTri)}">
                         <h4>${escapeHtml(a.dateAffichee)}</h4>
-                        <p>${escapeHtml(a.description)}</p>${note}
+                        <p>${escapeHtml(a.description)}</p>${detail}${note}
                     </div>`;
                 }).join('');
             }
