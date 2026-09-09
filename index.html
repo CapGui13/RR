@@ -31,7 +31,7 @@
     <meta name="ICBM" content="43.521388, 5.4327295">
     
     <link rel="canonical" href="https://www.roy-rene-bridge.com/">
-    <meta name="rr-build" content="20260907-2">
+    <meta name="rr-build" content="20260909-1">
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
@@ -44,7 +44,7 @@
          * nécessaire pour les mises à jour suivantes.
          */
         (function() {
-            var currentBuild = '20260907-2';
+            var currentBuild = '20260909-1';
             window.RR_BUILD = currentBuild;
             var checking = false;
 
@@ -267,7 +267,7 @@
         </style>
         <link rel="preload" as="image" href="img/bg-desktop.jpg" media="(min-width: 1025px)">
         <link rel="preload" as="image" href="img/bg-mobile.jpg" media="(max-width: 1024px)">
-        <link rel="stylesheet" href="css/style.css?v=20260907-2">
+        <link rel="stylesheet" href="css/style.css?v=20260909-4">
     
     
 </head>
@@ -522,6 +522,12 @@
     <!-- Bouton remonter haut dans les modales -->
     <button class="modal-scroll-top" id="modalScrollTop" aria-label="Remonter en haut">↑</button>
 
+    <!-- Affiche Festival en grand -->
+    <div class="event-poster-modal" id="eventPosterModal" role="dialog" aria-modal="true" aria-label="Affiche du Festival de bridge d’Aix-en-Provence" aria-hidden="true" inert>
+        <button type="button" class="event-poster-close" id="eventPosterClose" aria-label="Fermer l’affiche">✕</button>
+        <img id="eventPosterImg" alt="">
+    </div>
+
     <!-- Lightbox -->
     <div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="Visionneuse de photos" aria-hidden="true" inert>
         <button type="button" class="lightbox-close" id="lightboxCloseBtn" aria-label="Fermer">✕</button>
@@ -671,7 +677,7 @@
         </div>
     </footer>
 
-    <script defer src="js/gallery.js?v=20260907-2"></script>
-    <script defer src="js/main.js?v=20260907-2"></script>
+    <script defer src="js/gallery.js?v=20260909-4"></script>
+    <script defer src="js/main.js?v=20260909-4"></script>
 </body>
 </html>

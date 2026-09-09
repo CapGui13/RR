@@ -148,10 +148,10 @@ document.getElementById('currentYear').textContent = new Date().getFullYear();
             ateliersEncheres: {
                 note: "Ateliers ouverts à tous. Inscription sur le site de la Fédération, comme pour un tournoi du club.",
                 lignes: [
-                    { dateAffichee: "18/09", dateTri: "18/09/2026", description: "Les Texas Mineurs" },
-                    { dateAffichee: "25/09", dateTri: "25/09/2026", description: "Les enchères après passe" },
-                    { dateAffichee: "02/10", dateTri: "02/10/2026", description: "Donnes d’entraînement" },
-                    { dateAffichee: "09/10", dateTri: "09/10/2026", description: "Trouver le meilleur contrat, SA ou en majeure ? (Roudi)" },
+                    { dateAffichee: "18/09", dateTri: "18/09/2026", description: "Les Texas Mineurs", inscriptionUrl: "https://www.ffbridge.fr/competitions/entries/club-tournaments/457353/enter" },
+                    { dateAffichee: "25/09", dateTri: "25/09/2026", description: "Les enchères après passe", inscriptionUrl: "https://www.ffbridge.fr/competitions/entries/club-tournaments/458119/enter" },
+                    { dateAffichee: "02/10", dateTri: "02/10/2026", description: "Donnes d’entraînement", inscriptionUrl: "https://www.ffbridge.fr/competitions/entries/club-tournaments/458125/enter" },
+                    { dateAffichee: "09/10", dateTri: "09/10/2026", description: "Trouver le meilleur contrat, SA ou en majeure ? (Roudi)", inscriptionUrl: "https://www.ffbridge.fr/competitions/entries/club-tournaments/458127/enter" },
                     { dateAffichee: "16/10", dateTri: "16/10/2026", description: "4ème couleur forcing" },
                     { dateAffichee: "23/10", dateTri: "23/10/2026", description: "Donnes d’entraînement" },
                     { dateAffichee: "30/10", dateTri: "30/10/2026", description: "Les interventions du numéro 2 avec une main bicolore" },
@@ -210,8 +210,13 @@ document.getElementById('currentYear').textContent = new Date().getFullYear();
                 {
                     dateAffichee: "Samedi 24 & Dimanche 25 octobre",
                     dateTri: "25/10/2026",
+                    dateRouge: true,
                     description: "Festival du Roy René",
                     detail: "(Mixte/2 le samedi, Open/2 le dimanche)",
+                    image: "img/festival-aix-2026.webp",
+                    imageAlt: "Affiche du Festival de bridge d’Aix-en-Provence des 24 et 25 octobre 2026",
+                    document: "docs/festival-bridge-aix-2026.pdf",
+                    variant: "festival-highlight",
                 },
             ],
 
@@ -926,12 +931,18 @@ document.getElementById('currentYear').textContent = new Date().getFullYear();
                     return Number(match[1]) * 60 + Number(match[2] || 0);
                 };
 
-                const renderAtelierLine = (line, isNext = false) => `
+                const renderAtelierLine = (line, isNext = false) => {
+                    const isPast = isDatePassed(line.dateTri);
+                    const theme = line.inscriptionUrl && !isPast
+                        ? `<a class="atelier-program-theme atelier-program-link" href="${escapeHtml(line.inscriptionUrl)}" target="_blank" rel="noopener noreferrer" aria-label="S’inscrire à l’atelier ${escapeHtml(line.description)} sur le site FFB">${escapeHtml(line.description)}<span class="atelier-link-icon" aria-hidden="true">↗</span></a>`
+                        : `<span class="atelier-program-theme">${escapeHtml(line.description)}</span>`;
+                    return `
                     <li class="atelier-program-line" data-event-date="${escapeHtml(line.dateTri)}">
                         <span class="atelier-program-date">${escapeHtml(line.dateAffichee)}</span>
-                        <span class="atelier-program-theme">${escapeHtml(line.description)}</span>
+                        ${theme}
                         ${isNext ? '<span class="atelier-next-label">Prochain</span>' : ''}
                     </li>`;
+                };
 
                 const renderAtelierProgramme = (programmeKey) => {
                     const programme = CONFIG[programmeKey];
@@ -1213,13 +1224,71 @@ document.getElementById('currentYear').textContent = new Date().getFullYear();
                         </div>`;
                     }
 
-                    const detail = a.detail ? `<p>${escapeHtml(a.detail)}</p>` : '';
+                    const detail = a.detail ? `<p class="event-detail${a.variant === 'festival-highlight' ? ' event-detail-emphasis' : ''}">${escapeHtml(a.detail)}</p>` : '';
                     const note = a.note ? `<p><strong>${escapeHtml(a.note)}</strong></p>` : '';
-                    return `<div class="event-item" data-event-date="${escapeHtml(a.dateTri)}">
-                        <h4>${escapeHtml(a.dateAffichee)}</h4>
-                        <p>${escapeHtml(a.description)}</p>${detail}${note}
+                    const descriptionClass = a.variant === 'festival-highlight' ? ' class="event-title"' : '';
+                    const visual = a.image ? `
+                        <a class="event-visual-link" href="${escapeHtml(a.image)}" data-event-poster="${escapeHtml(a.image)}" data-event-poster-alt="${escapeHtml(a.imageAlt || a.description)}" aria-label="Voir l’affiche du Festival en grand">
+                            <img class="event-visual" src="${escapeHtml(a.image)}" alt="${escapeHtml(a.imageAlt || a.description)}" loading="lazy" decoding="async">
+                            <span class="event-visual-cta">Voir l’affiche</span>
+                        </a>` : '';
+                    const dateClass = a.dateRouge ? ' class="event-date-red"' : '';
+                    const itemClasses = ['event-item'];
+                    if (a.image) itemClasses.push('event-item-with-visual');
+                    if (a.variant) itemClasses.push(a.variant);
+                    return `<div class="${itemClasses.join(' ')}" data-event-date="${escapeHtml(a.dateTri)}">
+                        <div class="event-item-copy">
+                            <h4${dateClass}>${escapeHtml(a.dateAffichee)}</h4>
+                            <p${descriptionClass}>${escapeHtml(a.description)}</p>${detail}${note}
+                        </div>${visual}
                     </div>`;
                 }).join('');
+
+                // Affiche Festival : ouverture en surimpression sur la page, sans nouvel onglet.
+                const posterModal = document.getElementById('eventPosterModal');
+                const posterImg = document.getElementById('eventPosterImg');
+                const posterClose = document.getElementById('eventPosterClose');
+                let posterOpener = null;
+                let posterTrapCleanup = null;
+
+                const closeEventPoster = () => {
+                    if (!posterModal || !posterModal.classList.contains('active')) return;
+                    posterModal.classList.remove('active');
+                    posterModal.classList.add('closing');
+                    setModalA11yState(posterModal, false);
+                    unlockScroll();
+                    if (posterTrapCleanup) { posterTrapCleanup(); posterTrapCleanup = null; }
+                    const returnTarget = getFocusReturnTarget(posterOpener, null);
+                    posterOpener = null;
+                    if (returnTarget) returnTarget.focus({ preventScroll: true });
+                    setTimeout(() => posterModal.classList.remove('closing'), 250);
+                };
+
+                actContainer.querySelectorAll('[data-event-poster]').forEach(link => {
+                    link.addEventListener('click', (event) => {
+                        if (!posterModal || !posterImg) return;
+                        event.preventDefault();
+                        posterOpener = link;
+                        posterImg.src = link.getAttribute('data-event-poster') || '';
+                        posterImg.alt = link.getAttribute('data-event-poster-alt') || 'Affiche du Festival';
+                        setModalA11yState(posterModal, true);
+                        posterModal.classList.remove('closing');
+                        posterModal.classList.add('active');
+                        lockScroll();
+                        setTimeout(() => {
+                            posterClose?.focus({ preventScroll: true });
+                            posterTrapCleanup = trapFocus(posterModal);
+                        }, 50);
+                    });
+                });
+
+                posterClose?.addEventListener('click', closeEventPoster);
+                posterModal?.addEventListener('click', (event) => {
+                    if (event.target === posterModal) closeEventPoster();
+                });
+                document.addEventListener('keydown', (event) => {
+                    if (event.key === 'Escape' && posterModal?.classList.contains('active')) closeEventPoster();
+                });
             }
 
             // --- TARIFS ---

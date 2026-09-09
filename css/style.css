@@ -720,6 +720,10 @@
             font-size: 0.9rem;
         }
 
+        .event-item h4.event-date-red {
+            color: #c62828;
+        }
+
         .event-item p {
             color: #555;
             font-size: 0.8rem;
@@ -735,6 +739,126 @@
         .event-item.past p,
         .event-item.past a {
             color: #777;
+        }
+
+        .event-item-with-visual {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) 150px;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .event-item-copy {
+            min-width: 0;
+        }
+
+        .event-visual-link {
+            width: 150px;
+            justify-self: end;
+            display: block;
+            text-decoration: none;
+            text-align: center;
+            border-radius: 7px;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .event-visual-link:hover,
+        .event-visual-link:focus-visible {
+            transform: translateY(-2px);
+        }
+
+        .event-visual-link:focus-visible {
+            outline: 3px solid rgba(102, 126, 234, 0.35);
+            outline-offset: 3px;
+        }
+
+        .event-visual {
+            display: block;
+            width: 100%;
+            height: auto;
+            border-radius: 6px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.18);
+        }
+
+        .event-visual-cta {
+            display: inline-block;
+            margin-top: 0.38rem;
+            color: #667eea;
+            font-size: 0.75rem;
+            font-weight: 700;
+        }
+
+        .event-item.past .event-visual {
+            filter: grayscale(0.35);
+            opacity: 0.78;
+        }
+
+        .event-item.festival-highlight {
+            border-left-color: #c62828;
+            background: linear-gradient(135deg, #fffdfb 0%, #fff5f2 100%);
+            padding: 0.9rem;
+        }
+
+        .event-item.festival-highlight.event-item-with-visual {
+            grid-template-columns: minmax(0, 1fr) 132px;
+            gap: 0.9rem;
+            align-items: center;
+        }
+
+        .festival-highlight .event-item-copy h4 {
+            font-size: 1.06rem;
+            line-height: 1.22;
+            margin-bottom: 0.35rem;
+            font-weight: 800;
+        }
+
+        .festival-highlight .event-title {
+            color: #204d31;
+            font-size: 1rem;
+            line-height: 1.22;
+            font-weight: 800;
+            margin-bottom: 0.3rem;
+        }
+
+        .festival-highlight .event-detail-emphasis {
+            color: #4d4d4d;
+            font-size: 0.88rem;
+            line-height: 1.35;
+            font-style: italic;
+            font-weight: 600;
+            margin-bottom: 0;
+        }
+
+        .festival-highlight .event-visual-link {
+            width: 132px;
+        }
+
+        .festival-highlight .event-visual-cta {
+            margin-top: 0.45rem;
+        }
+
+        @media (max-width: 600px) {
+            .event-item-with-visual {
+                grid-template-columns: 1fr;
+                gap: 0.65rem;
+            }
+
+            .festival-highlight .event-item-copy h4 {
+                font-size: 1rem;
+            }
+
+            .festival-highlight .event-title {
+                font-size: 0.96rem;
+            }
+
+            .festival-highlight .event-detail-emphasis {
+                font-size: 0.84rem;
+            }
+
+            .event-visual-link {
+                width: min(220px, 74%);
+                justify-self: center;
+            }
         }
 
         .ateliers-item .atelier-intro {
@@ -932,6 +1056,38 @@
             font-weight: 800;
             color: #c0392b;
             white-space: nowrap;
+        }
+
+        .atelier-program-link {
+            color: #4f67d8;
+            font-weight: 700;
+            text-decoration: underline;
+            text-decoration-thickness: 1px;
+            text-underline-offset: 2px;
+            text-decoration-color: rgba(79, 103, 216, 0.55);
+            cursor: pointer;
+            transition: color 0.18s ease, text-decoration-color 0.18s ease;
+        }
+
+        .atelier-program-link:hover,
+        .atelier-program-link:focus-visible {
+            color: #3349b8;
+            text-decoration-color: currentColor;
+        }
+
+        .atelier-program-link:focus-visible {
+            outline: 2px solid rgba(79, 103, 216, 0.35);
+            outline-offset: 2px;
+            border-radius: 2px;
+        }
+
+        .atelier-link-icon {
+            display: inline-block;
+            margin-left: 0.28rem;
+            font-size: 0.78em;
+            font-weight: 800;
+            text-decoration: none;
+            transform: translateY(-0.04em);
         }
 
         .atelier-next-label {
@@ -1829,6 +1985,73 @@
             font-weight: 600;
             font-size: 0.95rem;
             margin: 0;
+        }
+
+        /* === AFFICHE FESTIVAL EN GRAND === */
+        .event-poster-modal {
+            position: fixed;
+            inset: 0;
+            z-index: 10000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 18px;
+            background: rgba(0, 0, 0, 0.92);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.25s ease;
+        }
+
+        .event-poster-modal.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .event-poster-modal.closing {
+            opacity: 0;
+        }
+
+        .event-poster-modal img {
+            display: block;
+            max-width: min(94vw, 1100px);
+            max-height: 94vh;
+            width: auto;
+            height: auto;
+            object-fit: contain;
+            border-radius: 4px;
+            box-shadow: 0 12px 45px rgba(0,0,0,0.45);
+        }
+
+        .event-poster-close {
+            position: fixed;
+            top: max(14px, env(safe-area-inset-top));
+            right: max(16px, env(safe-area-inset-right));
+            z-index: 10001;
+            width: 48px;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 0;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.18);
+            color: #fff;
+            font-size: 2rem;
+            line-height: 1;
+            cursor: pointer;
+            backdrop-filter: blur(8px);
+            transition: background 0.2s ease, transform 0.2s ease;
+        }
+
+        .event-poster-close:hover,
+        .event-poster-close:focus-visible {
+            background: rgba(255,255,255,0.3);
+            transform: scale(1.05);
+        }
+
+        .event-poster-close:focus-visible {
+            outline: 3px solid rgba(255,255,255,0.75);
+            outline-offset: 3px;
         }
 
         /* === LIGHTBOX === */

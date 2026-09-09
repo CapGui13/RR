@@ -33,3 +33,16 @@ Le contenu saisonnier / point 2 de l'audit n'a pas été modifié.
 
 - Coupe de Provence : calendrier corrigé en 25/11, 27/01, 24/02, 24/03, 14/04, 05/05 ; finale maintenue au 23/06.
 - Cache busting : main.js passe à ?v=20260903-2 pour forcer le chargement du calendrier corrigé.
+
+- 09/09/2026 : ajout de l'affiche du Festival du Roy René dans Actualités, avec miniature responsive et ouverture du PDF en grand.
+- Cache busting : version du site mise à jour en 20260909-1.
+
+- 09/09/2026 : date « Samedi 24 & Dimanche 25 octobre » affichée en rouge dans Actualités.
+- 09/09/2026 : clic sur l’affiche du Festival ouvre désormais une visionneuse plein écran sur la page, sans nouvel onglet.
+- Cache busting : version du site mise à jour en 20260909-2.
+
+- 09/09/2026 : actualité Festival retravaillée pour mieux mettre en avant le bloc texte (date, titre et détail) dans Actualités.
+- Cache busting : version du site mise à jour en 20260909-3.
+
+- 09/09/2026 : les quatre premiers ateliers à venir sont désormais cliquables et renvoient directement vers leur inscription FFB ; ajout d’un soulignement et d’un indicateur ↗ pour signaler le lien.
+- Cache busting : version du site mise à jour en 20260909-4.
