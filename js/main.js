@@ -176,8 +176,20 @@ document.getElementById('currentYear').textContent = new Date().getFullYear();
             // Utiliser { date: "JJ/MM", dateTri: "JJ/MM/AAAA" } : le badge « PROCHAIN »
             // se replace automatiquement sur la première date future, sans ambiguïté d'année.
             coupeDesClubs: [
-                { placeholder: "Calendrier 2026–2027" },
-                { placeholder: "Dates à venir" },
+                { date: "07/10", dateTri: "07/10/2026" },
+                { date: "28/10", dateTri: "28/10/2026" },
+                { date: "11/11", dateTri: "11/11/2026" },
+                { date: "18/11", dateTri: "18/11/2026" },
+                { date: "09/12", dateTri: "09/12/2026" },
+                { date: "23/12", dateTri: "23/12/2026" },
+                { date: "06/01", dateTri: "06/01/2027" },
+                { date: "20/01", dateTri: "20/01/2027" },
+                { date: "10/02", dateTri: "10/02/2027" },
+                { date: "17/02", dateTri: "17/02/2027" },
+                { date: "03/03", dateTri: "03/03/2027" },
+                { date: "07/04", dateTri: "07/04/2027" },
+                { date: "28/04", dateTri: "28/04/2027" },
+                { date: "16/06", dateTri: "16/06/2027", finale: true },
             ],
 
             coupeDeProvence: [
