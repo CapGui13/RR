@@ -189,7 +189,7 @@ document.getElementById('currentYear').textContent = new Date().getFullYear();
                 { date: "03/03", dateTri: "03/03/2027" },
                 { date: "07/04", dateTri: "07/04/2027" },
                 { date: "28/04", dateTri: "28/04/2027" },
-                { date: "16/06", dateTri: "16/06/2027", finale: true },
+                { date: "19/06", dateTri: "19/06/2027", finale: true },
             ],
 
             coupeDeProvence: [
