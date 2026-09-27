@@ -829,6 +829,47 @@
             margin-bottom: 0;
         }
 
+        .festival-highlight .event-item-copy {
+            align-self: start;
+        }
+
+        .festival-registration {
+            display: flex;
+            flex-direction: column;
+            gap: 0.45rem;
+            margin-top: 1rem;
+        }
+
+        .festival-registration-heading {
+            font-size: 0.82rem;
+            font-weight: 700;
+            color: #204d31;
+        }
+
+        .festival-registration-link {
+            display: block;
+            padding: 0.58rem 0.7rem;
+            border-radius: 7px;
+            color: #fff;
+            background: #204d31;
+            font-size: 0.86rem;
+            font-weight: 700;
+            text-align: center;
+            text-decoration: none;
+            line-height: 1.3;
+            transition: background 0.2s ease, transform 0.2s ease;
+        }
+
+        .festival-registration-link:hover {
+            background: #326b46;
+            transform: translateY(-1px);
+        }
+
+        .festival-registration-link:focus-visible {
+            outline: 3px solid #c62828;
+            outline-offset: 3px;
+        }
+
         .festival-highlight .event-visual-link {
             width: 132px;
         }
