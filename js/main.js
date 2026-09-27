@@ -226,7 +226,7 @@ document.getElementById('currentYear').textContent = new Date().getFullYear();
                     description: "Festival du Roy René",
                     detail: "(Mixte/2 le samedi, Open/2 le dimanche)",
                     inscriptions: [
-                        { label: "S'inscrire au Mixte-Dames/2", url: "https://www.ffbridge.fr/competitions/entries/festivals/18145/enter" },
+                        { label: "S'inscrire au Mixte-Dames/2", url: "https://www.ffbridge.fr/competitions/entries/festivals/18144/enter" },
                         { label: "S'inscrire à l'Open/2", url: "https://www.ffbridge.fr/competitions/entries/festivals/18145/enter" },
                     ],
                     image: "img/festival-aix-2026.webp",
