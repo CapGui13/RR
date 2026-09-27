@@ -225,6 +225,10 @@ document.getElementById('currentYear').textContent = new Date().getFullYear();
                     dateRouge: true,
                     description: "Festival du Roy René",
                     detail: "(Mixte/2 le samedi, Open/2 le dimanche)",
+                    inscriptions: [
+                        { label: "S'inscrire au Mixte-Dames/2", url: "https://www.ffbridge.fr/competitions/entries/festivals/18145/enter" },
+                        { label: "S'inscrire à l'Open/2", url: "https://www.ffbridge.fr/competitions/entries/festivals/18145/enter" },
+                    ],
                     image: "img/festival-aix-2026.webp",
                     imageAlt: "Affiche du Festival de bridge d’Aix-en-Provence des 24 et 25 octobre 2026",
                     document: "docs/festival-bridge-aix-2026.pdf",
@@ -1238,6 +1242,11 @@ document.getElementById('currentYear').textContent = new Date().getFullYear();
 
                     const detail = a.detail ? `<p class="event-detail${a.variant === 'festival-highlight' ? ' event-detail-emphasis' : ''}">${escapeHtml(a.detail)}</p>` : '';
                     const note = a.note ? `<p><strong>${escapeHtml(a.note)}</strong></p>` : '';
+                    const inscriptions = a.inscriptions?.length ? `
+                        <div class="festival-registration" aria-label="Inscriptions au Festival">
+                            <span class="festival-registration-heading">Inscriptions en ligne</span>
+                            ${a.inscriptions.map(lien => `<a class="festival-registration-link" href="${escapeHtml(lien.url)}" target="_blank" rel="noopener noreferrer">${escapeHtml(lien.label)} <span aria-hidden="true">↗</span></a>`).join('')}
+                        </div>` : '';
                     const descriptionClass = a.variant === 'festival-highlight' ? ' class="event-title"' : '';
                     const visual = a.image ? `
                         <a class="event-visual-link" href="${escapeHtml(a.image)}" data-event-poster="${escapeHtml(a.image)}" data-event-poster-alt="${escapeHtml(a.imageAlt || a.description)}" aria-label="Voir l’affiche du Festival en grand">
@@ -1251,7 +1260,7 @@ document.getElementById('currentYear').textContent = new Date().getFullYear();
                     return `<div class="${itemClasses.join(' ')}" data-event-date="${escapeHtml(a.dateTri)}">
                         <div class="event-item-copy">
                             <h4${dateClass}>${escapeHtml(a.dateAffichee)}</h4>
-                            <p${descriptionClass}>${escapeHtml(a.description)}</p>${detail}${note}
+                            <p${descriptionClass}>${escapeHtml(a.description)}</p>${detail}${note}${inscriptions}
                         </div>${visual}
                     </div>`;
                 }).join('');
