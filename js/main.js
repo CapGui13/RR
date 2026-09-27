@@ -1244,8 +1244,7 @@ document.getElementById('currentYear').textContent = new Date().getFullYear();
                     const note = a.note ? `<p><strong>${escapeHtml(a.note)}</strong></p>` : '';
                     const inscriptions = a.inscriptions?.length ? `
                         <div class="festival-registration" aria-label="Inscriptions au Festival">
-                            <span class="festival-registration-heading">Inscriptions en ligne</span>
-                            ${a.inscriptions.map(lien => `<a class="festival-registration-link" href="${escapeHtml(lien.url)}" target="_blank" rel="noopener noreferrer">${escapeHtml(lien.label)} <span aria-hidden="true">↗</span></a>`).join('')}
+                            ${a.inscriptions.map(lien => `<a class="festival-registration-link" href="${escapeHtml(lien.url)}" target="_blank" rel="noopener noreferrer">${escapeHtml(lien.label)}</a>`).join('')}
                         </div>` : '';
                     const descriptionClass = a.variant === 'festival-highlight' ? ' class="event-title"' : '';
                     const visual = a.image ? `
