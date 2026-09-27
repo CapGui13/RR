@@ -848,25 +848,31 @@
 
         .festival-registration-link {
             display: block;
-            padding: 0.58rem 0.7rem;
-            border-radius: 7px;
+            width: fit-content;
+            max-width: 100%;
+            margin-inline: auto;
+            padding: 0.5rem 0.85rem;
+            border-radius: 8px;
+            background: #3a8c6e;
             color: #fff;
-            background: #204d31;
-            font-size: 0.86rem;
+            border: 1px solid rgba(0,0,0,0.15);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+            font-size: 0.75rem;
             font-weight: 700;
+            letter-spacing: 0.035em;
+            text-transform: uppercase;
             text-align: center;
-            text-decoration: none;
             line-height: 1.3;
-            transition: background 0.2s ease, transform 0.2s ease;
+            text-decoration: none;
+            transition: background 0.2s ease;
         }
 
         .festival-registration-link:hover {
-            background: #326b46;
-            transform: translateY(-1px);
+            background: #43a07f;
         }
 
         .festival-registration-link:focus-visible {
-            outline: 3px solid #c62828;
+            outline: 3px solid #667eea;
             outline-offset: 3px;
         }
 
