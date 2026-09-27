@@ -840,12 +840,6 @@
             margin-top: 1rem;
         }
 
-        .festival-registration-heading {
-            font-size: 0.82rem;
-            font-weight: 700;
-            color: #204d31;
-        }
-
         .festival-registration-link {
             display: block;
             width: fit-content;
@@ -869,6 +863,11 @@
 
         .festival-registration-link:hover {
             background: #43a07f;
+            color: #fff;
+        }
+
+        .festival-registration-link::after {
+            display: none;
         }
 
         .festival-registration-link:focus-visible {
