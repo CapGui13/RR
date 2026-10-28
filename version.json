@@ -1,3 +1,8 @@
+---
+layout: null
+---
+{%- assign rr_fallback_build = site.time | date: '%Y%m%d%H%M%S' -%}
+{%- assign rr_build = site.github.build_revision | default: rr_fallback_build -%}
 {
-  "version": "20260927-4"
+  "version": "{{ rr_build }}"
 }

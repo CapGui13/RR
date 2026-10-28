@@ -1,3 +1,8 @@
+---
+layout: null
+---
+{%- assign rr_fallback_build = site.time | date: '%Y%m%d%H%M%S' -%}
+{%- assign rr_build = site.github.build_revision | default: rr_fallback_build -%}
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -31,20 +36,20 @@
     <meta name="ICBM" content="43.521388, 5.4327295">
     
     <link rel="canonical" href="https://www.roy-rene-bridge.com/">
-    <meta name="rr-build" content="20260927-4">
+    <meta name="rr-build" content="{{ rr_build }}">
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
     <script>
         /*
-         * RR cache guard : à chaque déploiement, version.json et rr-build changent.
+         * RR cache guard : Jekyll génère automatiquement une révision à chaque déploiement.
          * Même si un visiteur reçoit encore un ancien index.html depuis son cache,
          * ce contrôle demande la version courante sans cache et recharge l'URL avec
          * une clé de version différente. Un hard refresh manuel n'est alors plus
          * nécessaire pour les mises à jour suivantes.
          */
         (function() {
-            var currentBuild = '20260927-4';
+            var currentBuild = '{{ rr_build }}';
             window.RR_BUILD = currentBuild;
             var checking = false;
 
@@ -267,7 +272,7 @@
         </style>
         <link rel="preload" as="image" href="img/bg-desktop.jpg" media="(min-width: 1025px)">
         <link rel="preload" as="image" href="img/bg-mobile.jpg" media="(max-width: 1024px)">
-        <link rel="stylesheet" href="css/style.css?v=20261028-1">
+        <link rel="stylesheet" href="css/style.css?v={{ rr_build }}">
     
     
 </head>
@@ -642,11 +647,11 @@
                             <h3>Coupe de Provence</h3>
                             <div id="coupe-provence-dates"></div>
                             <a class="event-visual-link coupe-poster-link"
-                               href="img/coupe-provence-2027.webp"
-                               data-event-poster="img/coupe-provence-2027.webp"
+                               href="img/coupe-provence-2027.webp?v={{ rr_build }}"
+                               data-event-poster="img/coupe-provence-2027.webp?v={{ rr_build }}"
                                data-event-poster-alt="Affiche Coupe de Provence de bridge 2027, séances de qualification 2026-2027"
                                aria-label="Voir l’affiche de la Coupe de Provence en grand">
-                                <img class="event-visual" src="img/coupe-provence-2027.webp"
+                                <img class="event-visual" src="img/coupe-provence-2027.webp?v={{ rr_build }}"
                                      alt="Affiche de la Coupe de Provence de bridge 2027"
                                      loading="lazy" decoding="async">
                                 <span class="event-visual-cta">Voir l’affiche</span>
@@ -683,7 +688,7 @@
         </div>
     </footer>
 
-    <script defer src="js/gallery.js?v=20260927-4"></script>
-    <script defer src="js/main.js?v=20261028-1"></script>
+    <script defer src="js/gallery.js?v={{ rr_build }}"></script>
+    <script defer src="js/main.js?v={{ rr_build }}"></script>
 </body>
 </html>

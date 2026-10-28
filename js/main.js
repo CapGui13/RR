@@ -1247,9 +1247,12 @@ document.getElementById('currentYear').textContent = new Date().getFullYear();
                             ${a.inscriptions.map(lien => `<a class="festival-registration-link" href="${escapeHtml(lien.url)}" target="_blank" rel="noopener noreferrer">${escapeHtml(lien.label)}</a>`).join('')}
                         </div>` : '';
                     const descriptionClass = a.variant === 'festival-highlight' ? ' class="event-title"' : '';
+                    const posterSrc = a.image
+                        ? a.image + (a.image.includes('?') ? '&' : '?') + 'v=' + encodeURIComponent(window.RR_BUILD || '0')
+                        : '';
                     const visual = a.image ? `
-                        <a class="event-visual-link" href="${escapeHtml(a.image)}" data-event-poster="${escapeHtml(a.image)}" data-event-poster-alt="${escapeHtml(a.imageAlt || a.description)}" aria-label="Voir l’affiche du Festival en grand">
-                            <img class="event-visual" src="${escapeHtml(a.image)}" alt="${escapeHtml(a.imageAlt || a.description)}" loading="lazy" decoding="async">
+                        <a class="event-visual-link" href="${escapeHtml(posterSrc)}" data-event-poster="${escapeHtml(posterSrc)}" data-event-poster-alt="${escapeHtml(a.imageAlt || a.description)}" aria-label="Voir l’affiche du Festival en grand">
+                            <img class="event-visual" src="${escapeHtml(posterSrc)}" alt="${escapeHtml(a.imageAlt || a.description)}" loading="lazy" decoding="async">
                             <span class="event-visual-cta">Voir l’affiche</span>
                         </a>` : '';
                     const dateClass = a.dateRouge ? ' class="event-date-red"' : '';
