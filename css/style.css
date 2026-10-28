@@ -780,6 +780,12 @@
             box-shadow: 0 4px 12px rgba(0,0,0,0.18);
         }
 
+        /* Affiche de la Coupe de Provence, sous les dates, au format vignette du Festival. */
+        .coupe-poster-link {
+            width: min(132px, 100%);
+            margin: 0.85rem auto 0;
+        }
+
         .event-visual-cta {
             display: inline-block;
             margin-top: 0.38rem;

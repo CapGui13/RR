@@ -267,7 +267,7 @@
         </style>
         <link rel="preload" as="image" href="img/bg-desktop.jpg" media="(min-width: 1025px)">
         <link rel="preload" as="image" href="img/bg-mobile.jpg" media="(max-width: 1024px)">
-        <link rel="stylesheet" href="css/style.css?v=20260927-4">
+        <link rel="stylesheet" href="css/style.css?v=20261028-1">
     
     
 </head>
@@ -522,8 +522,8 @@
     <!-- Bouton remonter haut dans les modales -->
     <button class="modal-scroll-top" id="modalScrollTop" aria-label="Remonter en haut">↑</button>
 
-    <!-- Affiche Festival en grand -->
-    <div class="event-poster-modal" id="eventPosterModal" role="dialog" aria-modal="true" aria-label="Affiche du Festival de bridge d’Aix-en-Provence" aria-hidden="true" inert>
+    <!-- Affiches des événements en grand -->
+    <div class="event-poster-modal" id="eventPosterModal" role="dialog" aria-modal="true" aria-label="Affiche de l’événement" aria-hidden="true" inert>
         <button type="button" class="event-poster-close" id="eventPosterClose" aria-label="Fermer l’affiche">✕</button>
         <img id="eventPosterImg" alt="">
     </div>
@@ -641,6 +641,16 @@
                         <div class="info-block">
                             <h3>Coupe de Provence</h3>
                             <div id="coupe-provence-dates"></div>
+                            <a class="event-visual-link coupe-poster-link"
+                               href="img/coupe-provence-2027.webp"
+                               data-event-poster="img/coupe-provence-2027.webp"
+                               data-event-poster-alt="Affiche Coupe de Provence de bridge 2027, séances de qualification 2026-2027"
+                               aria-label="Voir l’affiche de la Coupe de Provence en grand">
+                                <img class="event-visual" src="img/coupe-provence-2027.webp"
+                                     alt="Affiche de la Coupe de Provence de bridge 2027"
+                                     loading="lazy" decoding="async">
+                                <span class="event-visual-cta">Voir l’affiche</span>
+                            </a>
                         </div>
                     </div>
                 </div>
@@ -674,6 +684,6 @@
     </footer>
 
     <script defer src="js/gallery.js?v=20260927-4"></script>
-    <script defer src="js/main.js?v=20260927-4"></script>
+    <script defer src="js/main.js?v=20261028-1"></script>
 </body>
 </html>

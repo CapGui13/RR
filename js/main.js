@@ -1264,7 +1264,7 @@ document.getElementById('currentYear').textContent = new Date().getFullYear();
                     </div>`;
                 }).join('');
 
-                // Affiche Festival : ouverture en surimpression sur la page, sans nouvel onglet.
+                // Affiches des événements : ouverture en surimpression sur la page, sans nouvel onglet.
                 const posterModal = document.getElementById('eventPosterModal');
                 const posterImg = document.getElementById('eventPosterImg');
                 const posterClose = document.getElementById('eventPosterClose');
@@ -1284,13 +1284,14 @@ document.getElementById('currentYear').textContent = new Date().getFullYear();
                     setTimeout(() => posterModal.classList.remove('closing'), 250);
                 };
 
-                actContainer.querySelectorAll('[data-event-poster]').forEach(link => {
+                document.querySelectorAll('[data-event-poster]').forEach(link => {
                     link.addEventListener('click', (event) => {
                         if (!posterModal || !posterImg) return;
                         event.preventDefault();
                         posterOpener = link;
                         posterImg.src = link.getAttribute('data-event-poster') || '';
-                        posterImg.alt = link.getAttribute('data-event-poster-alt') || 'Affiche du Festival';
+                        posterImg.alt = link.getAttribute('data-event-poster-alt') || 'Affiche de l’événement';
+                        posterModal.setAttribute('aria-label', posterImg.alt);
                         setModalA11yState(posterModal, true);
                         posterModal.classList.remove('closing');
                         posterModal.classList.add('active');
