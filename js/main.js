@@ -205,34 +205,14 @@ document.getElementById('currentYear').textContent = new Date().getFullYear();
             // --- Actualités ---
             actualites: [
                 {
-                    dateAffichee: "Dimanche 13 septembre",
-                    dateTri: "13/09/2026",
-                    description: "Forum des Associations",
+                    dateAffichee: "Mercredi 18 novembre à 18 h 15",
+                    dateTri: "18/11/2026",
+                    description: "Simultané des élèves",
                 },
                 {
-                    dateAffichee: "Lundi 21 septembre",
-                    dateTri: "21/09/2026",
-                    description: "Apéro de rentrée après le tournoi",
-                },
-                {
-                    dateAffichee: "Lundi 12 octobre",
-                    dateTri: "12/10/2026",
-                    description: "Assemblée Générale du club après le tournoi",
-                },
-                {
-                    dateAffichee: "Samedi 24 & Dimanche 25 octobre",
-                    dateTri: "25/10/2026",
-                    dateRouge: true,
-                    description: "Festival du Roy René",
-                    detail: "(Mixte/2 le samedi, Open/2 le dimanche)",
-                    inscriptions: [
-                        { label: "S'inscrire au Mixte-Dames/2", url: "https://www.ffbridge.fr/competitions/entries/festivals/18144/enter" },
-                        { label: "S'inscrire à l'Open/2", url: "https://www.ffbridge.fr/competitions/entries/festivals/18145/enter" },
-                    ],
-                    image: "img/festival-aix-2026.webp",
-                    imageAlt: "Affiche du Festival de bridge d’Aix-en-Provence des 24 et 25 octobre 2026",
-                    document: "docs/festival-bridge-aix-2026.pdf",
-                    variant: "festival-highlight",
+                    dateAffichee: "Vendredi 20 novembre",
+                    dateTri: "20/11/2026",
+                    description: "Tutorat, suivi d’un apéritif",
                 },
             ],
 
