@@ -148,13 +148,6 @@ document.getElementById('currentYear').textContent = new Date().getFullYear();
             ateliersEncheres: {
                 note: "Ateliers ouverts à tous. Inscription sur le site de la Fédération, comme pour un tournoi du club.",
                 lignes: [
-                    { dateAffichee: "18/09", dateTri: "18/09/2026", description: "Les Texas Mineurs", inscriptionUrl: "https://www.ffbridge.fr/competitions/entries/club-tournaments/457353/enter" },
-                    { dateAffichee: "25/09", dateTri: "25/09/2026", description: "Les enchères après passe", inscriptionUrl: "https://www.ffbridge.fr/competitions/entries/club-tournaments/458119/enter" },
-                    { dateAffichee: "02/10", dateTri: "02/10/2026", description: "Donnes d’entraînement", inscriptionUrl: "https://www.ffbridge.fr/competitions/entries/club-tournaments/458125/enter" },
-                    { dateAffichee: "09/10", dateTri: "09/10/2026", description: "Trouver le meilleur contrat, SA ou en majeure ? (Roudi)", inscriptionUrl: "https://www.ffbridge.fr/competitions/entries/club-tournaments/458127/enter" },
-                    { dateAffichee: "16/10", dateTri: "16/10/2026", description: "4ème couleur forcing", inscriptionUrl: "https://www.ffbridge.fr/competitions/entries/club-tournaments/484252/enter" },
-                    { dateAffichee: "23/10", dateTri: "23/10/2026", description: "Donnes d’entraînement", inscriptionUrl: "https://www.ffbridge.fr/competitions/entries/club-tournaments/492466/enter" },
-                    { dateAffichee: "30/10", dateTri: "30/10/2026", description: "Les interventions du numéro 2 avec une main bicolore", inscriptionUrl: "https://www.ffbridge.fr/competitions/entries/club-tournaments/492471/enter" },
                     { dateAffichee: "06/11", dateTri: "06/11/2026", description: "Développements après une répétition à saut de l’ouverture", inscriptionUrl: "https://www.ffbridge.fr/competitions/entries/club-tournaments/509212/enter" },
                     { dateAffichee: "13/11", dateTri: "13/11/2026", description: "Donnes d’entraînement", inscriptionUrl: "https://www.ffbridge.fr/competitions/entries/club-tournaments/509219/enter" },
                     { dateAffichee: "20/11", dateTri: "20/11/2026", description: "Les enchères d’essai : partielle ou manche ?", inscriptionUrl: "https://www.ffbridge.fr/competitions/entries/club-tournaments/509226/enter" },
@@ -947,7 +940,7 @@ document.getElementById('currentYear').textContent = new Date().getFullYear();
                     const upcoming = allLines.filter(line => !isDatePassed(line.dateTri));
                     const preview = upcoming.slice(0, 3);
                     const previewDates = new Set(preview.map(line => line.dateTri));
-                    const remaining = allLines.filter(line => !previewDates.has(line.dateTri));
+                    const remaining = upcoming.filter(line => !previewDates.has(line.dateTri));
                     const panelId = `atelier-program-full-${programmeKey}`;
 
                     const previewHtml = preview.length
